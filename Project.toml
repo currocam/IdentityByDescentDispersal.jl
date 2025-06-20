@@ -1,0 +1,7 @@
+name = "IdentityByDescentDispersal"
+uuid = "270ed24e-ac4d-5dce-b70a-bd124b3b694a"
+authors = ["Curro Campuzano Jiménez campuzanocurro@gmail.com"]
+version = "0.1.0"
+
+[compat]
+julia = "1.10"

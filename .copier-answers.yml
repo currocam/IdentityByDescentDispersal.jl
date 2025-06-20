@@ -1,0 +1,40 @@
+# Changes here will be overwritten by Copier
+AddAllcontributors: false
+AddCitationCFF: false
+AddCodeOfConduct: false
+AddCompatHelperCI: true
+AddContributionDocs: false
+AddCopierCI: false
+AddDependabot: true
+AddDocs: true
+AddDocsCI: true
+AddFormatterAndLinterConfigFiles: true
+AddGitHubPRTemplate: true
+AddGitHubTemplates: true
+AddLintCI: true
+AddLychee: false
+AddMacToCI: false
+AddPrecommit: true
+AddTagBotCI: true
+AddTestCI: true
+AddWinToCI: false
+Authors: Curro Campuzano Jiménez campuzanocurro@gmail.com
+AutoIncludeTests: false
+CheckExplicitImports: true
+ConfigIndentation: 2
+ExplicitImportsChecklist: exclude_all_qualified_accesses_are_public
+JuliaIndentation: 4
+JuliaMinCIVersion: lts
+JuliaMinVersion: '1.10'
+License: MIT
+LicenseCopyrightHolders: Curro Campuzano Jiménez campuzanocurro@gmail.com
+MarkdownIndentation: 2
+PackageName: IdentityByDescentDispersal
+PackageOwner: currocam
+PackageUUID: 270ed24e-ac4d-5dce-b70a-bd124b3b694a
+RunJuliaNightlyOnCI: false
+StrategyConfirmIncluded: true
+StrategyLevel: 1
+StrategyReviewExcluded: false
+UseCirrusCI: false
+_src_path: /Users/currocampuzano/.julia/packages/BestieTemplate/jdG8v
