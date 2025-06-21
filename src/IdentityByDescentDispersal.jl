@@ -1,5 +1,11 @@
 module IdentityByDescentDispersal
 using BesselK: adbesselk
+using QuadGK: quadgk
+export safe_adbesselk,
+    ϕ,
+    expected_ibd_blocks_constant_density,
+    expected_ibd_blocks_variable_density,
+    expected_ibd_blocks_custom
 
 """
     x = safe_adbesselk(1, 1.0)
@@ -14,7 +20,7 @@ A wrapper around the `adbesselk` to compute the modified Bessel function of the 
 end
 
 """
-    ϕ(t::Real, r::Real, D_e::Function, σ::Real)
+    ϕ(t::Real, r::Real, De::Function, σ::Real)
 Computes the probability ``\\phi(t)`` that two homologous loci coalesce ``t`` generations ago according to
 
 ```math
@@ -23,14 +29,24 @@ Computes the probability ``\\phi(t)`` that two homologous loci coalesce ``t`` ge
 
 Ringbauer, H., Coop, G. & Barton, N.H. Genetics 205, 1335–1351 (2017).
 """
-function ϕ(t::Real, r::Real, D_e::Function, σ::Real)
+function ϕ(t::Real, r::Real, De::Function, σ::Real)
     if iszero(t)
         return zero(eltype(t))
     end
     σ² = σ^2
     denom = 4 * π * t * σ²
     exponent = -r^2 / (4 * t * σ²)
-    return (1 / (2 * D_e(t))) * (1 / denom) * exp(exponent)
+    return (1 / (2 * De(t))) * (1 / denom) * exp(exponent)
+end
+
+function ϕ(t::Real, r::Real, De::Real, σ::Real)
+    if iszero(t)
+        return zero(eltype(t))
+    end
+    σ² = σ^2
+    denom = 4 * π * t * σ²
+    exponent = -r^2 / (4 * t * σ²)
+    return (1 / (2 * De)) * (1 / denom) * exp(exponent)
 end
 
 """
@@ -111,4 +127,43 @@ function expected_ibd_blocks_power_density(
     term1 * term2 * term3 * term4
 end
 
+
+"""
+    expected_ibd_blocks_custom(r::Real, De::Function, θ::AbstractArray, σ::Real, L::Real, G::Real) -> Real
+
+Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model where the effective population density is given by a custom function `De(t, θ)`.
+
+```math
+\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
+```
+
+The integral is computed numerically using Gaussian-Legendre quadrature rules with the `QuadGK` package.
+
+where:
+- `r` is the geographic distance between samples,
+- `De` is  a user defined function that takes time `t` and a parameter `θ` and returns the effective population density at time `t`.
+- `θ` is a user defined array of parameters that the function `De` depends on.
+- `σ` is the root mean square dispersal distance per generation,
+- `L` is the minimum length of the IBD block (in Morgans),
+- `G` is the total map length of the genome (in Morgans),
+- `K₂` is the modified Bessel function of the second kind of order 2.
+
+Reference:
+Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
+"""
+function expected_ibd_blocks_custom(
+    r::Real,
+    De::Function,
+    θ::AbstractArray,
+    σ::Real,
+    L::Real,
+    G::Real,
+)
+    # Input validation
+    if r < 0 || σ ≤ 0 || L ≤ 0 || G ≤ 0
+        throw(ArgumentError("All provided parameters must be positive"))
+    end
+    fn(t) = ϕ(t, r, De(t, θ), σ) * G * 4 * t^2 * exp(-2L * t)
+    quadgk(fn, 0, Inf)[1]
+end
 end

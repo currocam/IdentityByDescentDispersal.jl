@@ -68,5 +68,31 @@ using Random, Test, Distributions, QuadGK
             )[1]
             @test isapprox(numerical_value, analytical_value; atol = 1e-12)
         end
+        # Constant density via user-defined function
+        for _ = 1:50
+            r = rand(Uniform(0, 1e5))
+            D1 = rand(Uniform(0, 2.5e4))
+            D2 = rand(Uniform(0, 2.5e4))
+            σ = rand(Uniform(0, 1e5))
+            L = rand(Uniform(0, 1e5))
+            G = rand(Uniform(0, 1e5))
+            fn(t, θ) = θ[1] + θ[2]
+            computed = IdentityByDescentDispersal.expected_ibd_blocks_custom(
+                r,
+                fn,
+                [D1, D2],
+                σ,
+                L,
+                G,
+            )
+            expected = IdentityByDescentDispersal.expected_ibd_blocks_constant_density(
+                r,
+                D1+D2,
+                σ,
+                L,
+                G,
+            )
+            @test isapprox(computed, expected; atol = 1e-12)
+        end
     end
 end
