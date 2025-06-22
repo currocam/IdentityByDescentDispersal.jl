@@ -4,7 +4,7 @@ using QuadGK: quadgk
 export safe_adbesselk,
     ϕ,
     expected_ibd_blocks_constant_density,
-    expected_ibd_blocks_variable_density,
+    expected_ibd_blocks_power_density,
     expected_ibd_blocks_custom
 
 """
@@ -49,8 +49,17 @@ function ϕ(t::Real, r::Real, De::Real, σ::Real)
     return (1 / (2 * De)) * (1 / denom) * exp(exponent)
 end
 
+# Helper function from Appendix B
+function nL(r::Real, D::Real, β::Real, σ::Real, L::Real)
+    term1 = 2^(-3β / 2 - 3)
+    term2 = 1 / (π * D * σ^2)
+    term3 = (r / (sqrt(L) * σ))^(2 + β)
+    term4 = safe_adbesselk(2 + β, sqrt(2L) * r / σ)
+    term1 * term2 * term3 * term4
+end
+
 """
-    expected_ibd_blocks_constant_density(r::Real, D::Real, σ::Real, L::Real, G::Real) -> Real
+    expected_ibd_blocks_constant_density(r::Real, D::Real, σ::Real, L::Real, G::Real, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
 
 Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model with constant population density.
 
@@ -69,22 +78,37 @@ where:
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
 
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
+
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 """
-function expected_ibd_blocks_constant_density(r::Real, D::Real, σ::Real, L::Real, G::Real)
+function expected_ibd_blocks_constant_density(
+    r::Real,
+    D::Real,
+    σ::Real,
+    L::Real,
+    G::Real,
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
     # Input validation
     if r < 0 || D ≤ 0 || σ ≤ 0 || L ≤ 0 || G ≤ 0
         throw(ArgumentError("All parameters must be positive"))
     end
-    term1 = G / (8π * D * σ^2)
-    term2 = (r / (sqrt(L) * σ))^2
-    term3 = safe_adbesselk(2, sqrt(2L) * r / σ)
-    term1 * term2 * term3
+    if chromosomal_edges
+        result = (G - L) * nL(r, D, 0, σ, L) + nL(r, D, -1, σ, L)
+    else
+        term1 = G / (8π * D * σ^2)
+        term2 = (r / (sqrt(L) * σ))^2
+        term3 = safe_adbesselk(2, sqrt(2L) * r / σ)
+        result = term1 * term2 * term3
+    end
+    diploid ? result * 4 : result
 end
 
 """
-    expected_ibd_blocks_power_density(r::Real, D::Real, β::Real, σ::Real, L::Real, G::Real) -> Real
+    expected_ibd_blocks_power_density(r::Real, D::Real, β::Real, σ::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
 
 Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-β}``
 
@@ -105,6 +129,8 @@ where:
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
 
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
+
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 """
@@ -115,22 +141,28 @@ function expected_ibd_blocks_power_density(
     σ::Real,
     L::Real,
     G::Real,
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
 )
     # Input validation
     if r < 0 || D ≤ 0 || σ ≤ 0 || L ≤ 0 || G ≤ 0
         throw(ArgumentError("All parameters except β must be positive"))
     end
-    term1 = 2^(-3β / 2 - 3)
-    term2 = G / (π * D * σ^2)
-    term3 = (r / (sqrt(L) * σ))^(2 + β)
-    term4 = safe_adbesselk(2 + β, sqrt(2L) * r / σ)
-    term1 * term2 * term3 * term4
+    if chromosomal_edges
+        result = (G - L) * nL(r, D, β, σ, L) + nL(r, D, β - 1, σ, L)
+    else
+        term1 = 2^(-3β / 2 - 3)
+        term2 = G / (π * D * σ^2)
+        term3 = (r / (sqrt(L) * σ))^(2 + β)
+        term4 = safe_adbesselk(2 + β, sqrt(2L) * r / σ)
+        result = term1 * term2 * term3 * term4
+    end
+    diploid ? result * 4 : result
 end
 
 
 """
-    expected_ibd_blocks_custom(r::Real, De::Function, θ::AbstractArray, σ::Real, L::Real, G::Real) -> Real
-
+    expected_ibd_blocks_custom(r::Real, De::Function, θ::AbstractArray, σ::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
 Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model where the effective population density is given by a custom function `De(t, θ)`.
 
 ```math
@@ -148,6 +180,8 @@ where:
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
 
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
+
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 """
@@ -158,12 +192,20 @@ function expected_ibd_blocks_custom(
     σ::Real,
     L::Real,
     G::Real,
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
 )
     # Input validation
     if r < 0 || σ ≤ 0 || L ≤ 0 || G ≤ 0
         throw(ArgumentError("All provided parameters must be positive"))
     end
-    fn(t) = ϕ(t, r, De(t, θ), σ) * G * 4 * t^2 * exp(-2L * t)
-    quadgk(fn, 0, Inf)[1]
+    fn1(t) = ϕ(t, r, De(t, θ), σ) * (4t * exp(-2L * t) + (G - L) * 4 * t^2 * exp(-2L * t))
+    fn2(t) = ϕ(t, r, De(t, θ), σ) * G * 4 * t^2 * exp(-2L * t)
+    if chromosomal_edges
+        result = quadgk(fn1, 0, Inf)[1]
+    else
+        result = quadgk(fn2, 0, Inf)[1]
+    end
+    diploid ? result * 4 : result
 end
 end
