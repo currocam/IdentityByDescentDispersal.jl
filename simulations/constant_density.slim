@@ -1,0 +1,62 @@
+initialize() {
+	// Set up a 2 dimensional torus
+	initializeSLiMOptions(dimensionality="xy", periodicity="xy");
+	initializeTreeSeq();
+	initializeMutationRate(0.0);
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	initializeGenomicElementType("g1", m1, 1.0);
+	// Simulate a 1 Morgan chromosome
+	initializeGenomicElement(g1, 0, 1e8 - 1);
+	initializeRecombinationRate(1e-8);
+	// Define constants:
+	defineConstantIfNotInteractive("D", 50);
+	defineConstantIfNotInteractive("SM", 0.01); // Mate choice
+	defineConstantIfNotInteractive("SD", 0.1); // Dispersal
+	// Set up spatial interaction type
+	// We use a Gaussian kernel to choose a mate
+	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=SM*3);
+	i1.setInteractionFunction("n", 1.0, SM);
+	// We define a second kernel to keep track of the local population density
+	// experienced by the population
+	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=0.5-1e-5);
+	// We have to account for differences between the dispersal gestating mate - offspring
+	// and the non-gestating mate - offspring
+	defineConstant("SIGMA", sqrt(SD^2 / 2+ SM^2 / 4));
+	defineGlobal("LOCAL_DENSITY", float(5000));
+	defineConstantIfNotInteractive("OUTPATH", "out.trees");
+}
+
+mateChoice() {
+	// Spatial mate choice based on interaction strength
+	return i1.strength(individual);
+}
+
+1 early() {
+	sim.addSubpop("p1", D);
+	p1.individuals.setSpatialPosition(p1.pointPeriodic(p1.pointUniform(D)));
+	i1.evaluate(p1);
+}
+
+1: late() {
+	p1.deviatePositions(NULL, "periodic", 0.1, "n", 0.1);
+	i2.evaluate(p1);
+	LOCAL_DENSITY[sim.cycle-1] = mean(i2.localPopulationDensity(p1.individuals));
+}
+
+2: first() {
+	i1.evaluate(p1);
+
+}
+
+
+
+5000 late() {
+	sim.treeSeqOutput(
+		OUTPATH,
+		metadata=Dictionary("SIGMA", SIGMA, "D", mean(LOCAL_DENSITY))
+		);
+}
+
+function (void)defineConstantIfNotInteractive(string$ symbol, * value){
+	if (exists("slimgui")) defineConstant(symbol, value);
+}

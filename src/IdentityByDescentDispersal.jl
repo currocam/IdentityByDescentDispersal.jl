@@ -10,6 +10,7 @@ export safe_adbesselk,
     expected_ibd_blocks_power_density,
     expected_ibd_blocks_custom,
     preprocess_dataset,
+    default_ibd_bins,
     composite_loglikelihood_constant_density,
     composite_loglikelihood_power_density,
     composite_loglikelihood_custom
@@ -291,6 +292,19 @@ function expected_ibd_blocks_custom(
             diploid,
         ) for i in eachindex(contig_lengths)
     )
+end
+
+"""
+    default_ibd_bins()
+Returns the default bins used in Ringbauer et. al. for identity-by-descent (IBD) block analysis, as well as the minimum length of IBD blocks to consider in Morgans.
+
+Ringbauer, H., Coop, G. & Barton, N.H. Genetics 205, 1335–1351 (2017).
+"""
+function default_ibd_bins()
+    minimum_threshold = 0.04 # 4cM
+    maximum_threshold = 0.20 # 20cM
+    step = 0.001 # 0.1 cM
+    collect((minimum_threshold+step):step:maximum_threshold), minimum_threshold
 end
 
 """
