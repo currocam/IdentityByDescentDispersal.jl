@@ -1,11 +1,15 @@
 module IdentityByDescentDispersal
 using BesselK: adbesselk
 using QuadGK: quadgk
+using DataFrames: DataFrame, transform
+import Tables
+import DataAPI
 export safe_adbesselk,
     ϕ,
     expected_ibd_blocks_constant_density,
     expected_ibd_blocks_power_density,
-    expected_ibd_blocks_custom
+    expected_ibd_blocks_custom,
+    preprocess_dataset
 
 """
     x = safe_adbesselk(1, 1.0)
@@ -208,4 +212,104 @@ function expected_ibd_blocks_custom(
     end
     diploid ? result * 4 : result
 end
+
+"""
+    preprocess_dataset(ibd_blocks::DataFrame, dist_matrix::AbstractMatrix, bins::AbstractVector, min_length::Real)
+
+Preprocesses the input data for identity-by-descent (IBD) block analysis.
+
+- `ibd_blocks`: DataFrame containing IBD blocks with columns `ID1`, `ID2`, and `span`. The `ID1` and `ID2` columns should contain the IDs of the individuals involved in the IBD block, and the `span` column should contain the length of the IBD block in Morgans.
+- `individual_distances`: DataFrame containing distances between individuals with columns `ID1`, `ID2`, and `distance`. The `ID1` and `ID2` columns should contain the IDs of the individuals involved in the distance. Notice that the units of the estimated density and dispersal rate will match the units of the distances provided.
+- `bins`: A vector of right bins for the IBD blocks.
+- `min_length`: Minimum length of IBD blocks to consider in Morgans.
+
+It returns a DataFrame in "long" format with the following columns:
+  - `DISTANCE`: The pairwise distance bin between individuals.
+  - `IBD_LEFT`: The left bound of the IBD length bin.
+  - `IBD_RIGHT`: The right bound of the IBD length bin.
+  - `IBD_MID`: The center of the IBD length bin.
+  - `NR_PAIRS`: The number of unique individual pairs within that distance.
+  - `COUNT`: The number of IBD blocks observed in the corresponding bin.
+  - `DISTANCE_INDEX`: The index of the distance bin.
+  - `IBD_INDEX`: The index of the IBD length bin.
+"""
+function preprocess_dataset(
+    ibd_blocks::DataFrame,
+    individual_distances::DataFrame,
+    bins::AbstractVector,
+    min_length::Real,
+)
+    # Normalize unordered pairs for matching: sort (ID1, ID2)
+    function normalize_pair(id1, id2)
+        id1 < id2 ? (id1, id2) : (id2, id1)
+    end
+
+    ibd_blocks =
+        transform(ibd_blocks, [:ID1, :ID2] => Tables.ByRow(normalize_pair) => [:ID1, :ID2])
+    individual_distances = transform(
+        individual_distances,
+        [:ID1, :ID2] => Tables.ByRow(normalize_pair) => [:ID1, :ID2],
+    )
+
+    # Result DataFrame
+    result = DataFrame(
+        DISTANCE = Float64[],
+        IBD_LEFT = Float64[],
+        IBD_RIGHT = Float64[],
+        IBD_MID = Float64[],
+        NR_PAIRS = Int[],
+        COUNT = Int[],
+        DISTANCE_INDEX = Int[],
+        BIN_INDEX = Int[],
+    )
+
+    # Iterate over distances
+    left_bins = [min_length; bins]
+    bin_widths = bins .- bins
+    for (dist_i, distance) in enumerate(unique(individual_distances.distance))
+        # Get all pairs at this distance
+        pairs_at_distance =
+            individual_distances[individual_distances.distance .== distance, [:ID1, :ID2]]
+        pair_set = Set(Tuple.(eachrow(pairs_at_distance)))
+
+        # Filter IBD blocks for those pairs
+        ibd_filtered = filter(row -> (row.ID1, row.ID2) ∈ pair_set, ibd_blocks)
+
+        # Count unique pairs for this distance
+        nr_pairs = length(pair_set)
+
+        # Iterate over bins
+        left_bin = min_length
+        for (ibd_i, right_bin) in enumerate(bins)
+            midpoint = (left_bin + right_bin) / 2
+            # Select blocks in this bin
+            in_bin = (ibd_filtered.span .>= left_bin) .& (ibd_filtered.span .< right_bin)
+            ibd_in_bin = ibd_filtered[in_bin, :]
+            count = DataAPI.nrow(ibd_in_bin)
+
+            push!(
+                result,
+                (distance, left_bin, right_bin, midpoint, nr_pairs, count, dist_i, ibd_i),
+            )
+            left_bin = right_bin
+        end
+    end
+    result
+end
+
+"""
+    IBDDispersalDataset
+A container for storing preprocessed data required for the inference of dispersal rates
+
+
+- `contig_lengths::Vector{Float64}`: The lengths of each contig (in Morgans) used to normalize IBD span counts, if applicable.
+- `bin_widths::Vector{Float64}`: The widths of the IBD length bins, computed from `bin_edges`.
+
+"""
+struct IBDDispersalDataset
+    ibd_summary::DataFrame
+    contig_lengths::Vector{Float64}
+    bin_widths::Vector{Float64}
+end
+
 end

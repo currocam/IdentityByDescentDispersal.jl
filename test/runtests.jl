@@ -1,5 +1,5 @@
 using IdentityByDescentDispersal
-using Random, Test, Distributions, QuadGK
+using Random, Test, Distributions, QuadGK, DataFrames
 
 
 @testset "IdentityByDescentDispersal.jl" begin
@@ -169,4 +169,35 @@ using Random, Test, Distributions, QuadGK
 
         end
     end
+    @testset "Testing data preparation" begin
+        # We simply compare against a hardcoded example
+        # Input data
+        ibd_blocks = DataFrame(
+            ID1 = ["A", "B", "A", "C", "B"],
+            ID2 = ["B", "A", "C", "A", "C"],
+            span = [0.006, 0.012, 0.021, 0.010, 0.008],
+        )
+        individual_distances = DataFrame(
+            ID1 = ["A", "A", "B"],
+            ID2 = ["B", "C", "C"],
+            distance = [10.0, 20.0, 10.0],
+        )
+        bins = [0.01, 0.02]
+        min_length = 0.005
+        # Run the function
+        computed = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length)
+        # Harcoded DataFrame
+        expected = DataFrame(
+            DISTANCE = vcat(repeat([10.0], 2), repeat([20.0], 2)),
+            IBD_LEFT = repeat([0.005, 0.01], 2),
+            IBD_RIGHT = repeat([0.01, 0.02], 2),
+            IBD_MID = repeat([0.0075, 0.015], 2),
+            NR_PAIRS = Int[2, 2, 1, 1],
+            COUNT = Int[2, 1, 0, 1],
+            DISTANCE_INDEX = Int[1, 1, 2, 2],
+            BIN_INDEX = Int[1, 2, 1, 2],
+        )
+        @test computed == expected
+    end
+
 end
