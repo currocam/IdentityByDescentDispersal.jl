@@ -212,5 +212,40 @@ using Random, Test, Distributions, QuadGK, DataFrames
         )
         @test computed == expected
     end
+    @testset "Test that composite likelihood function do not throw errors" begin
+        n_obs = 10
+        left_bins = sort(rand(Uniform(0, 0.10), n_obs))
+        delta = rand(Uniform(0, 0.01), n_obs)
+        right_bins = left_bins .+ delta
+        n_contigs = 3
+        contig_lengths = rand(Uniform(0.5, 1.5), n_contigs)
+        df = DataFrame(
+            DISTANCE = rand(Uniform(0, 10), n_obs),
+            IBD_LEFT = left_bins,
+            IBD_RIGHT = right_bins,
+            NR_PAIRS = rand(1:50, n_obs),
+            COUNT = rand(0:50, n_obs),
+        )
+        for _ = 1:50
+            D = rand(Uniform(0, 5))
+            σ = rand(Uniform(0, 10))
+            beta = rand(Uniform(-1, 1))
+            alpha = rand(Normal(0, 0.001))
+            isnotnan(x) = !isnan(x)
+            # Constant population scenario
+            @test isnotnan(
+                composite_loglikelihood_constant_density(D, σ, df, contig_lengths),
+            )
+            # Power density
+            @test isnotnan(
+                composite_loglikelihood_power_density(D, beta, σ, df, contig_lengths),
+            )
+            # Exponential density
+            De(t, parameters) = max(parameters[1] * exp(-parameters[2] * t), 1e-5)
+            @test isnotnan(
+                composite_loglikelihood_custom(De, [D, alpha], σ, df, contig_lengths),
+            )
+        end
+    end
 
 end

@@ -2,13 +2,17 @@ module IdentityByDescentDispersal
 using BesselK: adbesselk
 using QuadGK: quadgk
 using DataFrames: DataFrame, transform
+using Distributions: Poisson, logpdf
 import Tables
 import DataAPI
 export safe_adbesselk,
     expected_ibd_blocks_constant_density,
     expected_ibd_blocks_power_density,
     expected_ibd_blocks_custom,
-    preprocess_dataset
+    preprocess_dataset,
+    composite_loglikelihood_constant_density,
+    composite_loglikelihood_power_density,
+    composite_loglikelihood_custom
 
 """
     x = safe_adbesselk(1, 1.0)
@@ -33,16 +37,13 @@ Computes the probability ``\\phi(t)`` that two homologous loci coalesce ``t`` ge
 Ringbauer, H., Coop, G. & Barton, N.H. Genetics 205, 1335–1351 (2017).
 """
 function probability_coalescence(t::Real, r::Real, De::Function, sigma::Real)
-    if iszero(t)
-        return zero(eltype(t))
-    end
-    sigma² = sigma^2
-    denom = 4 * π * t * sigma²
-    exponent = -r^2 / (4 * t * sigma²)
-    return (1 / (2 * De(t))) * (1 / denom) * exp(exponent)
+    probability_coalescence(t, r, De(t), sigma)
 end
 
 function probability_coalescence(t::Real, r::Real, De::Real, sigma::Real)
+    if (r < 0 || De < 0 || sigma <= 0 || t < 0)
+        throw(ArgumentError("Invalid input: r=$r, De=$De, sigma=$sigma, t=$t"))
+    end
     if iszero(t)
         return zero(eltype(t))
     end
@@ -83,6 +84,8 @@ where:
 
 If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
 
+There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
+
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 """
@@ -110,6 +113,29 @@ function expected_ibd_blocks_constant_density(
     diploid ? result * 4 : result
 end
 
+
+function expected_ibd_blocks_constant_density(
+    r::Real,
+    D::Real,
+    sigma::Real,
+    L::Real,
+    contig_lengths::AbstractArray{<:Real},
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    sum(
+        expected_ibd_blocks_constant_density(
+            r,
+            D,
+            sigma,
+            L,
+            contig_lengths[i],
+            chromosomal_edges,
+            diploid,
+        ) for i in eachindex(contig_lengths)
+    )
+end
+
 """
     expected_ibd_blocks_power_density(r::Real, D::Real, beta::Real, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
 
@@ -126,7 +152,7 @@ K_{2+\\beta}\\left(\\frac{\\sqrt{2L} \\, r}{\\sigma}\\right)
 where:
 - `r` is the geographic distance between samples,
 - `D` is the effective population density (diploid individuals per unit area),
-- `beta` is the growth rate of the population
+- `beta` is the power of the density function,
 - `sigma` is the root mean square dispersal distance per generation,
 - `L` is the minimum length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
@@ -163,6 +189,29 @@ function expected_ibd_blocks_power_density(
     diploid ? result * 4 : result
 end
 
+function expected_ibd_blocks_power_density(
+    r::Real,
+    D::Real,
+    beta::Real,
+    sigma::Real,
+    L::Real,
+    contig_lengths::AbstractArray{<:Real},
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    sum(
+        expected_ibd_blocks_power_density(
+            r,
+            D,
+            beta,
+            sigma,
+            L,
+            contig_lengths[i],
+            chromosomal_edges,
+            diploid,
+        ) for i in eachindex(contig_lengths)
+    )
+end
 
 """
     expected_ibd_blocks_custom(r::Real, De::Function, parameters::AbstractArray, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
@@ -207,12 +256,41 @@ function expected_ibd_blocks_custom(
         (4t * exp(-2L * t) + (G - L) * 4 * t^2 * exp(-2L * t))
     fn2(t) =
         probability_coalescence(t, r, De(t, parameters), sigma) * G * 4 * t^2 * exp(-2L * t)
-    if chromosomal_edges
-        result = quadgk(fn1, 0, Inf)[1]
-    else
-        result = quadgk(fn2, 0, Inf)[1]
+    result = NaN
+    try
+        if chromosomal_edges
+            result = quadgk(fn1, 0, Inf)[1]
+        else
+            result = quadgk(fn2, 0, Inf)[1]
+        end
+    catch e
+        @warn "Integration failed with error: $e"
     end
     diploid ? result * 4 : result
+end
+
+function expected_ibd_blocks_custom(
+    r::Real,
+    De::Function,
+    parameters::AbstractArray,
+    sigma::Real,
+    L::Real,
+    contig_lengths::AbstractArray{<:Real},
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    sum(
+        expected_ibd_blocks_custom(
+            r,
+            De,
+            parameters,
+            sigma,
+            L,
+            contig_lengths[i],
+            chromosomal_edges,
+            diploid,
+        ) for i in eachindex(contig_lengths)
+    )
 end
 
 """
@@ -299,19 +377,157 @@ function preprocess_dataset(
     result
 end
 
-"""
-    IBDDispersalDataset
-A container for storing preprocessed data required for the inference of dispersal rates
-
-
-- `contig_lengths::Vector{Float64}`: The lengths of each contig (in Morgans) used to normalize IBD span counts, if applicable.
-- `bin_widths::Vector{Float64}`: The widths of the IBD length bins, computed from `bin_edges`.
 
 """
-struct IBDDispersalDataset
-    ibd_summary::DataFrame
-    contig_lengths::Vector{Float64}
-    bin_widths::Vector{Float64}
+    composite_loglikelihood_constant_density(D::Real, sigma::Real, df::DataFrame, contig_lengths::AbstractArray{<:Real}, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
+
+Computes the composite log-likelihood of the observed IBD blocks under a model with constant population density.
+- `D`: Effective population density (diploid individuals per unit area).
+- `sigma`: Root mean square dispersal distance per generation.
+- `df`: DataFrame containing the observed IBD blocks in the format returned by `preprocess_dataset`.
+- `contig_lengths`: Array of contig lengths in Morgans.
+
+Optionally:
+- `chromosomal_edges`: Whether to account for chromosomal edge effects.
+- `diploid`: Whether to account for diploidy.
+
+"""
+function composite_loglikelihood_constant_density(
+    D::Real,
+    sigma::Real,
+    df::DataFrame,
+    contig_lengths::AbstractArray{<:Real},
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    # Input validation
+    if D ≤ 0 || sigma ≤ 0 || isempty(contig_lengths)
+        return -Inf
+    end
+
+    # Iterate across each row computing the expected rate and updating the log-likelihood
+    log_likelihood = 0.0
+    for (i, row) in enumerate(eachrow(df))
+        r, L, nr_pairs, count = row.DISTANCE, row.IBD_LEFT, row.NR_PAIRS, row.COUNT
+        ΔL = row.IBD_RIGHT - row.IBD_LEFT
+        λ =
+            expected_ibd_blocks_constant_density(r, D, sigma, L, contig_lengths, diploid) *
+            ΔL *
+            nr_pairs
+        if λ < 0 || isnan(λ)
+            return -Inf
+        end
+        log_likelihood += logpdf(Poisson(λ), count)
+    end
+    log_likelihood
+end
+
+"""
+    composite_loglikelihood_power_density(D::Real, beta::Real, sigma::Real, df::DataFrame, contig_lengths::AbstractArray{<:Real}, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
+
+Computes the composite log-likelihood of the observed IBD blocks under a model with constant population density.
+- `D`: Effective population density (diploid individuals per unit area).
+- `beta` is the power of the density function,
+- `sigma`: Root mean square dispersal distance per generation.
+- `df`: DataFrame containing the observed IBD blocks in the format returned by `preprocess_dataset`.
+- `contig_lengths`: Array of contig lengths in Morgans.
+
+Optionally:
+- `chromosomal_edges`: Whether to account for chromosomal edge effects.
+- `diploid`: Whether to account for diploidy.
+
+"""
+function composite_loglikelihood_power_density(
+    D::Real,
+    beta::Real,
+    sigma::Real,
+    df::DataFrame,
+    contig_lengths::AbstractArray{<:Real},
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    # Input validation
+    if D ≤ 0 || sigma ≤ 0 || isempty(contig_lengths)
+        return -Inf
+    end
+
+    # Iterate across each row computing the expected rate and updating the log-likelihood
+    log_likelihood = 0.0
+    for (i, row) in enumerate(eachrow(df))
+        r, L, nr_pairs, count = row.DISTANCE, row.IBD_LEFT, row.NR_PAIRS, row.COUNT
+        ΔL = row.IBD_RIGHT - row.IBD_LEFT
+        λ =
+            expected_ibd_blocks_power_density(
+                r,
+                D,
+                beta,
+                sigma,
+                L,
+                contig_lengths,
+                diploid,
+            ) *
+            ΔL *
+            nr_pairs
+        if λ < 0 || isnan(λ)
+            return -Inf
+        end
+        log_likelihood += logpdf(Poisson(λ), count)
+    end
+    log_likelihood
+end
+
+"""
+    composite_loglikelihood_custom(De::Function, parameters::AbstractArray, sigma::Real, df::DataFrame, contig_lengths::AbstractArray{<:Real}, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
+
+Computes the composite log-likelihood of the observed IBD blocks under a model with constant population density.
+- `De` is  a user defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
+- `parameters` is a user defined array of parameters that the function `De` depends on.
+- `sigma`: Root mean square dispersal distance per generation.
+- `df`: DataFrame containing the observed IBD blocks in the format returned by `preprocess_dataset`.
+- `contig_lengths`: Array of contig lengths in Morgans.
+
+Optionally:
+- `chromosomal_edges`: Whether to account for chromosomal edge effects.
+- `diploid`: Whether to account for diploidy.
+
+"""
+function composite_loglikelihood_custom(
+    De::Function,
+    parameters::AbstractArray,
+    sigma::Real,
+    df::DataFrame,
+    contig_lengths::AbstractArray{<:Real},
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    # Input validation
+    if sigma ≤ 0 || isempty(contig_lengths)
+        return -Inf
+    end
+
+    # Iterate across each row computing the expected rate and updating the log-likelihood
+    log_likelihood = 0.0
+    for (i, row) in enumerate(eachrow(df))
+        r, L, nr_pairs, count = row.DISTANCE, row.IBD_LEFT, row.NR_PAIRS, row.COUNT
+        ΔL = row.IBD_RIGHT - row.IBD_LEFT
+        λ =
+            expected_ibd_blocks_custom(
+                r,
+                De,
+                parameters,
+                sigma,
+                L,
+                contig_lengths,
+                diploid,
+            ) *
+            ΔL *
+            nr_pairs
+        if λ < 0 || isnan(λ)
+            return -Inf
+        end
+        log_likelihood += logpdf(Poisson(λ), count)
+    end
+    log_likelihood
 end
 
 end
