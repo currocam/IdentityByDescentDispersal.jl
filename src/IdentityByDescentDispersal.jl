@@ -5,7 +5,6 @@ using DataFrames: DataFrame, transform
 import Tables
 import DataAPI
 export safe_adbesselk,
-    ϕ,
     expected_ibd_blocks_constant_density,
     expected_ibd_blocks_power_density,
     expected_ibd_blocks_custom,
@@ -24,7 +23,7 @@ A wrapper around the `adbesselk` to compute the modified Bessel function of the 
 end
 
 """
-    ϕ(t::Real, r::Real, De::Function, σ::Real)
+    probability_coalescence(t::Real, r::Real, De::Function, sigma::Real)
 Computes the probability ``\\phi(t)`` that two homologous loci coalesce ``t`` generations ago according to
 
 ```math
@@ -33,37 +32,37 @@ Computes the probability ``\\phi(t)`` that two homologous loci coalesce ``t`` ge
 
 Ringbauer, H., Coop, G. & Barton, N.H. Genetics 205, 1335–1351 (2017).
 """
-function ϕ(t::Real, r::Real, De::Function, σ::Real)
+function probability_coalescence(t::Real, r::Real, De::Function, sigma::Real)
     if iszero(t)
         return zero(eltype(t))
     end
-    σ² = σ^2
-    denom = 4 * π * t * σ²
-    exponent = -r^2 / (4 * t * σ²)
+    sigma² = sigma^2
+    denom = 4 * π * t * sigma²
+    exponent = -r^2 / (4 * t * sigma²)
     return (1 / (2 * De(t))) * (1 / denom) * exp(exponent)
 end
 
-function ϕ(t::Real, r::Real, De::Real, σ::Real)
+function probability_coalescence(t::Real, r::Real, De::Real, sigma::Real)
     if iszero(t)
         return zero(eltype(t))
     end
-    σ² = σ^2
-    denom = 4 * π * t * σ²
-    exponent = -r^2 / (4 * t * σ²)
+    sigma² = sigma^2
+    denom = 4 * π * t * sigma²
+    exponent = -r^2 / (4 * t * sigma²)
     return (1 / (2 * De)) * (1 / denom) * exp(exponent)
 end
 
 # Helper function from Appendix B
-function nL(r::Real, D::Real, β::Real, σ::Real, L::Real)
-    term1 = 2^(-3β / 2 - 3)
-    term2 = 1 / (π * D * σ^2)
-    term3 = (r / (sqrt(L) * σ))^(2 + β)
-    term4 = safe_adbesselk(2 + β, sqrt(2L) * r / σ)
+function nL(r::Real, D::Real, beta::Real, sigma::Real, L::Real)
+    term1 = 2^(-3beta / 2 - 3)
+    term2 = 1 / (π * D * sigma^2)
+    term3 = (r / (sqrt(L) * sigma))^(2 + beta)
+    term4 = safe_adbesselk(2 + beta, sqrt(2L) * r / sigma)
     term1 * term2 * term3 * term4
 end
 
 """
-    expected_ibd_blocks_constant_density(r::Real, D::Real, σ::Real, L::Real, G::Real, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
+    expected_ibd_blocks_constant_density(r::Real, D::Real, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
 
 Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model with constant population density.
 
@@ -77,7 +76,7 @@ K_2\\left(\\frac{\\sqrt{2L} \\, r}{\\sigma}\\right)
 where:
 - `r` is the geographic distance between samples,
 - `D` is the effective population density (diploid individuals per unit area),
-- `σ` is the root mean square dispersal distance per generation,
+- `sigma` is the root mean square dispersal distance per generation,
 - `L` is the minimum length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
@@ -90,31 +89,31 @@ Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 function expected_ibd_blocks_constant_density(
     r::Real,
     D::Real,
-    σ::Real,
+    sigma::Real,
     L::Real,
     G::Real,
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
 )
     # Input validation
-    if r < 0 || D ≤ 0 || σ ≤ 0 || L ≤ 0 || G ≤ 0
+    if r < 0 || D ≤ 0 || sigma ≤ 0 || L ≤ 0 || G ≤ 0
         throw(ArgumentError("All parameters must be positive"))
     end
     if chromosomal_edges
-        result = (G - L) * nL(r, D, 0, σ, L) + nL(r, D, -1, σ, L)
+        result = (G - L) * nL(r, D, 0, sigma, L) + nL(r, D, -1, sigma, L)
     else
-        term1 = G / (8π * D * σ^2)
-        term2 = (r / (sqrt(L) * σ))^2
-        term3 = safe_adbesselk(2, sqrt(2L) * r / σ)
+        term1 = G / (8π * D * sigma^2)
+        term2 = (r / (sqrt(L) * sigma))^2
+        term3 = safe_adbesselk(2, sqrt(2L) * r / sigma)
         result = term1 * term2 * term3
     end
     diploid ? result * 4 : result
 end
 
 """
-    expected_ibd_blocks_power_density(r::Real, D::Real, β::Real, σ::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
+    expected_ibd_blocks_power_density(r::Real, D::Real, beta::Real, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
 
-Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-β}``
+Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-beta}``
 
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt =
@@ -127,8 +126,8 @@ K_{2+\\beta}\\left(\\frac{\\sqrt{2L} \\, r}{\\sigma}\\right)
 where:
 - `r` is the geographic distance between samples,
 - `D` is the effective population density (diploid individuals per unit area),
-- `β` is the growth rate of the population
-- `σ` is the root mean square dispersal distance per generation,
+- `beta` is the growth rate of the population
+- `sigma` is the root mean square dispersal distance per generation,
 - `L` is the minimum length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
@@ -141,24 +140,24 @@ Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 function expected_ibd_blocks_power_density(
     r::Real,
     D::Real,
-    β::Real,
-    σ::Real,
+    beta::Real,
+    sigma::Real,
     L::Real,
     G::Real,
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
 )
     # Input validation
-    if r < 0 || D ≤ 0 || σ ≤ 0 || L ≤ 0 || G ≤ 0
-        throw(ArgumentError("All parameters except β must be positive"))
+    if r < 0 || D ≤ 0 || sigma ≤ 0 || L ≤ 0 || G ≤ 0
+        throw(ArgumentError("All parameters except beta must be positive"))
     end
     if chromosomal_edges
-        result = (G - L) * nL(r, D, β, σ, L) + nL(r, D, β - 1, σ, L)
+        result = (G - L) * nL(r, D, beta, sigma, L) + nL(r, D, beta - 1, sigma, L)
     else
-        term1 = 2^(-3β / 2 - 3)
-        term2 = G / (π * D * σ^2)
-        term3 = (r / (sqrt(L) * σ))^(2 + β)
-        term4 = safe_adbesselk(2 + β, sqrt(2L) * r / σ)
+        term1 = 2^(-3beta / 2 - 3)
+        term2 = G / (π * D * sigma^2)
+        term3 = (r / (sqrt(L) * sigma))^(2 + beta)
+        term4 = safe_adbesselk(2 + beta, sqrt(2L) * r / sigma)
         result = term1 * term2 * term3 * term4
     end
     diploid ? result * 4 : result
@@ -166,8 +165,8 @@ end
 
 
 """
-    expected_ibd_blocks_custom(r::Real, De::Function, θ::AbstractArray, σ::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
-Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model where the effective population density is given by a custom function `De(t, θ)`.
+    expected_ibd_blocks_custom(r::Real, De::Function, parameters::AbstractArray, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
+Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model where the effective population density is given by a custom function `De(t, parameters)`.
 
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
@@ -177,9 +176,9 @@ The integral is computed numerically using Gaussian-Legendre quadrature rules wi
 
 where:
 - `r` is the geographic distance between samples,
-- `De` is  a user defined function that takes time `t` and a parameter `θ` and returns the effective population density at time `t`.
-- `θ` is a user defined array of parameters that the function `De` depends on.
-- `σ` is the root mean square dispersal distance per generation,
+- `De` is  a user defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
+- `parameters` is a user defined array of parameters that the function `De` depends on.
+- `sigma` is the root mean square dispersal distance per generation,
 - `L` is the minimum length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
@@ -192,19 +191,22 @@ Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 function expected_ibd_blocks_custom(
     r::Real,
     De::Function,
-    θ::AbstractArray,
-    σ::Real,
+    parameters::AbstractArray,
+    sigma::Real,
     L::Real,
     G::Real,
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
 )
     # Input validation
-    if r < 0 || σ ≤ 0 || L ≤ 0 || G ≤ 0
+    if r < 0 || sigma ≤ 0 || L ≤ 0 || G ≤ 0
         throw(ArgumentError("All provided parameters must be positive"))
     end
-    fn1(t) = ϕ(t, r, De(t, θ), σ) * (4t * exp(-2L * t) + (G - L) * 4 * t^2 * exp(-2L * t))
-    fn2(t) = ϕ(t, r, De(t, θ), σ) * G * 4 * t^2 * exp(-2L * t)
+    fn1(t) =
+        probability_coalescence(t, r, De(t, parameters), sigma) *
+        (4t * exp(-2L * t) + (G - L) * 4 * t^2 * exp(-2L * t))
+    fn2(t) =
+        probability_coalescence(t, r, De(t, parameters), sigma) * G * 4 * t^2 * exp(-2L * t)
     if chromosomal_edges
         result = quadgk(fn1, 0, Inf)[1]
     else
