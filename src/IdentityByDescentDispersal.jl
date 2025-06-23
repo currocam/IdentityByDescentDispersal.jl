@@ -411,7 +411,15 @@ function composite_loglikelihood_constant_density(
         r, L, nr_pairs, count = row.DISTANCE, row.IBD_LEFT, row.NR_PAIRS, row.COUNT
         ΔL = row.IBD_RIGHT - row.IBD_LEFT
         λ =
-            expected_ibd_blocks_constant_density(r, D, sigma, L, contig_lengths, diploid) *
+            expected_ibd_blocks_constant_density(
+                r,
+                D,
+                sigma,
+                L,
+                contig_lengths,
+                chromosomal_edges,
+                diploid,
+            ) *
             ΔL *
             nr_pairs
         if λ < 0 || isnan(λ)
@@ -464,6 +472,7 @@ function composite_loglikelihood_power_density(
                 sigma,
                 L,
                 contig_lengths,
+                chromosomal_edges,
                 diploid,
             ) *
             ΔL *
@@ -518,6 +527,7 @@ function composite_loglikelihood_custom(
                 sigma,
                 L,
                 contig_lengths,
+                chromosomal_edges,
                 diploid,
             ) *
             ΔL *
