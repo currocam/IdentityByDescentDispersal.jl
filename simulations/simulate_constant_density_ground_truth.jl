@@ -1,5 +1,5 @@
 # # Constant density simulation
-using PyCall, Random, DataFrames, StatsBase, MarkdownTables
+using PyCall, Random, DataFrames, StatsBase, PrettyTables
 using IdentityByDescentDispersal
 # ## Forward-in-time simulation
 # We will use SLiM to simulate a constant density population living in a 2D torus and `tskit` and tree-sequence recording to analyze the ground truth of IBD blocks.
@@ -109,13 +109,13 @@ df2 = let
 end;
 
 # ## Inference
-# Finally, we can compute the MLE estimate and compare it with thr ground truth:
 # Recall that we compare the MLE estimate of the density not with the "global" local density, but with the local density.
 # This is because, under this regime, individuals are clumped together and therefore experiment a higher density (e.g there are not uniformly distributed).
 local_density = ts.metadata["SLiM"]["user_metadata"]["D"][1]
 dispersal_rate = ts.metadata["SLiM"]["user_metadata"]["SIGMA"][1]
 ground_truth = local_density, dispersal_rate
 
+# Finally, we can compute the MLE estimate and compare it with the ground truth:
 using Turing
 @model function constant_density(df, contig_lengths)
     D ~ Uniform(0, 1000)
@@ -125,4 +125,5 @@ end
 contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
 mle_estimate = maximum_likelihood(m)
-mle_estimate |> coeftable |> DataFrame |> markdown_table()
+coef_table = mle_estimate |> coeftable |> DataFrame
+pretty_table(coef_table, backend = Val(:text))

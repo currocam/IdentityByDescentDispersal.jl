@@ -1,16 +1,15 @@
 ```@meta
-EditURL = "simulate_constant_density.jl"
+EditURL = "simulate_constant_density_ground_truth.jl"
 ```
 
 # Constant density simulation
 
 ````julia
-using PyCall, Random, DataFrames, StatsBase, MarkdownTables
+using PyCall, Random, DataFrames, StatsBase, PrettyTables
 using IdentityByDescentDispersal
 ````
 
 ## Forward-in-time simulation
-
 We will use SLiM to simulate a constant density population living in a 2D torus and `tskit` and tree-sequence recording to analyze the ground truth of IBD blocks.
 
 ````julia
@@ -42,7 +41,6 @@ Process(`slim -s 1000 -d D=200 -d SD=0.1 -d SM=0.01 -d 'OUTPATH="s1000.trees"' c
 ````
 
 ## Data preprocessing
-
 We analyze the simulated tree-sequence using the python library `tskit`. Because IBD blocks decay very quickly with time and
 we have run the simulation for many generations (5000), we don't need to perform `recapitation`.
 
@@ -130,7 +128,7 @@ function cut(values::AbstractVector{<:Real}, edges::AbstractVector{<:Real})
     bins = Vector{Float64}(undef, n)
     for i = 1:n
         x = values[i]
-        bin_idx = findfirst(j -> edges[j] <= x < edges[j+1], 1:length(edges)-1)
+        bin_idx = findfirst(j -> edges[j] <= x < edges[j+1], 1:(length(edges)-1))
         @assert !isnothing(bin_idx)
         bins[i] = edges[bin_idx]  # label bin by left edge
     end
@@ -150,8 +148,6 @@ end;
 ````
 
 ## Inference
-
-Finally, we can compute the MLE estimate and compare it with thr ground truth:
 Recall that we compare the MLE estimate of the density not with the "global" local density, but with the local density.
 This is because, under this regime, individuals are clumped together and therefore experiment a higher density (e.g there are not uniformly distributed).
 
@@ -159,7 +155,15 @@ This is because, under this regime, individuals are clumped together and therefo
 local_density = ts.metadata["SLiM"]["user_metadata"]["D"][1]
 dispersal_rate = ts.metadata["SLiM"]["user_metadata"]["SIGMA"][1]
 ground_truth = local_density, dispersal_rate
+````
 
+````
+(253.30778276266545, 0.07088723439378913)
+````
+
+Finally, we can compute the MLE estimate and compare it with the ground truth:
+
+````julia
 using Turing
 @model function constant_density(df, contig_lengths)
     D ~ Uniform(0, 1000)
@@ -169,13 +173,20 @@ end
 contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
 mle_estimate = maximum_likelihood(m)
-mle_estimate |> coeftable |> DataFrame |> markdown_table()
+coef_table = mle_estimate |> coeftable |> DataFrame
+pretty_table(coef_table, backend = Val(:text))
 ````
 
-| Name | Coef.               | Std. Error            | z                  | Pr(>|z|)               | Lower 95%           | Upper 95%           |
-|------|---------------------|-----------------------|--------------------|------------------------|---------------------|---------------------|
-|    D |  283.00645916122755 |    10.945344146178309 |  25.85633264533235 | 2.065149487467341e-147 |  261.55397883632173 |   304.4589394861334 |
-|    σ | 0.06784133316942217 | 0.0016958596215441624 | 40.004097218642045 |                    0.0 | 0.06451750938835989 | 0.07116515695048446 |
+````
+┌────────┬───────────┬────────────┬─────────┬──────────────┬───────────┬───────────┐
+│   Name │     Coef. │ Std. Error │       z │     Pr(>|z|) │ Lower 95% │ Upper 95% │
+│ String │   Float64 │    Float64 │ Float64 │      Float64 │   Float64 │   Float64 │
+├────────┼───────────┼────────────┼─────────┼──────────────┼───────────┼───────────┤
+│      D │   283.006 │    10.9453 │ 25.8563 │ 2.06515e-147 │   261.554 │   304.459 │
+│      σ │ 0.0678413 │ 0.00169586 │ 40.0041 │          0.0 │ 0.0645175 │ 0.0711652 │
+└────────┴───────────┴────────────┴─────────┴──────────────┴───────────┴───────────┘
+
+````
 
 ---
 
