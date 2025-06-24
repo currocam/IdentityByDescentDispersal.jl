@@ -95,10 +95,6 @@ logpdf(Poisson(λ), Y)
 # - A `DataFrame` containing distances across pairs of individuals.
 # - A list of contig lengths to properly take into account chromosomal edges (in Morgans).
 
-# Preprocessing the data requires combining the different sources of information and binning the identity-by-descent blocks.
-# For this purpose, we provide a helper function that returns a `DataFrame` in a "long" format.
-
-
 using DataFrames
 ibd_blocks = DataFrame(
     ID1 = ["A", "B", "A", "C", "B"],
@@ -110,12 +106,19 @@ individual_distances = DataFrame(
     ID2 = ["B", "C", "C"],
     distance = [10.0, 20.0, 10.0], # (e.g., in kilometers)
 )
-contig_lengths = [1.0, 1.5] # Contig lengths (in Morgans)
-bins = [0.01, 0.02, 0.03] # Right edges of bins (in Morgans)
-min_length = 0.005 # Minimum IBD length to consider
+contig_lengths = [1.0, 1.5]; # Contig lengths (in Morgans)
+
+# Preprocessing the data requires combining the different sources of information and binning the identity-by-descent blocks.
+# For this purpose, we provide a helper function `preprocess_dataset` that returns a `DataFrame` in a "long" format.
+# Of course, you may specify your own bins, but here we use the same bins used by Ringbauer et al. (2017) which can be accessed via the `default_ibd_bins` function.
+bins, min_length = default_ibd_bins()
 df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length)
 
-# We can now use the df `DataFrame`to compute composite loglikelihoods of different parameters using the family of `composite_loglikelihood_*` functions.
+# In most scenarios, distances between diploid individuals are not available, but between sampling sites. The `preprocess_dataset` function handles this scenario appropriately
+# by aggregating observations from pairs that have the exact same distance. However, if distances are available at the individual level, you may consider binning them to reduce
+# the runtime. You might find an example of this in the [simulations](https://github.com/currocam/IdentityByDescentDispersal.jl/tree/main/simulations) subdirectory.
+
+# We can now use the df `DataFrame`to compute composite log likelihoods of different parameters using the family of `composite_loglikelihood_*` functions.
 # The second major feature of this package is that functions are all compatible with automatic differentiation. Analytical solutions depend on a modified Bessel function of the second kind, which is not widely implemented in a way that allows for automatic differentiation .
 # Here, we rely on the `BesselK.jl` package for doing this. In addition, we rely on the system of `QuadGK.jl` for numerical integration compatible with automatic differentiation. This allows us to perform gradient-based optimization and interact with existing software.
 #
