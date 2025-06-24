@@ -1,3 +1,5 @@
+*.jar
+*.log
 *.trees
 *.jl.*.cov
 *.jl.cov
