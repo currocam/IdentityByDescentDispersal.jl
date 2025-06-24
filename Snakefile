@@ -10,16 +10,23 @@ distances_file = config["distances_file"]
 # We expect map files being in the same directory as the VCF files
 suffix_map = config.get("map_file_suffix", ".map")
 (map_files,) = glob_wildcards(f"{data_dir}{{name}}{suffix_map}")
-contig_lengths = config["contig_lengths"]
-assert all(
-    isinstance(x, float) for x in contig_lengths
-), "Contig lengths must be a list of floats"
+
+contig_lengths = config.get("contig_lengths")
+if contig_lengths is not None:
+    assert all(
+        isinstance(x, float) for x in contig_lengths
+    ), "Contig lengths must be a list of floats"
+    outfiles = [
+        f"{out_dir}/ibd_dispersal_data.csv",
+        f"{out_dir}/constant_density_mle.csv",
+    ]
+else:
+    outfiles = [f"{out_dir}/ibd_dispersal_data.csv"]
 
 
 rule all:
     input:
-        f"{out_dir}/ibd_dispersal_data.csv",
-        f"{out_dir}/constant_density_mle.csv",
+        outfiles,
 
 
 # IBD detection
