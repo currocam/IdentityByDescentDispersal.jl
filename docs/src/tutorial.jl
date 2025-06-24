@@ -11,7 +11,7 @@ using IdentityByDescentDispersal
 using Plots
 
 L = 0.01         # Block length threshold (in Morgans)
-G = 0.01         # Genome length (in Morgans)
+G = 1.0         # Genome length (in Morgans)
 D = 1.0          # Effective population density
 σ = 1.0          # Dispersal rate
 r_values = range(0.01, 25.0, length = 200);  # Distances
