@@ -52,7 +52,7 @@ We perform recapitation to ensure samples are fully coalesced
 
 ````julia
 pyslim = pyimport("pyslim")
-rts = pyslim.recapitate(ts, ancestral_Ne=D, recombination_rate=1e-8);
+rts = pyslim.recapitate(ts, ancestral_Ne = D, recombination_rate = 1e-8);
 ````
 
 ````
@@ -77,14 +77,14 @@ We overlay neutral mutations
 
 ````julia
 msprime = pyimport("msprime")
-mts = msprime.sim_mutations(ts, rate=1e-7, random_seed = seed);
+mts = msprime.sim_mutations(ts, rate = 1e-7, random_seed = seed);
 ````
 
 Create VCF file
 
 ````julia
 n_dip_indv = Int(ts.num_samples / 2)
-indv_names = [ "tsk_$(i)indv" for i in 0:(n_dip_indv - 1) ]
+indv_names = ["tsk_$(i)indv" for i = 0:(n_dip_indv-1)]
 outvcf = "s$(seed).vcf"
 py"""
 with open($outvcf, "w") as vcf_file:
@@ -126,9 +126,13 @@ Process(`java -jar hap-ibd.jar gt=s1000.vcf map=s1000.plink.map out=s1000`, Proc
 Preprocess detected IBD blocks
 
 ````julia
-run(`curl -o merge-ibd-segments.jar https://faculty.washington.edu/browning/refined-ibd/merge-ibd-segments.17Jan20.102.jar`)
+run(
+    `curl -o merge-ibd-segments.jar https://faculty.washington.edu/browning/refined-ibd/merge-ibd-segments.17Jan20.102.jar`,
+)
 postprocessed_file = "s$(seed).postprocessed.ibd"
-run(`bash -c "gunzip -c s$(seed).ibd.gz | java -jar merge-ibd-segments.jar $outvcf $mapfile 0.6 1 > $postprocessed_file"`)
+run(
+    `bash -c "gunzip -c s$(seed).ibd.gz | java -jar merge-ibd-segments.jar $outvcf $mapfile 0.6 1 > $postprocessed_file"`,
+)
 ````
 
 ````
@@ -139,9 +143,7 @@ Read IBD blocks
 TO-DO: I'm not really sure what that the SCORE column is...
 
 ````julia
-colnames = [
-    "ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"
-    ]
+colnames = ["ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"]
 df_ibds = CSV.read(postprocessed_file, DataFrame; header = colnames);
 df_ibds.span = df_ibds.LENGTH ./ 100;
 ````
@@ -215,7 +217,7 @@ end;
 
 ## Inference
 Recall that we compare the MLE estimate of the density not with the "global" local density, but with the local density.
-This is because, under this regime, individuals are clumped together and therefore experiment a higher density (e.g there are not uniformly distributed).
+This is because, under this regime, individuals are clumped together and therefore experience a higher density (e.g., they are not uniformly distributed).
 
 ````julia
 local_density = ts.metadata["SLiM"]["user_metadata"]["D"][1]

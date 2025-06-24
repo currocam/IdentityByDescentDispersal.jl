@@ -76,7 +76,7 @@ Please refer to the [documentation](https://currocam.github.io/IdentityByDescent
 
 ## Simulations
 
-To this date, it is not entirely clear under which regimes the diffusion approximation breaks. We advise researchers to use simulations to adequately their expectations and guide their analysis using simulated datasets, especially when choosing the identity-by-descent detection software.
+To this date, it is not entirely clear under which regimes the diffusion approximation breaks. We advise researchers to use simulations to adequate their expectations and guide their analysis using simulated datasets, especially when choosing the identity-by-descent detection software.
 
 We provide a set of simulations of population genetics simulations in a continuous space that use forward-in-time simulations (with SLiM), tree-sequence recording, and coalescent simulation (Haller et al., 2019; Baumdicker et al., 2022; Haller & Messer, 2023). These simulations can be found in the [simulations directory](simulations/README.md) and can be used as templates.
 
@@ -84,7 +84,7 @@ Simulation-based calibration (using power-composite likelihoods) is an unexplore
 
 ## Full analysis workflow
 
-Inferring the effective density and dispersal rate from empirical datasets requires running an identity-by-descent detection software across different phased VCF files, post-processing them, and aggregating them appropriately. The function `preprocess_dataset`is designed to simplify this process.
+Inferring the effective density and dispersal rate from empirical datasets requires running a identity-by-descent detection software across different phased VCF files, post-processing them, and aggregating them appropriately. The function `preprocess_dataset`is designed to simplify this process.
 
 In addition, we include in this repository a [Snakemake pipeline](Snakefile) that can be used to perform a complete analysis, from detecting IBD blocks using [HapIBD](https://github.com/browning-lab/hap-ibd), post-processing them with [Refined IBD](https://faculty.washington.edu/browning/refined-ibd.html), producing a CSV directly compatible with this package, and, optionally, finding a preliminary maximum likelihood estimate of the effective density and effective dispersal rate.
 

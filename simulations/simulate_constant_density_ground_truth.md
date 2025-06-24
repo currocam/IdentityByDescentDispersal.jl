@@ -113,7 +113,7 @@ end;
 ````
 
 The package IdentityByDescentDispersal.jl has a function to preprocess both `DataFrames` into a single long DataFrame:
-Here, we use the default bins used Ringbauer et. al. in their paper.
+Here, we use the default bins used by Ringbauer et. al. in their paper.
 
 ````julia
 bins, min_threshold = default_ibd_bins()
@@ -149,7 +149,7 @@ end;
 
 ## Inference
 Recall that we compare the MLE estimate of the density not with the "global" local density, but with the local density.
-This is because, under this regime, individuals are clumped together and therefore experiment a higher density (e.g there are not uniformly distributed).
+This is because, under this regime, individuals are clumped together and therefore experience a higher density (e.g, they are not uniformly distributed).
 
 ````julia
 local_density = ts.metadata["SLiM"]["user_metadata"]["D"][1]

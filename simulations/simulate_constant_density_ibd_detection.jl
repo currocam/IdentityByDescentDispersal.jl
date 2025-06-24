@@ -136,7 +136,7 @@ end;
 
 # ## Inference
 # Recall that we compare the MLE estimate of the density not with the "global" local density, but with the local density.
-# This is because, under this regime, individuals are clumped together and therefore experiment a higher density (e.g there are not uniformly distributed).
+# This is because, under this regime, individuals are clumped together and therefore experience a higher density (e.g., they are not uniformly distributed).
 local_density = ts.metadata["SLiM"]["user_metadata"]["D"][1]
 dispersal_rate = ts.metadata["SLiM"]["user_metadata"]["SIGMA"][1]
 ground_truth = local_density, dispersal_rate

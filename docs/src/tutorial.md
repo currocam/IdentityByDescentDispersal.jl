@@ -18,10 +18,10 @@ For example, we might explore how fast the number of blocks decay as a function 
 using Plots
 
 L = 0.01         # Block length threshold (in Morgans)
-G = 0.01         # Genome length (in Morgans)
+G = 1.0         # Genome length (in Morgans)
 D = 1.0          # Effective population density
 σ = 1.0          # Dispersal rate
-r_values = range(0.01, 25.0, length=200);  # Distances
+r_values = range(0.01, 25.0, length = 200);  # Distances
 
 plot(
     r_values,
@@ -29,17 +29,17 @@ plot(
     xlabel = "Distance (r)",
     ylabel = "E[IBD blocks]",
     title = "Constant effective density scenario",
-    label = "D=1.0, σ=0.5"
+    label = "D=1.0, σ=0.5",
 )
 plot!(
     r_values,
     expected_ibd_blocks_constant_density.(r_values, 2.0, 0.5, L, G),
-    label="D=2.0, σ=0.5"
+    label = "D=2.0, σ=0.5",
 )
 plot!(
     r_values,
     expected_ibd_blocks_constant_density.(r_values, 1.0, 0.8, L, G),
-    label="D=1.0, σ=0.8"
+    label = "D=1.0, σ=0.8",
 )
 ````
 
@@ -53,22 +53,29 @@ function De(t, θ)
 end
 
 θ = [1.0, 0.5, 2π]  # Parameters for De(t): D₀, a, ω
-t_values = range(0.0, 10.0, length=200)   # Time for plotting D_e(t)
+t_values = range(0.0, 10.0, length = 200)   # Time for plotting D_e(t)
 ibd_values = [expected_ibd_blocks_custom(r, De, θ, σ, L, G) for r in r_values]
 density_values = [De(t, θ) for t in t_values]
 plot(
-    plot(t_values, density_values,
-        xlabel="Time (t)", ylabel="Effective Density Dₑ(t)",
-        label="θ = [D₀=1, a=0.5, ω=2π]",
-        title="Effective Density Trajectory",
+    plot(
+        t_values,
+        density_values,
+        xlabel = "Time (t)",
+        ylabel = "Effective Density Dₑ(t)",
+        label = "θ = [D₀=1, a=0.5, ω=2π]",
+        title = "Effective Density Trajectory",
     ),
-    plot(r_values, ibd_values,
-        xlabel="Distance (r)", ylabel="E[IBD blocks]",
-        label="σ = 0.5, L = 0.01, G = 0.01",
-        title="Expected Number of IBD Blocks",
+    plot(
+        r_values,
+        ibd_values,
+        xlabel = "Distance (r)",
+        ylabel = "E[IBD blocks]",
+        label = "σ = 0.5, L = 0.01, G = 0.01",
+        title = "Expected Number of IBD Blocks",
     ),
-    layout = (2, 1), size=(600, 800),
-    title = "User-defined effective density function"
+    layout = (2, 1),
+    size = (600, 800),
+    title = "User-defined effective density function",
 )
 ````
 
@@ -85,7 +92,7 @@ using Distributions
     0.5, # Dispersal rate
     2.0, # Effective density
     0.01, # Block length threshold (in Morgans)
-    1.0 # Genome length (in Morgans)
+    1.0, # Genome length (in Morgans)
 )
 Y = 5 # Observed number of IBD blocks
 logpdf(Poisson(λ), Y)
@@ -99,28 +106,36 @@ The input data for this sort of analysis is:
 - A `DataFrame` containing distances across pairs of individuals.
 - A list of contig lengths to properly take into account chromosomal edges (in Morgans).
 
-Preprocessing the data requires combining the different sources of information and binning the identity-by-descent blocks.
-For this purpose, we provide a helper function that returns a `DataFrame` in a "long" format.
-
 ````@example tutorial
 using DataFrames
 ibd_blocks = DataFrame(
     ID1 = ["A", "B", "A", "C", "B"],
     ID2 = ["B", "A", "C", "A", "C"],
-    span = [0.005, 0.012, 0.21, 0.10, 0.08] # Morgans
+    span = [0.005, 0.012, 0.21, 0.10, 0.08], # Morgans
 )
 individual_distances = DataFrame(
     ID1 = ["A", "A", "B"],
     ID2 = ["B", "C", "C"],
-    distance = [10.0, 20.0, 10.0] # (e.g., in kilometers)
+    distance = [10.0, 20.0, 10.0], # (e.g., in kilometers)
 )
-contig_lengths = [1.0, 1.5] # Contig lengths (in Morgans)
-bins = [0.01, 0.02, 0.03] # Right edges of bins (in Morgans)
-min_length = 0.005 # Minimum IBD length to consider
+contig_lengths = [1.0, 1.5]; # Contig lengths (in Morgans)
+nothing #hide
+````
+
+Preprocessing the data requires combining the different sources of information and binning the identity-by-descent blocks.
+For this purpose, we provide a helper function `preprocess_dataset` that returns a `DataFrame` in a "long" format.
+Of course, you may specify your own bins, but here we use the same bins used by Ringbauer et al. (2017) which can be accessed via the `default_ibd_bins` function.
+
+````@example tutorial
+bins, min_length = default_ibd_bins()
 df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length)
 ````
 
-We can now use the df `DataFrame`to compute composite loglikelihoods of different parameters using the family of `composite_loglikelihood_*` functions.
+In most scenarios, distances between diploid individuals are not available, but between sampling sites. The `preprocess_dataset` function handles this scenario appropriately
+by aggregating observations from pairs that have the exact same distance. However, if distances are available at the individual level, you may consider binning them to reduce
+the runtime. You might find an example of this in the [simulations](https://github.com/currocam/IdentityByDescentDispersal.jl/tree/main/simulations) subdirectory.
+
+We can now use the df `DataFrame`to compute composite log likelihoods of different parameters using the family of `composite_loglikelihood_*` functions.
 The second major feature of this package is that functions are all compatible with automatic differentiation. Analytical solutions depend on a modified Bessel function of the second kind, which is not widely implemented in a way that allows for automatic differentiation .
 Here, we rely on the `BesselK.jl` package for doing this. In addition, we rely on the system of `QuadGK.jl` for numerical integration compatible with automatic differentiation. This allows us to perform gradient-based optimization and interact with existing software.
 
@@ -181,7 +196,13 @@ end
     t0 ~ Truncated(Normal(500, 100), 0, Inf)
     σ ~ Truncated(Normal(1, 0.1), 0, Inf)
     theta = [De1, De2, α, t0]
-    Turing.@addlogprob! composite_loglikelihood_custom(piecewise_D, theta, σ, df, contig_lengths)
+    Turing.@addlogprob! composite_loglikelihood_custom(
+        piecewise_D,
+        theta,
+        σ,
+        df,
+        contig_lengths,
+    )
 end
 m = exponential_density(df, contig_lengths)
 chain = sample(m, NUTS(), 1000;)

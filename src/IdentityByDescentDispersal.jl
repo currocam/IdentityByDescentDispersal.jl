@@ -226,8 +226,8 @@ The integral is computed numerically using Gaussian-Legendre quadrature rules wi
 
 where:
 - `r` is the geographic distance between samples,
-- `De` is  a user defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
-- `parameters` is a user defined array of parameters that the function `De` depends on.
+- `De` is  a user-defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
+- `parameters` is a user-defined array of parameters that the function `De` depends on.
 - `sigma` is the root mean square dispersal distance per generation,
 - `L` is the minimum length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
@@ -318,7 +318,7 @@ Preprocesses the input data for identity-by-descent (IBD) block analysis.
 - `min_length`: Minimum length of IBD blocks to consider in Morgans.
 
 It returns a DataFrame in "long" format with the following columns:
-  - `DISTANCE`: The pairwise distance bin between individuals.
+  - `DISTANCE`: The pairwise distance between individuals.
   - `IBD_LEFT`: The left bound of the IBD length bin.
   - `IBD_RIGHT`: The right bound of the IBD length bin.
   - `IBD_MID`: The center of the IBD length bin.
@@ -503,8 +503,8 @@ end
     composite_loglikelihood_custom(De::Function, parameters::AbstractArray, sigma::Real, df::DataFrame, contig_lengths::AbstractArray{<:Real}, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
 
 Computes the composite log-likelihood of the observed IBD blocks under a model with constant population density.
-- `De` is  a user defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
-- `parameters` is a user defined array of parameters that the function `De` depends on.
+- `De` is  a user-defined function that takes time `t` and `parameters` and returns the effective population density at time `t`.
+- `parameters` is a user-defined array of parameters that the function `De` depends on.
 - `sigma`: Root mean square dispersal distance per generation.
 - `df`: DataFrame containing the observed IBD blocks in the format returned by `preprocess_dataset`.
 - `contig_lengths`: Array of contig lengths in Morgans.
