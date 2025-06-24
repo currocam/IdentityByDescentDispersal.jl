@@ -1,0 +1,8 @@
+name: default
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - openjdk >=23.0.2,<24
+  - snakemake >=9.6.1,<10

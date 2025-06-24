@@ -1,0 +1,22 @@
+# This is an example configuration file for a minimal workflow to estimate
+# dispersal rate and density using identity-by-descent blocks.
+# Input data directory
+# It should contain VCF files and genetic map files.
+# VCF files are assumed to end with .vcf.gz
+data_dir: ".test-workflow/"
+map_file_suffix: ".map"
+# We assume there is a CSV file in "long" format containing all pairwise distances between individuals.
+# Such file should contain columns "ID1", "ID2" and "distance"
+distances_file: ".test-workflow/pairwise_distances.csv"
+# Output directory
+out_dir: ".test-workflow/output"
+# Additional parameters for post-processing
+# Refer to https://faculty.washington.edu/browning/refined-ibd.html
+gap: 0.6 # in cM
+discord: 1 #  # at most one discordant homozygote
+# Optionally, we can fit the simplest constant density model
+# and return the MLE estimates. In order to do so, we require a list of
+# contig lengths to be specified here (in Morgans):
+# We do recommend however to fit such models interactively. If not provided,
+# this step will be skipped.
+contig_lengths: [1.0]

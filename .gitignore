@@ -1,5 +1,8 @@
 *.jar
 *.log
+steps
+logs
+output
 *.trees
 *.jl.*.cov
 *.jl.cov
@@ -13,3 +16,7 @@ coverage
 docs/build/
 env
 node_modules
+
+# pixi environments
+.pixi
+*.egg-info
