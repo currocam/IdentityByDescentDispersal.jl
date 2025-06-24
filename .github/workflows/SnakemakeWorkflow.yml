@@ -2,7 +2,7 @@ name: SnakemakeWorkflow
 
 on:
   push:
-    branches:
+    branches: 
       - main
     tags: ["*"]
   workflow_dispatch:
@@ -10,27 +10,25 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+        
       - name: Set up Julia
         uses: julia-actions/setup-julia@v1
         with:
           version: "1"
+          
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           activate-environment: snakemake-env
-          environment-name: snakemake-env
-          python-version: 3.10
-
+          python-version: "3.10"
+          
       - name: Install Snakemake
         run: |
-          conda install -y -c bioconda -c conda-forge snakemake-minimal
-
+          conda install -y -c bioconda -c conda-forge snakemake-minimal        
       - name: Execute Snakemake workflow
         run: |
           snakemake -c1 --configfile .test-workflow/config.yaml --use-conda
