@@ -19,14 +19,10 @@ jobs:
         with:
           version: "1"
 
-      - name: Set up Conda and install Snakemake
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Testing Snakemake workflow with pre-installed Julia
+        uses: snakemake/snakemake-github-action@v2
         with:
-          auto-update-conda: true
-          activate-environment: snakemake-env
-          conda-tools: 'python=3.11 snakemake-minimal'
-          channels: 'bioconda,conda-forge'
-
-      - name: Execute Snakemake workflow
-        run: |
-          snakemake -c1 --configfile .test-workflow/config.yaml --use-conda
+          directory: '.'
+          snakefile: 'Snakefile'
+          args: '--cores 1 --configfile .test-workflow/config.yaml --sdm conda --conda-cleanup-pkgs cache'
+          show-disk-usage-on-error: true
