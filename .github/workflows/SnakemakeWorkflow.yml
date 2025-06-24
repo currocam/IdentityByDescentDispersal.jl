@@ -24,11 +24,9 @@ jobs:
         with:
           auto-update-conda: true
           activate-environment: snakemake-env
-          python-version: "3.12"
           
-      - name: Install Snakemake
-        run: |
-          conda install -y -c bioconda -c conda-forge snakemake-minimal        
       - name: Execute Snakemake workflow
         run: |
+          conda create -y -n snakemake-env -c bioconda -c conda-forge python=3.11 snakemake-minimal
+          conda activate snakemake-env
           snakemake -c1 --configfile .test-workflow/config.yaml --use-conda
