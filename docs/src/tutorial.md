@@ -15,7 +15,7 @@ using IdentityByDescentDispersal
 Genetic distances between populations are often a function of geographic distance. This phenomenon is often referred to as isolation-by-distance.
 Isolation-by-distance is reflected in the patterns of identity-by-descent blocks (also known as IBD blocks).
 It is possible to derive the expected patterns of shared identity-by-descent blocks under a diffusion approximation and certain demographic models.
-We refer to the publication of [Ringbauer et al. (2019)](10.1534/genetics.116.196220) and the `Model overview` section of the documentation for more details.
+We refer to the publication of Ringbauer et al. (2017) and the `Model overview` section of the documentation for more details.
 
 The main feature of this package is to compute the expected density of identity-by-descent blocks under different demographic scenarios.
 Next, we show how to compute the expected density of identity-by-descent blocks under a constant population density using the `expected_ibd_blocks_constant_density` function.
@@ -59,7 +59,7 @@ length (in Morgans) and per pair. In order to compare such expectations with obs
 expected number of blocks whose length falls in a given interval `[a, b]`. For a small enough interval $[L, L + \Delta L]$ we can approximate
 the expected number of blocks whose length falls in that interval as:
 
-$ E[N_{[L, L + \Delta L]}]\int_{L}^{L + \Delta L} E[N_L] dL \approx E[N_L] \Delta L$
+$ E[N_{[L, L + \Delta L]}] = \int_{L}^{L + \Delta L} E[N_L] dL \approx E[N_L] \Delta L$
 
 For example, the expected number of identity-by-descent blocks whose length falls in the interval `[1cM, 1.1cM]` shared by two diploid
 individuals that are 1 kM apart in a population with constant effective population density of `10/kM²`and dispersal rate of `0.5/kM` would be
@@ -68,7 +68,7 @@ individuals that are 1 kM apart in a population with constant effective populati
 expected_ibd_blocks_constant_density(1.0, 10.0, 0.5, L, G) * 0.001
 ````
 
-[Ringbauer et al. (2019)](10.1534/genetics.116.196220) derived analytical solutions for the expected density of identity-by-descent blocks for
+Ringbauer et al. (2017) derived analytical solutions for the expected density of identity-by-descent blocks for
 the family of functions of effective population density of the form $D_e(t) = D_1 t^{-\beta}$. A constant effective population density is a special
 case of this family with $\beta = 1$. For other values of $\beta$, the expected density of identity-by-descent blocks can be computed using the
 `expected_ibd_blocks_power_density` function.
@@ -143,7 +143,7 @@ plot(p1, p2, layout = (2, 1), size = (600, 800))
 
 ## Inference
 
-Ringbauer proposed to do inference by assuming that the observed number of IBD blocks that a pair $r$ units apart that fall within a small bin $[L_i, L_i + \Delta L]$ follows a Poisson distribution with mean $E[N_{L_i}(r, \theta)] \Delta L$.
+Ringbauer et. al (2017) proposed to do inference by assuming that the observed number of IBD blocks that a pair $r$ units apart that fall within a small bin $[L_i, L_i + \Delta L]$ follows a Poisson distribution with mean $E[N_{L_i}(r, \theta)] \Delta L$.
 
 Therefore, the log probability of observing `Y` identity-by-descent blocks whose length fall in the bin $[L_i, L_i + \Delta L]$ from a pair of individuals that are $r$ units apart can be calculated simply as:
 
