@@ -179,7 +179,7 @@ calculated from the expected density of identity-by-descent blocks under the
 demographic model of interest. If the bin is small enough, it can be
 calculated as
 
-$$\mathbb{E}[#\{L, L+\Delta L\}] = \mathbb{E}[L] \Delta L$$
+$$\mathbb{E}[\#\{L, L+\Delta L\}] = \mathbb{E}[L] \Delta L$$
 
 Finally, they propose to approximate the likelihood of the observed data
 across many bins and pairs of individuals using a composite likelihood (that
