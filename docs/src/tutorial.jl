@@ -170,7 +170,7 @@ contig_lengths = [1.0, 1.5]; # Contig lengths (in Morgans)
 # For this purpose, we provide a helper function `preprocess_dataset` that returns a `DataFrame` in a "long" format.
 # Of course, you may specify your own bins, but here we use the same bins used by Ringbauer et al. (2017), which can be accessed via the `default_ibd_bins` function.
 bins, min_length = default_ibd_bins()
-df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length)
+df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length);
 
 # In most scenarios, distances between diploid individuals are not available, but between sampling sites. The `preprocess_dataset` function handles this scenario appropriately
 # by aggregating observations from pairs that have the exact same distance. However, if distances are available at the individual level, you may consider binning them to reduce

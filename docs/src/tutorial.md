@@ -190,7 +190,8 @@ Of course, you may specify your own bins, but here we use the same bins used by 
 
 ````@example tutorial
 bins, min_length = default_ibd_bins()
-df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length)
+df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length);
+nothing #hide
 ````
 
 In most scenarios, distances between diploid individuals are not available, but between sampling sites. The `preprocess_dataset` function handles this scenario appropriately
