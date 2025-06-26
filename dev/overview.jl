@@ -113,7 +113,9 @@ plot(
 #  Ringbauer et al. (2017) proposed an inference scheme where they assumed the number of observed shared-identity-by-descent blocks
 #  whose length fall in a small bin follows a Poisson distribution. The rate of the distribution can be calculated from the expected
 #  density of identity-by-descent blocks under the demographic model of interest. If the bin is small enough, it can be simply calculated
-#  as $E[L, L+\Delta L ] = E[L] \Delta L $.
+#  as
+#
+#  $ E[L, L+\Delta L ] = E[L] \Delta L $
 #
 #  Finally, they propose to approximate the likelihood of the observed data across many bins and pairs of individuals using a composite
 #  likelihood (that is, by assuming pairwise observations are independent).

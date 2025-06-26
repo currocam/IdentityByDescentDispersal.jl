@@ -51,7 +51,7 @@ plot!(
 # expected number of blocks whose length falls in a given interval `[a, b]`. For a small enough interval $[L, L + \Delta L]$ we can approximate
 # the expected number of blocks whose length falls in that interval as:
 #
-# $ E[N_{[L, L + \Delta L]}] = \int_{L}^{L + \Delta L} E[N_L] dL \approx E[N_L] \Delta L$
+# $ E[N_{[L, L + \Delta L]}] = \int_{L}^{L + \Delta L} E[N_L] dL \approx E[N_L] \Delta L $
 #
 # For example, the expected number of identity-by-descent blocks whose length falls in the interval `[1cM, 1.1cM]` shared by two diploid
 # individuals that are 1 kM apart in a population with constant effective population density of `10/kM²`and dispersal rate of `0.5/kM` would be
