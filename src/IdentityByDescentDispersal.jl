@@ -141,7 +141,7 @@ end
 """
     expected_ibd_blocks_power_density(r::Real, D::Real, beta::Real, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
 
-Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-beta}``
+Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-\beta}``
 This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt =
@@ -221,7 +221,7 @@ Computes the expected density of identity-by-descent (IBD) blocks of length `L` 
 This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 
 ```math
-\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
+\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
 ```
 
 The integral is computed numerically using Gaussian-Legendre quadrature rules with the `QuadGK` package.
