@@ -22,7 +22,7 @@ Please refer to the [documentation](https://currocam.github.io/IdentityByDescent
 
 This Julia package implements a method proposed by [Ringbauer et al. (2017)](10.1534/genetics.116.196220) to estimate effective densities and effective dispersal rates from identity-by-descent blocks.
 
-This method assumes a diffusion approximation to trace genetic ancestry and leverages coalescent theory to derive analytical formulas for the expected number of identity-by-descent blocks shared between a pair of individuals that are $r$ units apart according to a certain demographic model $\theta$.
+This method assumes a diffusion approximation to trace genetic ancestry and leverages coalescent theory to derive analytical formulas for the expected density of identity-by-descent blocks shared between a pair of individuals that are $r$ units apart according to a certain demographic model $\theta$.
 
 ```julia
 using IdentityByDescentDispersal
@@ -53,7 +53,7 @@ expected_ibd_blocks_custom(r, De, [D, α], σ, L, G)
 
 [Ringbauer et al. (2017)](10.1534/genetics.116.196220) proposed an inference scheme based on a composite likelihood. This package implements an improved version of this scheme that relies on automatic differentiation and that integrates well with Julia's ecosystem.
 
-Analytical solutions to the expected number of identity-by-descent blocks depend on the modified second-kind Bessel function $K_v(x)$. Here we rely on the implementation of [Geoga et al. (2022)](https://arxiv.org/pdf/2201.00090) to compute fast and accurate derivatives with respect to both $v$ and $x$. Therefore, this package is fully compatible with automatic differentiation using [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) when using both analytical solutions and numerical approximations. This leads to gradient-based optimization that is generally more efficient when finding maximum-likelihood estimates and allows us to use standard Bayesian inference software that uses Hamiltonian Monte Carlo algorithms.
+Analytical solutions to the expected density of identity-by-descent blocks depend on the modified second-kind Bessel function $K_v(x)$. Here we rely on the implementation of [Geoga et al. (2022)](https://arxiv.org/pdf/2201.00090) to compute fast and accurate derivatives with respect to both $v$ and $x$. Therefore, this package is fully compatible with automatic differentiation using [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) when using both analytical solutions and numerical approximations. This leads to gradient-based optimization that is generally more efficient when finding maximum-likelihood estimates and allows us to use standard Bayesian inference software that uses Hamiltonian Monte Carlo algorithms.
 
 ```julia
 using CSV, DataFrames, Turing
