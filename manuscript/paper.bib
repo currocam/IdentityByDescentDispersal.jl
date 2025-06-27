@@ -33,7 +33,7 @@
 	month = may,
 	year = {2023},
 	note = {Publisher: The University of Chicago Press},
-	keywords = {biodiversity, coevolution, community, evolutionary ecology, multispecies, simulation},
+	keywords = {simulation, biodiversity, coevolution, community, evolutionary ecology, multispecies},
 	pages = {E127--E139},
 }
 
@@ -84,4 +84,83 @@
 	year = {2022},
 	note = {Version Number: 3},
 	keywords = {Computation (stat.CO), FOS: Computer and information sciences, Methodology (stat.ME)},
+}
+
+@article{smith_dispersenn2_2023,
+	title = {{disperseNN2}: a neural network for estimating dispersal distance from georeferenced polymorphism data},
+	volume = {24},
+	issn = {1471-2105},
+	shorttitle = {{disperseNN2}},
+	url = {https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-023-05522-7},
+	doi = {10.1186/s12859-023-05522-7},
+	abstract = {Abstract
+
+              Spatial genetic variation is shaped in part by an organism’s dispersal ability. We present a deep learning tool, , for estimating the mean per-generation dispersal distance from georeferenced polymorphism data. Our neural network performs feature extraction on pairs of genotypes, and uses the geographic information that comes with each sample. These attributes led  to outperform a state-of-the-art deep learning method that does not use explicit spatial information: the mean relative absolute error was reduced by 33\% and 48\% using sample sizes of 10 and 100 individuals, respectively.  is particularly useful for non-model organisms or systems with sparse genomic resources, as it uses unphased, single nucleotide polymorphisms as its input. The software is open source and available from
+              https://github.com/kr-colab/disperseNN2
+              , with documentation located at
+              https://dispersenn2.readthedocs.io/en/latest/
+              .},
+	language = {en},
+	number = {1},
+	urldate = {2025-06-27},
+	journal = {BMC Bioinformatics},
+	author = {Smith, Chris C. R. and Kern, Andrew D.},
+	month = oct,
+	year = {2023},
+	pages = {385},
+	file = {Full Text:/Users/currocampuzano/Zotero/storage/DXGH9Q7T/Smith and Kern - 2023 - disperseNN2 a neural network for estimating dispersal distance from georeferenced polymorphism data.pdf:application/pdf},
+}
+
+@article{driscoll_trajectory_2014,
+	title = {The {Trajectory} of {Dispersal} {Research} in {Conservation} {Biology}. {Systematic} {Review}},
+	volume = {9},
+	issn = {1932-6203},
+	url = {https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0095053},
+	doi = {10.1371/journal.pone.0095053},
+	abstract = {Dispersal knowledge is essential for conservation management, and demand is growing. But are we accumulating dispersal knowledge at a pace that can meet the demand? To answer this question we tested for changes in dispersal data collection and use over time. Our systematic review of 655 conservation-related publications compared five topics: climate change, habitat restoration, population viability analysis, land planning (systematic conservation planning) and invasive species. We analysed temporal changes in the: (i) questions asked by dispersal-related research; (ii) methods used to study dispersal; (iii) the quality of dispersal data; (iv) extent that dispersal knowledge is lacking, and; (v) likely consequences of limited dispersal knowledge. Research questions have changed little over time; the same problems examined in the 1990s are still being addressed. The most common methods used to study dispersal were occupancy data, expert opinion and modelling, which often provided indirect, low quality information about dispersal. Although use of genetics for estimating dispersal has increased, new ecological and genetic methods for measuring dispersal are not yet widely adopted. Almost half of the papers identified knowledge gaps related to dispersal. Limited dispersal knowledge often made it impossible to discover ecological processes or compromised conservation outcomes. The quality of dispersal data used in climate change research has increased since the 1990s. In comparison, restoration ecology inadequately addresses large-scale process, whilst the gap between knowledge accumulation and growth in applications may be increasing in land planning. To overcome apparent stagnation in collection and use of dispersal knowledge, researchers need to: (i) improve the quality of available data using new approaches; (ii) understand the complementarities of different methods and; (iii) define the value of different kinds of dispersal information for supporting management decisions. Ambitious, multi-disciplinary research programs studying many species are critical for advancing dispersal research.},
+	language = {en},
+	number = {4},
+	urldate = {2025-06-27},
+	journal = {PLOS ONE},
+	author = {Driscoll, Don A. and Banks, Sam C. and Barton, Philip S. and Ikin, Karen and Lentini, Pia and Lindenmayer, David B. and Smith, Annabel L. and Berry, Laurence E. and Burns, Emma L. and Edworthy, Amanda and Evans, Maldwyn J. and Gibson, Rebecca and Heinsohn, Rob and Howland, Brett and Kay, Geoff and Munro, Nicola and Scheele, Ben C. and Stirnemann, Ingrid and Stojanovic, Dejan and Sweaney, Nici and Villaseñor, Nélida R. and Westgate, Martin J.},
+	month = apr,
+	year = {2014},
+	note = {Publisher: Public Library of Science},
+	keywords = {Biodiversity, Climate change, Conservation biology, Conservation science, Ecosystems, Genetics, Habitats, Invasive species},
+	pages = {e95053},
+	file = {Full Text PDF:/Users/currocampuzano/Zotero/storage/VJSJ7UVM/Driscoll et al. - 2014 - The Trajectory of Dispersal Research in Conservation Biology. Systematic Review.pdf:application/pdf},
+}
+
+@article{smith_dispersal_2023,
+	title = {Dispersal inference from population genetic variation using a convolutional neural network},
+	volume = {224},
+	issn = {1943-2631},
+	url = {https://doi.org/10.1093/genetics/iyad068},
+	doi = {10.1093/genetics/iyad068},
+	abstract = {The geographic nature of biological dispersal shapes patterns of genetic variation over landscapes, making it possible to infer properties of dispersal from genetic variation data. Here, we present an inference tool that uses geographically distributed genotype data in combination with a convolutional neural network to estimate a critical population parameter: the mean per-generation dispersal distance. Using extensive simulation, we show that our deep learning approach is competitive with or outperforms state-of-the-art methods, particularly at small sample sizes. In addition, we evaluate varying nuisance parameters during training—including population density, demographic history, habitat size, and sampling area—and show that this strategy is effective for estimating dispersal distance when other model parameters are unknown. Whereas competing methods depend on information about local population density or accurate inference of identity-by-descent tracts, our method uses only single-nucleotide-polymorphism data and the spatial scale of sampling as input. Strikingly, and unlike other methods, our method does not use the geographic coordinates of the genotyped individuals. These features make our method, which we call “disperseNN,” a potentially valuable new tool for estimating dispersal distance in nonmodel systems with whole genome data or reduced representation data. We apply disperseNN to 12 different species with publicly available data, yielding reasonable estimates for most species. Importantly, our method estimated consistently larger dispersal distances than mark-recapture calculations in the same species, which may be due to the limited geographic sampling area covered by some mark-recapture studies. Thus genetic tools like ours complement direct methods for improving our understanding of dispersal.},
+	number = {2},
+	urldate = {2025-06-27},
+	journal = {Genetics},
+	author = {Smith, Chris C R and Tittes, Silas and Ralph, Peter L and Kern, Andrew D},
+	month = jun,
+	year = {2023},
+	pages = {iyad068},
+	file = {Full Text PDF:/Users/currocampuzano/Zotero/storage/MBMIYU74/Smith et al. - 2023 - Dispersal inference from population genetic variation using a convolutional neural network.pdf:application/pdf;Snapshot:/Users/currocampuzano/Zotero/storage/DUDHTAA5/iyad068.html:text/html},
+}
+
+@article{rousset_genetic_1997,
+	title = {Genetic {Differentiation} and {Estimation} of {Gene} {Flow} from {F}-{Statistics} {Under} {Isolation} by {Distance}},
+	volume = {145},
+	issn = {1943-2631},
+	url = {https://doi.org/10.1093/genetics/145.4.1219},
+	doi = {10.1093/genetics/145.4.1219},
+	abstract = {I reexamine the use of isolation by distance models as a basis for the estimation of demographic parameters from measures of population subdivision. To that aim, I first provide results for values of F-statistics in one-dimensional models and coalescence times in two-dimensional models, and make more precise earlier results for F-statistics in two-dimensional models and coalescence times in one-dimensional models. Based on these results, I propose a method of data analysis involving the regression of FST/ (1 – FST) estimates for pairs of subpopulations on geographic distance for populations along linear habitats or logarithm of distance for populations in two-dimensional habitats. This regression provides in principle an estimate of the product of population density and second moment of parental axial distance. In two cases where comparison to direct estimates is possible, the method proposed here is more satisfactory than previous indirect methods.},
+	number = {4},
+	urldate = {2025-06-27},
+	journal = {Genetics},
+	author = {Rousset, François},
+	month = apr,
+	year = {1997},
+	pages = {1219--1228},
+	file = {Full Text PDF:/Users/currocampuzano/Zotero/storage/9VDHQUB9/Rousset - 1997 - Genetic Differentiation and Estimation of Gene Flow from F-Statistics Under Isolation by Distance.pdf:application/pdf;Snapshot:/Users/currocampuzano/Zotero/storage/4EVEY8IC/145.4.html:text/html},
 }
