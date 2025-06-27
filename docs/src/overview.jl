@@ -134,7 +134,7 @@ plot(
 # identity-by-descent blocks of length $l$ per pair of haploid individuals and
 # per unit of block length given that the time to the most recent common
 # ancestor is $t$ is given by
-# 
+#
 # $$E[K_l | t] \approx G 4 t^2 \exp(-2lt)$$
 #
 # where $G$ is the length of the genome in Morgans. This equation is obtained by
@@ -165,7 +165,7 @@ plot(
 # number of observed shared identity-by-descent blocks whose length fall in a
 # small bin follows a Poisson distribution. The rate of the distribution can be
 # calculated from the expected density of identity-by-descent blocks under the
-# demographic model of interest. If the bin is small enough, it can be 
+# demographic model of interest. If the bin is small enough, it can be
 # calculated as
 #
 # $$\mathbb{E}[\#\{L, L+\Delta L\}] = \mathbb{E}[L] \Delta L$$

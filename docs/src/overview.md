@@ -196,4 +196,3 @@ $$CL(\theta | \text{Data}) = \prod_{i,j} \Pr(K = Y_i^j | \mathbb{E}[L_i]^j \Delt
 ---
 
 *This page was generated using [Literate.jl](https://github.com/fredrikekre/Literate.jl).*
-
