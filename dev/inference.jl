@@ -41,8 +41,7 @@ using JLD2, DataFrames, IdentityByDescentDispersal, Turing
 data = load("../data/constant_density.jld2")
 ground_truth = (data["local_density"], data["dispersal_rate"])
 # The `IdentityByDescentDispersal` is designed to be compatible with existing statistical software. Here, we decide to
-# Use the `Turing` package, which is the most popular Bayesian modelling framework in Julia. We assume the reader
-# is familiar with the usage of such a library. Let's consider the following model:
+# Use the `Turing` package, which is the most popular Bayesian modelling framework in Julia. Let's consider the following model:
 @model function constant_density(df, contig_lengths)
     De ~ Truncated(Normal(1000, 100), 0, Inf)
     σ ~ Truncated(Normal(1, 0.1), 0, Inf)
@@ -64,7 +63,9 @@ chains = sample(m, NUTS(), MCMCThreads(), 1000, 4);
 # Most popular approaches involve calculating quantities such as the effective number of samples (ESS)
 # and $\hat {R}$, which can be computed directly from `Turing` output:
 ess(chains) |> DataFrame
+
 rhat(chains) |> DataFrame
+
 # As a rule of thumb, we aim to run the chain long enough to obtain an ESS greater than 100. A $\hat {R}$ greater than 1.05
 # indicates the chains have not mixed well. Convergence issues can also be inspected through a `traceplot`:
 using Plots, StatsPlots
