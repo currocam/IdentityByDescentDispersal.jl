@@ -13,7 +13,7 @@ You can install this package by running:
 
 ```julia
 import Pkg
-Pkg.add(url="https://github.com/currocam/IdentityByDescentDispersal.jl")
+Pkg.add("IdentityByDescentDispersal")
 ```
 
 Please refer to the [documentation](https://currocam.github.io/IdentityByDescentDispersal.jl) of the package for a detailed description of this package.
