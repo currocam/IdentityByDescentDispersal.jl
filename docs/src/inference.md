@@ -49,8 +49,7 @@ ground_truth = (data["local_density"], data["dispersal_rate"])
 ````
 
 The `IdentityByDescentDispersal` is designed to be compatible with existing statistical software. Here, we decide to
-Use the `Turing` package, which is the most popular Bayesian modelling framework in Julia. We assume the reader
-is familiar with the usage of such a library. Let's consider the following model:
+Use the `Turing` package, which is the most popular Bayesian modelling framework in Julia. Let's consider the following model:
 
 ````@example inference
 @model function constant_density(df, contig_lengths)
@@ -83,6 +82,7 @@ and $\hat {R}$, which can be computed directly from `Turing` output:
 
 ````@example inference
 ess(chains) |> DataFrame
+
 rhat(chains) |> DataFrame
 ````
 
