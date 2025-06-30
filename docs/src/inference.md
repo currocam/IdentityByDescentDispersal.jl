@@ -78,16 +78,21 @@ second-kind Bessel function). If you run into issues, we suggest that:
 Diagnosing the posterior samples obtained via Markov Chain Monte Carlo is a crucial step in any Bayesian inference.
 We refer to existing resources such as this lecture on [Bayesian modelling in Biostatistics](https://myweb.uiowa.edu/pbreheny/uk/teaching/701/notes/3-5.pdf)
 Most popular approaches involve calculating quantities such as the effective number of samples (ESS)
-and $\hat {R}$, which can be computed directly from `Turing` output:
+and $\hat {R}$, which can be computed directly from `Turing` output.
+
+As a rule of thumb, we aim to run the chain long enough to obtain an ESS greater than 100.
 
 ````@example inference
 ess(chains) |> DataFrame
+````
 
+A $\hat {R}$ greater than 1.05 indicates the chains have not mixed well.
+
+````@example inference
 rhat(chains) |> DataFrame
 ````
 
-As a rule of thumb, we aim to run the chain long enough to obtain an ESS greater than 100. A $\hat {R}$ greater than 1.05
-indicates the chains have not mixed well. Convergence issues can also be inspected through a `traceplot`:
+Convergence issues can also be inspected through a `traceplot`:
 
 ````@example inference
 using Plots, StatsPlots
