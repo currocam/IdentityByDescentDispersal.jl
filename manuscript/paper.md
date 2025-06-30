@@ -63,7 +63,7 @@ Both the SLiM simulation template and the Snakemake pipeline can be found in the
 
 In this section, we exemplify how `IdentityByDescentDispersal.jl` can be used together with the popular `Turing.jl` framework [@ge_turing_2018] using a dataset we simulate in the documentation. We analyze error-free identity-by-descent blocks shared by 100 diploid individuals from a constant-density population with parameters $D_{\text{true}}\approx 250$ diploids/km² and $\sigma_{\text{true}}\approx 0.071$ km/generation.
 
-`IdentityByDescentDispersal.jl` has extensive documentationjulia
+`IdentityByDescentDispersal.jl` has extensive documentation
 that covers the underlying theory behind the method, how to effectively simulate synthetic datasets, various demographic models, and inference algorithms. We refer the reader to the documentation for more details, which can be found at [https://currocam.github.io/IdentityByDescentDispersal.jl/](https://currocam.github.io/IdentityByDescentDispersal.jl/dev/).
 
 Thanks to `Turing.jl`, we can perform Bayesian inference with a wide range of popular Monte Carlo algorithms. \autoref{fig:example} shows the estimated pseudo-posterior obtained through doing inference with the composite likelihood.
@@ -101,7 +101,7 @@ which estimates $D_{\text{MLE}}\approx 282$ diploids/km² (95% CI: 260–303) an
 
 # Conclusions
 
-We have described `IdentityByDescentDispersal.jl`, a Julia package that allows us to perform gradient-based estimation of effective population and dispersal rates under a wide variety of demographic models. We hope that evolutionary biologists and conservation scientists will take advantage of `IdentityByDescentDispersal.jl` as well as the accompanying simulation template and the bioinformatics template in future analyses.
+We have described `IdentityByDescentDispersal.jl`, a Julia package that allows us to perform gradient-based estimation of effective population and dispersal rates under a wide variety of demographic models. We hope that evolutionary biologists and conservation scientists will take advantage of `IdentityByDescentDispersal.jl` as well as the accompanying simulation template and the bioinformatics pipeline in future analyses.
 
 # Availability
 
