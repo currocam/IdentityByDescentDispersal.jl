@@ -10,24 +10,28 @@ This tutorial demonstrates basic usage of the package.
 using IdentityByDescentDispersal
 ````
 
-## Expected number of identity-by-descent blocks
-The main feature of this package is to compute the expected number of identity-by-descent blocks under different demographic scenarios.
-For example, we might explore how fast the number of blocks decay as a function of physical distance between pairs of individuals.
+## Expected density of identity-by-descent blocks
+
+Genetic distances between populations are often a function of geographic distance. This phenomenon is often referred to as isolation-by-distance.
+Isolation-by-distance is reflected in the patterns of identity-by-descent blocks (also known as IBD blocks).
+It is possible to derive the expected patterns of shared identity-by-descent blocks under a diffusion approximation and certain demographic models.
+We refer to the publication of Ringbauer et al. (2017) and the `Model overview` section of the documentation for more details.
+
+The main feature of this package is to compute the expected density of identity-by-descent blocks under different demographic scenarios.
+Next, we show how to compute the expected density of identity-by-descent blocks under a constant population density using the `expected_ibd_blocks_constant_density` function.
 
 ````@example tutorial
 using Plots
 
 L = 0.01         # Block length threshold (in Morgans)
-G = 1.0         # Genome length (in Morgans)
-D = 1.0          # Effective population density
-σ = 1.0          # Dispersal rate
+G = 1.0          # Genome length (in Morgans)
 r_values = range(0.01, 25.0, length = 200);  # Distances
 
 plot(
     r_values,
     expected_ibd_blocks_constant_density.(r_values, 1.0, 0.5, L, G),
-    xlabel = "Distance (r)",
-    ylabel = "E[IBD blocks]",
+    xlabel = "Geographic distance between individuals (r)",
+    ylabel = "E[#IBD blocks per unit of block length and per pair]",
     title = "Constant effective density scenario",
     label = "D=1.0, σ=0.5",
 )
@@ -43,45 +47,103 @@ plot!(
 )
 ````
 
-In addition to constant effective densities and power density functions, we also support arbitrary effective density functions provided by the user via numerical integration.
-Next, we illustrate how to define a custom function by considering a scenario with an oscillating effective density function.
+The figure above shows how the density of IBD blocks of length 1 centimorgan in a genome of 1 Morgan decays as a function of geographic distance
+for different demographic scenarios that vary in effective density and dispersal rate.
+The effective density is in units of number of diploid individuals per area unit (e.g., km²). The dispersal rate is defined as the square root
+of the average squared axial parent-offspring distance. The rate of the decay of identity-by-descent blocks is directly related
+to the time since the most recent common ancestor.
+
+Recall that the length of IBD blocks is a continuous random variable. Therefore, the expected number of IBD blocks of exactly length `L` is zero.
+What the `expected_ibd_blocks_constant_density` function returns is the expected number of IBD blocks of length `L` per unit of block
+length (in Morgans) and per pair. In order to compare such expectations with observed data, we often want to consider instead the
+expected number of blocks whose length falls in a given interval `[a, b]`. For a small enough interval $[L, L + \Delta L]$ we can approximate
+the expected number of blocks whose length falls in that interval as:
+
+$E[N_{[L, L + \Delta L]}] = \int_{L}^{L + \Delta L} E[N_L] dL \approx E[N_L] \Delta L$
+
+For example, the expected number of identity-by-descent blocks whose length falls in the interval `[1cM, 1.1cM]` shared by two diploid
+individuals that are 1 kM apart in a population with constant effective population density of `10/kM²`and dispersal rate of `0.5/kM` would be
+
+````@example tutorial
+expected_ibd_blocks_constant_density(1.0, 10.0, 0.5, L, G) * 0.001
+````
+
+Ringbauer et al. (2017) derived analytical solutions for the expected density of identity-by-descent blocks for
+the family of functions of effective population density of the form $D_e(t) = D_1 t^{-\beta}$. A constant effective population density is a special
+case of this family with $\beta = 0$. For other values of $\beta$, the expected density of identity-by-descent blocks can be computed using the
+`expected_ibd_blocks_power_density` function.
+
+In addition to power density functions, we also support arbitrary effective density functions provided by the user via numerical integration.
+Next, we illustrate how to define a custom function by considering the popular choice of an exponential growth function.
+
+````@example tutorial
+D = 1.0          # Effective population density
+σ = 1.0          # Dispersal rate
+function De(t, θ)
+    D₀, α = θ
+    max(D₀ * exp(-α * t), eps())
+end
+plot(
+    r_values,
+    [expected_ibd_blocks_custom(r, De, [D, 0.0], σ, L, G) for r in r_values],
+    xlabel = "Geographic distance between individuals (r)",
+    ylabel = "E[#IBD blocks per unit of block length and per pair]",
+    title = "Constant effective density scenario",
+    label = "growth rate α = 0.0",
+)
+plot!(
+    r_values,
+    [expected_ibd_blocks_custom(r, De, [D, 0.005], σ, L, G) for r in r_values],
+    label = "growth rate α = 0.005",
+)
+plot!(
+    r_values,
+    [expected_ibd_blocks_custom(r, De, [D, -0.005], σ, L, G) for r in r_values],
+    label = "growth rate α = -0.005",
+)
+````
+
+It is possible to define more complex effective density functions. However, users should consider carefully whether such parameters
+are identifiable from identity-by-descent blocks if they aim to estimate them. As an example, we compare the one scenario with an
+oscillating effective density function with a constant effective density demography.
 
 ````@example tutorial
 function De(t, θ)
     D₀, a, ω = θ
     D₀ * (1 + a * sin(ω * t))
 end
-
-θ = [1.0, 0.5, 2π]  # Parameters for De(t): D₀, a, ω
+D = 1.0          # Effective population density
+σ = 1.0          # Dispersal rate
+θ = [D, 0.5, 2π]  # Parameters for De(t): D₀, a, ω
 t_values = range(0.0, 10.0, length = 200)   # Time for plotting D_e(t)
-ibd_values = [expected_ibd_blocks_custom(r, De, θ, σ, L, G) for r in r_values]
-density_values = [De(t, θ) for t in t_values]
-plot(
-    plot(
-        t_values,
-        density_values,
-        xlabel = "Time (t)",
-        ylabel = "Effective Density Dₑ(t)",
-        label = "θ = [D₀=1, a=0.5, ω=2π]",
-        title = "Effective Density Trajectory",
-    ),
-    plot(
-        r_values,
-        ibd_values,
-        xlabel = "Distance (r)",
-        ylabel = "E[IBD blocks]",
-        label = "σ = 0.5, L = 0.01, G = 0.01",
-        title = "Expected Number of IBD Blocks",
-    ),
-    layout = (2, 1),
-    size = (600, 800),
-    title = "User-defined effective density function",
+p1 = plot(
+    t_values,
+    [De(t, θ) for t in t_values],
+    xlabel = "Time (generations ago)",
+    ylabel = "Effective population density",
+    label = "Oscillating effective density",
 )
+hline!(p1, [D], label = "Constant effective density")
+p2 = plot(
+    r_values,
+    [expected_ibd_blocks_custom(r, De, θ, σ, L, G) for r in r_values],
+    xlabel = "Geographic distance between individuals (r)",
+    ylabel = "E[#IBD blocks per unit of block length and per pair]",
+    label = "Oscillating effective density",
+)
+plot!(
+    p2,
+    r_values,
+    [expected_ibd_blocks_constant_density(r, D, σ, L, G) for r in r_values],
+    label = "Constant effective density",
+)
+
+plot(p1, p2, layout = (2, 1), size = (600, 800))
 ````
 
 ## Inference
 
-Ringbauer proposed to do inference by assuming that the observed number of IBD blocks that a pair $r$ units apart that fall within a small bin $[L_i, L_i + \Delta L]$ follows a Poisson distribution with mean $E[N_{L_i}(r, \theta)] \Delta L$.
+Ringbauer et. al (2017) proposed to do inference by assuming that the observed number of IBD blocks that a pair $r$ units apart that fall within a small bin $[L_i, L_i + \Delta L]$ follows a Poisson distribution with mean $E[N_{L_i}(r, \theta)] \Delta L$.
 
 Therefore, the log probability of observing `Y` identity-by-descent blocks whose length fall in the bin $[L_i, L_i + \Delta L]$ from a pair of individuals that are $r$ units apart can be calculated simply as:
 
@@ -102,7 +164,7 @@ The inference scheme is based on a composite-likelihood that treats each bin fro
 
 The input data for this sort of analysis is:
 
-- A `DataFrame` containing the length of identity-by-descent blocks shared across different individuals
+- A `DataFrame` containing the length of identity-by-descent blocks shared across different individuals.
 - A `DataFrame` containing distances across pairs of individuals.
 - A list of contig lengths to properly take into account chromosomal edges (in Morgans).
 
@@ -124,11 +186,12 @@ nothing #hide
 
 Preprocessing the data requires combining the different sources of information and binning the identity-by-descent blocks.
 For this purpose, we provide a helper function `preprocess_dataset` that returns a `DataFrame` in a "long" format.
-Of course, you may specify your own bins, but here we use the same bins used by Ringbauer et al. (2017) which can be accessed via the `default_ibd_bins` function.
+Of course, you may specify your own bins, but here we use the same bins used by Ringbauer et al. (2017), which can be accessed via the `default_ibd_bins` function.
 
 ````@example tutorial
 bins, min_length = default_ibd_bins()
-df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length)
+df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length);
+nothing #hide
 ````
 
 In most scenarios, distances between diploid individuals are not available, but between sampling sites. The `preprocess_dataset` function handles this scenario appropriately
@@ -187,7 +250,7 @@ More complex models can be built with cautious consideration of identifiability.
 ````@example tutorial
 function piecewise_D(t, parameters)
     De1, De2, alpha, t0 = parameters
-    t <= t0 ? De1*exp(-alpha*t) : De2
+    t <= t0 ? De1 * exp(-alpha * t) : De2
 end
 @model function exponential_density(df, contig_lengths)
     De1 ~ Truncated(Normal(1000, 100), 0, Inf)

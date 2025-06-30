@@ -66,7 +66,8 @@ end
 """
     expected_ibd_blocks_constant_density(r::Real, D::Real, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
 
-Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model with constant population density.
+Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model with constant population density.
+This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt =
@@ -79,7 +80,7 @@ where:
 - `r` is the geographic distance between samples,
 - `D` is the effective population density (diploid individuals per unit area),
 - `sigma` is the root mean square dispersal distance per generation,
-- `L` is the minimum length of the IBD block (in Morgans),
+- `L` is the length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
 
@@ -140,8 +141,8 @@ end
 """
     expected_ibd_blocks_power_density(r::Real, D::Real, beta::Real, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
 
-Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-beta}``
-
+Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-\beta}``
+This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt =
 2^{\\frac{-3\\beta}{2}-3}
@@ -155,7 +156,7 @@ where:
 - `D` is the effective population density (diploid individuals per unit area),
 - `beta` is the power of the density function,
 - `sigma` is the root mean square dispersal distance per generation,
-- `L` is the minimum length of the IBD block (in Morgans),
+- `L` is the length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
 
@@ -216,10 +217,11 @@ end
 
 """
     expected_ibd_blocks_custom(r::Real, De::Function, parameters::AbstractArray, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
-Computes the expected number of identity-by-descent (IBD) blocks of length `L` for a model where the effective population density is given by a custom function `De(t, parameters)`.
+Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model where the effective population density is given by a custom function `De(t, parameters)`.
+This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 
 ```math
-\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
+\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
 ```
 
 The integral is computed numerically using Gaussian-Legendre quadrature rules with the `QuadGK` package.
@@ -229,7 +231,7 @@ where:
 - `De` is  a user-defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
 - `parameters` is a user-defined array of parameters that the function `De` depends on.
 - `sigma` is the root mean square dispersal distance per generation,
-- `L` is the minimum length of the IBD block (in Morgans),
+- `L` is the length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
 - `K₂` is the modified Bessel function of the second kind of order 2.
 
