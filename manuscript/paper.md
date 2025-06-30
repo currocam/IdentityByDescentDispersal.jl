@@ -18,17 +18,19 @@ bibliography: paper.bib
 
 # Summary
 
-The population density and per-generation dispersal distance of an organism are central parameters in the study of evolution and ecology. The dispersal rate is particularly interesting for conservation management of fragmented or invasive species [@driscoll_trajectory_2014]. There is a growing interest in developing statistical methods that exploit the increasingly available genetic data to estimate such quantities [@rousset_genetic_1997;@ringbauer_inferring_2017; @smith_dispersal_2023;@smith_dispersenn2_2023].
+The population density and per-generation dispersal distance of an organism are central parameters in the study of evolution and ecology. The dispersal rate is particularly interesting for conservation management of fragmented or invasive species [@driscoll_trajectory_2014]. There is a growing interest in developing statistical methods that exploit the increasingly available genetic data to estimate such quantities [@rousset_genetic_1997;@ringbauer_inferring_2017;@smith_dispersal_2023;@smith_dispersenn2_2023].
+
+The distribution of recent coalescent events between individuals in space can be used to estimate such quantities. Although they are not directly observable, we can study them through the distribution of identity-by-descent (IBD) blocks [@ringbauer_inferring_2017]. Identity-by-descent blocks are segments of DNA that have been inherited from a common ancestor without being broken by recombination . Here we present `IdentityByDescentDispersal.jl`, a Julia package that allows us to estimate effective population densities and dispersal rates from the observed spatial patterns of identity-by-descent shared blocks.
 
 # Statement of need
 
 @ringbauer_inferring_2017 proposed an inference scheme that estimates effective population density and effective dispersal rate from shared identity-by-descent blocks. Despite their promising results, there is to this date no general-purpose software implementation of their method.
 
-In order to make the proposed inference scheme available to the broader audience of evolutionary biologists and conservation scientists, we present `IdentityByDescentDispersal.jl`, a Julia package with an efficient and easy-to-use implementation of the method. This package implements the core equations proposed by @ringbauer_inferring_2017 and can be used to perform maximum-likelihood estimation or Bayesian inference via a composite likelihood.
+In order to make the proposed inference scheme available to the broader audience of evolutionary biologists and conservation scientists, we present `IdentityByDescentDispersal.jl`, a Julia [@bezanson_julia_2017] package with an efficient and easy-to-use implementation of the method. This package implements the core equations proposed by @ringbauer_inferring_2017 and can be used to perform maximum-likelihood estimation (MLE) or Bayesian inference via a composite likelihood.
 
-In previous work, inference was restricted to a limited family of functions for the population effective density in the form $D_e(t) = Dt^{-\beta}$ for which the theory was analytically tractable. This implementation makes two major software contributions. First, it takes advantage of the powerful Julia ecosystem and the implementation of @geoga_fitting_2022 to provide an implementation of the composite-likelihood that is 100% compatible with automatic differentiation (AD), even with respect to $\beta$. Second, we also provide an AD-compatible interface to compute composite-likelihoods for arbitrary functions of $D_e(t)$ that we evaluate numerically via Gaussian quadrature rules.
+The original proposed inference was limited to a family of functions for the population effective density in the form $D_e(t) = Dt^{-\beta}$ for which the theory was analytically tractable. This implementation makes two major software contributions. First, it takes advantage of the powerful Julia ecosystem and the implementation of @geoga_fitting_2022 to provide an implementation of the composite-likelihood that is 100% compatible with automatic differentiation (AD), even with respect to $\beta$. Second, we also provide an AD-compatible interface to compute composite-likelihoods for arbitrary functions of $D_e(t)$ that we evaluate numerically via Gaussian quadrature rules.
 
-`IdentityByDescentDispersal.jl` is compatible with standard gradient-based parameter estimation software, which is typically more efficient and yields better convergence. It also enables the fitting of a broader range of population-density functions that might be more appropriate to capture the characteristics of the system. Because of these advantages and its intuitive interface, we believe it will encourage a broader audience to adopt the inference scheme proposed by @ringbauer_inferring_2017.
+`IdentityByDescentDispersal.jl` is compatible with standard gradient-based parameter estimation software, which is typically more efficient and yields better convergence. It also enables the fitting of a broader range of population-density functions that might be more appropriate to capture the characteristics of the system. Moreover, this package comes with a template to simulate synthetic datasets and a pipeline for end-to-end analysis from VCF files to final estimates. We believe it will encourage a broader audience to adopt the inference scheme proposed by @ringbauer_inferring_2017 and expand its applications.
 
 # Overview
 
@@ -51,11 +53,23 @@ The second type of function shares the prefix `composite_loglikelihood`. They di
 | `power_density`    | $D_e(t)=Dt^{-\beta}$ | $D,\ \beta,\ \sigma$      | Analytically |
 | `custom`           | User-defined         | User-defined and $\sigma$ | Numerically  |
 
-: `IdentityByDescentDispersal.jl` functions support three different parameterizations that are indicated by their respective suffix. \label{tab:tab1}
+: `IdentityByDescentDispersal.jl` functions support three different parameterizations that are indicated by their respective suffixes. \label{tab:tab1}
 
 First, we provide a simulation template in SLiM for forward-in-time population genetics simulation in a continuous space with tree-sequence recording [@haller_slim_2023; @haller_tree-sequence_2019]. This template is available at XXX and might be used to asses model assumptions, guide empirical analysis, and perform simulation-based calibration. Assessing the performance of the data with synthetic datasets is a crucial step as it is known that errors in the detection of identity-by-descent blocks are common [@browning_identity_2012].
 
-Second, we have also implemented a bioinformatics pipeline that carries out a complete analysis from detecting identity-by-descent blocks to finding the maximum-likelihood estimate of the effective population density and the effective dispersal rate. It is shared as a Snakemake pipeline, a popular bioinformatics workflow management tool [@molder_sustainable_2021]. It detects identity-by-descent blocks using HapIBD [@zhou_fast_2020], post-processes them with Refined IBD [@browning_improving_2013], and produces a CSV file compatible for subsequent analysis with `IdentityByDescentDispersal.jl` via the `preprocess_dataset` function.
+Second, we have also implemented a bioinformatics pipeline that carries out a complete analysis from detecting identity-by-descent blocks to finding the maximum-likelihood estimate of the effective population density and the effective dispersal rate. It is shared as a Snakemake pipeline, a popular bioinformatics workflow management tool [@molder_sustainable_2021]. It takes as input set of phased VCF files, their corresponding genetic maps, and a CSV file containing pairwise distances between individuals. It detects identity-by-descent blocks using HapIBD [@zhou_fast_2020], post-processes them with Refined IBD [@browning_improving_2013], and produces a CSV file compatible for subsequent analysis with `IdentityByDescentDispersal.jl` via the `preprocess_dataset` function.
+
+# Examples
+
+In this section we exemplify how `IdentityByDescentDispersal.jl` can be used together with the popular `Turing.jl` framework [@ge_turing_2018].
+
+## MLE of constant-density demography
+
+If the input data has been processed through the provided Snakemake pipeline, determining the maximum composite likelihood for a given model is as simple as:
+
+```julia
+using CSV, DataFrames, Turing, IdentityByDescentDispersal
+```
 
 # Citations
 
