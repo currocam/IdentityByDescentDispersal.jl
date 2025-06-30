@@ -130,7 +130,7 @@ rule postprocess:
         Pkg.activate(; temp = true)
         Pkg.add(Pkg.PackageSpec(name="CSV", version="0.10.15"))
         Pkg.add(Pkg.PackageSpec(name="DataFrames", version="1.7.0"))
-        Pkg.add(Pkg.PackageSpec(url="https://github.com/currocam/IdentityByDescentDispersal.jl"))
+        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.1"))
         using CSV, DataFrames, IdentityByDescentDispersal
         colnames = ["ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"]
         # Read IBD files and concatenate them:
@@ -175,7 +175,7 @@ rule mle_constant_density:
         Pkg.add(Pkg.PackageSpec(name="DataFrames", version="1.7.0"))
         Pkg.add(Pkg.PackageSpec(name="Turing", version="0.39.1"))
         Pkg.add(Pkg.PackageSpec(name="StatsBase", version="0.34.5"))
-        Pkg.add(Pkg.PackageSpec(url="https://github.com/currocam/IdentityByDescentDispersal.jl"))
+        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.1"))
         using CSV, DataFrames, IdentityByDescentDispersal, Turing, StatsBase
         df = CSV.read("{input}", DataFrame)
         @model function constant_density(df, contig_lengths)
