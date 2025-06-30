@@ -61,13 +61,15 @@ chains = sample(m, NUTS(), MCMCThreads(), 1000, 4);
 # Diagnosing the posterior samples obtained via Markov Chain Monte Carlo is a crucial step in any Bayesian inference.
 # We refer to existing resources such as this lecture on [Bayesian modelling in Biostatistics](https://myweb.uiowa.edu/pbreheny/uk/teaching/701/notes/3-5.pdf)
 # Most popular approaches involve calculating quantities such as the effective number of samples (ESS)
-# and $\hat {R}$, which can be computed directly from `Turing` output:
+# and $\hat {R}$, which can be computed directly from `Turing` output.
+
+# As a rule of thumb, we aim to run the chain long enough to obtain an ESS greater than 100.
 ess(chains) |> DataFrame
 
+# A $\hat {R}$ greater than 1.05 indicates the chains have not mixed well.
 rhat(chains) |> DataFrame
 
-# As a rule of thumb, we aim to run the chain long enough to obtain an ESS greater than 100. A $\hat {R}$ greater than 1.05
-# indicates the chains have not mixed well. Convergence issues can also be inspected through a `traceplot`:
+# Convergence issues can also be inspected through a `traceplot`:
 using Plots, StatsPlots
 traceplot(chains)
 # When fitting models with power-densities (i.e. using `composite_loglikelihood_power_density`), be aware that
