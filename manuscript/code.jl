@@ -32,6 +32,9 @@ default(
     tickfontsize = 10,
     guidefontsize = 12,
     legendfontsize = 10,
+    extra_plot_kwargs = :overwrite_legend_position => false,
 )
 plt = plot(chains; size = (1000, 700))
 savefig(plt, "manuscript/figures/nuts_constant_density.svg")
+savefig(plt, "manuscript/figures/nuts_constant_density.pdf")
+savefig(plt, "manuscript/figures/nuts_constant_density.png")
