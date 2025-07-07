@@ -2,18 +2,29 @@
 title: "IdentityByDescentDispersal.jl: Inferring dispersal rates with identity-by-descent blocks"
 tags:
   - Julia
-  - genomics
-  - dispersal-rate
   - population-genetics
+  - IBD
+  - dispersal
+  - spatial-genetics
+  - coalescent-theory
 authors:
   - name: Francisco Campuzano Jiménez
     orcid: 0000-0001-8285-9318
+    affiliation: 1
+  - name: Arthur Zwaenepoel
+    orcid: 0000-0003-1085-2912
+    affiliation: 1
+  - name: Els De Keyzer
+    orcid: 0000-0003-0924-0118
+    affiliation: 1
+  - name: Hannes Svardal
+    orcid: 0000-0001-7866-7313
     affiliation: 1
 affiliations:
   - name: University of Antwerp, Belgium
     index: 1
     ror: 008x57b05
-date: today
+date: 7 July 2025
 bibliography: paper.bib
 ---
 
