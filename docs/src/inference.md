@@ -169,7 +169,7 @@ For example, consider a population with two separate sexes for which there are d
 Such differences arise naturally when considering the effect of mating systems on dispersal patterns. For simplicity,
 let's consider a 1-dimensional space where individuals can only move left or right as shown in the figure below.
 
-![](dispersal.png)
+![Illustration of dispersal in a 1-dimensional space with separate sexes](dispersal.png)
 
 Let's assume the displacement between the mother and the offspring, $d_{\text{mother-child}}$, is distributed
 according to a normal distribution with a mean of zero and a variance of $\sigma_D^2$ and
