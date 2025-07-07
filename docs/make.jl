@@ -39,8 +39,8 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
-        "Tutorial" => "tutorial.md",
         "Theory overview" => "overview.md",
+        "Basic usage" => "tutorial.md",
         "Inference and model evaluation" => "inference.md",
         "Developer docs" => numbered_pages,
     ],

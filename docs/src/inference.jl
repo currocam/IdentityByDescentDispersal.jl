@@ -72,12 +72,7 @@ rhat(chains) |> DataFrame
 # Convergence issues can also be inspected through a `traceplot`:
 using Plots, StatsPlots
 traceplot(chains)
-# When fitting models with power-densities (i.e. using `composite_loglikelihood_power_density`), be aware that
-# the $\beta$ parameter controls the mean-square diﬀerentiability of the composite likelihood (through modified
-# second-kind Bessel function). If you run into issues, we suggest that:
-# - reparametrize the model (perhaps using a custom function via the `composite_loglikelihood_custom` interface).
-# - tighten the priors to constrain the space of parameters to a region where gradients are defined.
-# - use gradient-free inference methods such as `Nelder-Mead` when computing maximum likelihood estimates or `Metropolis-Hastings` when doing Bayesian inference.
+
 # ## Visualizing the posterior
 # After finishing the sampling process and assessing convergence, we can visualize the estimated posterior
 # distribution of the parameters and compare it with the prior distribution and the ground-truth:
@@ -124,3 +119,48 @@ DataFrame(
     confidence_interval95 = [conf_De, conf_σ],
     ground_truth = [ground_truth[1], ground_truth[2]],
 )
+
+# ## Interpreting the output
+# Finally, we provide some references on how to interpret the results and relate them to the biological context.
+# ### Effective population density
+# The effective population density (De) is simply the inverse of the coalescent rate of lineages that become very close to each other.
+# It is equivalent to the effective population size of every deme in a stepping stone model where demes are separated by one distance unit.
+# It is most informative of recent demographic events as it is calculated from identity-by-descent blocks.
+# ### Effective dispersal rate
+# Perhaps unintuitively, the mean per-generation dispersal distance when we average with respect to both parents is not necessarily equivalent
+# to the mean per-generation dispersal distance when we average across single generations. From population genetic data, we can estimate the latter (
+# refer to the `Theory overview` section for more details). Therefore, interpreting the estimated effective dispersal rate in the context of
+# the ecology of one population has to be done carefully.
+#
+# For example, consider a population with two separate sexes for which there are differences in the process of dispersal.
+# Such differences arise naturally when considering the effect of mating systems on dispersal patterns. For simplicity,
+# let's consider a 1-dimensional space where individuals can only move left or right as shown in the figure below.
+#
+# ![](dispersal.svg){width=60%}
+#
+# Let's assume the displacement between the mother and the offspring, $d_{\text{mother-child}}$, is distributed
+# according to a normal distribution with a mean of zero and a variance of $\sigma_D^2$ and
+# the displacement between the father and the mother, $d_{\text{mother-father}}$, is also distributed according to a normal distribution with a mean of zero and a variance of $\sigma_M^2$.
+# Because the mating process (that determines the displacement from the mother to the father) is independent from the specific dispersal process of the offspring
+# (that determines the displacement from the mother to the offspring), then the displacement between the father and the offspring is distributed
+# according to a normal distribution with a mean of zero and a variance of $\sigma_D^2 + \sigma_M^2$.
+#
+# As mentioned earlier, what we can estimate is the mean per-generation dispersal of the "lineages". Because the lineage is either inherited from the mother or the father,
+# the displacement is distributed as a mixture of two normal distributions. If sex ratio is 0.5, then the displacement is distributed
+# as a mixture of two normal distributions with weights $w = [0.5, 0.5]$. This distribution has a mean of zero and a variance of $\sigma_D^2 + 0.5\sigma_M^2$ but it is *not*
+# normally distributed. Therefore, and under these assumptions, what we can estimate from genetic data is actually
+# $$\sigma = \sqrt{0.5\sigma_D^2 + 0.5(\sigma_D^2+\sigma_M^2)} = \sqrt{\sigma_D^2 + 0.5\sigma_M^2)}$$
+# and it is not possible to separate the effects of $\sigma_D$ and $\sigma_M$ without additional information. If a priori information is available,
+# it is possible to obtain estimates of both $\sigma_D$ and $\sigma_M$ that are consistent with the observed data. However, this requires additional
+# consideration as the posterior distribution will be multimodal.
+@model function constant_density2(df, contig_lengths)
+    De ~ Truncated(Normal(1000, 100), 0, Inf)
+    σ_D ~ Truncated(Normal(1, 0.1), 0, Inf)
+    σ_M ~ Truncated(Normal(0.1, 0.01), 0, Inf)
+    σ := sqrt(σ_D^2 + 0.5 * σ_M^2)
+    Turing.@addlogprob! composite_loglikelihood_constant_density(De, σ, df, contig_lengths)
+end
+# As mentioned earlier, the per-generation distance averaging across lineages is not necessarily equal to the mean per-generation
+# distance when we average with respect to both mother and father. Notice that the average displacement is defined as
+# $$\hat d = 0.5 d_{\text{mother-child}} + 0.5 (d_{\text{mother-child} - d_{\text{mother-father}}})$$
+# which is distributed as a normal distribution with mean zero and variance $\sqrt{\sigma_{D}^{2} + 0.25 \sigma_{M}^{2}}$.
