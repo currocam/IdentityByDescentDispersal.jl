@@ -1,6 +1,5 @@
-# # Getting started
-#
-# This tutorial demonstrates basic usage of the package.
+# This section demonstrates the basic usage of the package. We refer to the `Inference and model evaluation` section
+# of the documentation for an explanation of how to use this package to estimate parameters of demographic models from observed data.
 
 using IdentityByDescentDispersal
 
