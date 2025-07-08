@@ -11,6 +11,7 @@ authors:
   - name: Francisco Campuzano Jiménez
     orcid: 0000-0001-8285-9318
     affiliation: 1
+    corresponding: true
   - name: Arthur Zwaenepoel
     orcid: 0000-0003-1085-2912
     affiliation: 1
@@ -66,21 +67,21 @@ The second set of functions has the prefix `composite_loglikelihood` and allows 
 
 : `IdentityByDescentDispersal.jl` functions support three different parameterizations that are indicated by their respective suffixes. \label{tab:tab1}
 
-The Julia package is accompanied by two additional resources. First, we provide a simulation template in SLiM for forward-in-time population genetics simulation in a continuous space with tree-sequence recording [@haller_slim_2023; @haller_tree-sequence_2019]. This template can be used to assess model assumptions, guide empirical analysis, and perform simulation-based calibration. Assessing the performance of the data with synthetic datasets is a crucial step, as it is known that errors in the detection of IBD blocks are common [@browning_identity_2012] and that inferences based on composite likelihood tend to be overconfident and yield underestimating posterior uncertainty and yielding too narrow confidence intervals.
+The Julia package is accompanied by two additional resources. First, we provide a simulation template in SLiM for forward-in-time population genetics simulation in a continuous space with tree-sequence recording [@haller_slim_2023; @haller_tree-sequence_2019]. This template can be used to assess model assumptions, guide empirical analysis, and perform simulation-based calibration. Assessing the performance of the method with synthetic datasets is a crucial step, as it is known that errors in the detection of IBD blocks are common [@browning_identity_2012] and that inferences based on composite likelihood tend to be overconfident, underestimating posterior uncertainty and yielding too narrow confidence intervals.
 
-Second, we have also implemented a bioinformatics pipeline that carries out a complete analysis from detecting IBD blocks to finding the MLE of the effective population density and the effective dispersal rate. It is shared as a Snakemake pipeline, a popular bioinformatics workflow management tool [@molder_sustainable_2021]. It takes as input a set of phased VCF files, their corresponding genetic maps and a CSV file containing pairwise geographical distances between individuals. The pipeline detects IBD blocks using HapIBD [@zhou_fast_2020], post-processes them with Refined IBD [@browning_improving_2013] and produces a CSV file compatible for subsequent analysis with `IdentityByDescentDispersal.jl` via the `preprocess_dataset` function.
+Second, we have also implemented a bioinformatics pipeline that carries out a complete analysis from detecting IBD blocks to finding the MLE of the effective population density and the effective dispersal rate. It is shared as a Snakemake pipeline, a popular bioinformatics workflow management tool [@molder_sustainable_2021]. It takes as input a set of phased VCF files, their corresponding genetic maps and a CSV file containing pairwise geographical distances between individuals. The pipeline detects IBD blocks using HapIBD [@zhou_fast_2020], post-processes them with Refined IBD [@browning_improving_2013] and produces a CSV file compatible with subsequent analysis with `IdentityByDescentDispersal.jl` via the `preprocess_dataset` function.
 
 Both the SLiM simulation template and the Snakemake pipeline can be found in the GitHub repository at [https://github.com/currocam/IdentityByDescentDispersal.jl](https://github.com/currocam/IdentityByDescentDispersal.jl).
 
 # Example
 
-In this section, we exemplify how `IdentityByDescentDispersal.jl` can be used together with the popular `Turing.jl` framework [@ge_turing_2018] using a dataset we simulate in the documentation. We analyze error-free IBD blocks shared by 100 diploid individuals from a constant-density population with parameters $D_{\text{true}}\approx 250$ diploids/km² and $\sigma_{\text{true}}\approx 0.071$ km/generation.
+In this section, we demonstrate how `IdentityByDescentDispersal.jl` can be used together with the popular `Turing.jl` framework [@ge_turing_2018] using a dataset we simulate in the documentation. We analyze error-free IBD blocks shared by 100 diploid individuals from a constant-density population with parameters $D_{\text{true}}\approx 250$ diploids/km² and $\sigma_{\text{true}}\approx 0.071$ km/generation.
 
 `IdentityByDescentDispersal.jl` has extensive documentation that covers the underlying theory behind the method, how to effectively simulate synthetic datasets, various demographic models, and inference algorithms. We refer the reader to the documentation for more details, which can be found at [https://currocam.github.io/IdentityByDescentDispersal.jl/](https://currocam.github.io/IdentityByDescentDispersal.jl/dev/).
 
 Thanks to `Turing.jl`, we can perform Bayesian inference with a wide range of popular Monte Carlo algorithms. \autoref{fig:example} shows the estimated pseudo-posterior obtained through doing inference with the composite likelihood.
 
-![Estimated pseudo-posterior obtained by doing inference with the composite likelihood. Despite not being well calibrated, the pseudo-posterior concentrates near the true values ($\mathbb E[D | \text{data}]\approx 281$ and $\mathbb E[\sigma | \text{data}]\approx 0.068$, respectively).\label{fig:example}](figures/nuts_constant_density.svg){ width=100% }
+![Estimated pseudo-posterior obtained by doing inference with the composite likelihood. Although the pseudo-posterior is not well calibrated, it concentrates near the true values ($\mathbb E[D | \text{data}]\approx 281$ and $\mathbb E[\sigma | \text{data}]\approx 0.068$, respectively).\label{fig:example}](figures/nuts_constant_density.svg){ width=100% }
 
 \autoref{fig:example} was generated by the following snippet of Julia code, which reads the processed data CSV from the provided Snakemake pipeline.
 
