@@ -11,12 +11,12 @@ run(`slim --version`)
 # where $SM$ is the mate choice kernel and $SD$ is the dispersal rate of the offspring. The distance to the mother is modeled as
 # $Z_{\text{mother}} = N(0, SD)$
 seed = 1000
-D = 200 # Global local-density
+NE = 200 # Number of diploid individuals
 SD = 0.1 # Dispersal rate of the offspring
 SM = 0.01 # Mate choice kernel
 outpath = "s$(seed).trees"
 run(
-    `slim -s $seed -d D=$D -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
+    `slim -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
 )
 
 # ## Data preprocessing
@@ -126,4 +126,4 @@ contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
 mle_estimate = maximum_likelihood(m)
 coef_table = mle_estimate |> coeftable |> DataFrame
-pretty_table(coef_table, backend = Val(:text))
+pretty_table(coef_table, backend = Val(:markdown))

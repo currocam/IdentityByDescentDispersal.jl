@@ -27,17 +27,17 @@ $Z_{\text{mother}} = N(0, SD)$
 
 ````julia
 seed = 1000
-D = 200 # Global local-density
+NE = 200 # Number of individuals
 SD = 0.1 # Dispersal rate of the offspring
 SM = 0.01 # Mate choice kernel
 outpath = "s$(seed).trees"
 run(
-    `slim -s $seed -d D=$D -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
+    `slim -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
 )
 ````
 
 ````
-Process(`slim -s 1000 -d D=200 -d SD=0.1 -d SM=0.01 -d 'OUTPATH="s1000.trees"' constant_density.slim`, ProcessExited(0))
+Process(`slim -s 1000 -d NE=200 -d SD=0.1 -d SM=0.01 -d 'OUTPATH="s1000.trees"' constant_density.slim`, ProcessExited(0))
 ````
 
 ## Data preprocessing
@@ -52,7 +52,7 @@ We perform recapitation to ensure samples are fully coalesced
 
 ````julia
 pyslim = pyimport("pyslim")
-rts = pyslim.recapitate(ts, ancestral_Ne = D, recombination_rate = 1e-8);
+rts = pyslim.recapitate(ts, ancestral_Ne = NE, recombination_rate = 1e-8);
 ````
 
 ````
@@ -242,17 +242,14 @@ contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
 mle_estimate = maximum_likelihood(m)
 coef_table = mle_estimate |> coeftable |> DataFrame
-pretty_table(coef_table, backend = Val(:text))
+pretty_table(coef_table, backend = Val(:markdown))
 ````
 
 ````
-┌────────┬───────────┬────────────┬─────────┬─────────────┬───────────┬───────────┐
-│   Name │     Coef. │ Std. Error │       z │    Pr(>|z|) │ Lower 95% │ Upper 95% │
-│ String │   Float64 │    Float64 │ Float64 │     Float64 │   Float64 │   Float64 │
-├────────┼───────────┼────────────┼─────────┼─────────────┼───────────┼───────────┤
-│      D │   698.378 │     54.905 │ 12.7198 │   4.593e-37 │   590.766 │   805.989 │
-│      σ │ 0.0763682 │ 0.00375581 │ 20.3334 │ 6.51756e-92 │  0.069007 │ 0.0837295 │
-└────────┴───────────┴────────────┴─────────┴─────────────┴───────────┴───────────┘
+| **Name**<br>`String` | **Coef.**<br>`Float64` | **Std. Error**<br>`Float64` | **z**<br>`Float64` | **Pr(>\|z\|)**<br>`Float64` | **Lower 95%**<br>`Float64` | **Upper 95%**<br>`Float64` |
+|---------------------:|-----------------------:|----------------------------:|-------------------:|----------------------------:|---------------------------:|---------------------------:|
+| D                    | 540.071                | 51.5594                     | 10.4747            | 1.12876e-25                 | 439.016                    | 641.125                    |
+| σ                    | 0.0898484              | 0.00515178                  | 17.4403            | 4.08232e-68                 | 0.0797511                  | 0.0999457                  |
 
 ````
 

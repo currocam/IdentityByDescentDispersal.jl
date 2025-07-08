@@ -27,17 +27,17 @@ $Z_{\text{mother}} = N(0, SD)$
 
 ````julia
 seed = 1000
-D = 200 # Global local-density
+NE = 200 # Number of diploid individuals
 SD = 0.1 # Dispersal rate of the offspring
 SM = 0.01 # Mate choice kernel
 outpath = "s$(seed).trees"
 run(
-    `slim -s $seed -d D=$D -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
+    `slim -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
 )
 ````
 
 ````
-Process(`slim -s 1000 -d D=200 -d SD=0.1 -d SM=0.01 -d 'OUTPATH="s1000.trees"' constant_density.slim`, ProcessExited(0))
+Process(`slim -s 1000 -d NE=200 -d SD=0.1 -d SM=0.01 -d 'OUTPATH="s1000.trees"' constant_density.slim`, ProcessExited(0))
 ````
 
 ## Data preprocessing
@@ -174,17 +174,14 @@ contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
 mle_estimate = maximum_likelihood(m)
 coef_table = mle_estimate |> coeftable |> DataFrame
-pretty_table(coef_table, backend = Val(:text))
+pretty_table(coef_table, backend = Val(:markdown))
 ````
 
 ````
-┌────────┬───────────┬────────────┬─────────┬──────────────┬───────────┬───────────┐
-│   Name │     Coef. │ Std. Error │       z │     Pr(>|z|) │ Lower 95% │ Upper 95% │
-│ String │   Float64 │    Float64 │ Float64 │      Float64 │   Float64 │   Float64 │
-├────────┼───────────┼────────────┼─────────┼──────────────┼───────────┼───────────┤
-│      D │   283.006 │    10.9453 │ 25.8563 │ 2.06515e-147 │   261.554 │   304.459 │
-│      σ │ 0.0678413 │ 0.00169586 │ 40.0041 │          0.0 │ 0.0645175 │ 0.0711652 │
-└────────┴───────────┴────────────┴─────────┴──────────────┴───────────┴───────────┘
+| **Name**<br>`String` | **Coef.**<br>`Float64` | **Std. Error**<br>`Float64` | **z**<br>`Float64` | **Pr(>\|z\|)**<br>`Float64` | **Lower 95%**<br>`Float64` | **Upper 95%**<br>`Float64` |
+|---------------------:|-----------------------:|----------------------------:|-------------------:|----------------------------:|---------------------------:|---------------------------:|
+| D                    | 287.675                | 10.9813                     | 26.1968            | 2.89283e-151                | 266.152                    | 309.198                    |
+| σ                    | 0.0679146              | 0.00167208                  | 40.6169            | 0.0                         | 0.0646374                  | 0.0711918                  |
 
 ````
 
