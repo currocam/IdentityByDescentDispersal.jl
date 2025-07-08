@@ -24,7 +24,7 @@ affiliations:
   - name: University of Antwerp, Belgium
     index: 1
     ror: 008x57b05
-date: 7 July 2025
+date: 8 July 2025
 bibliography: paper.bib
 ---
 
@@ -40,7 +40,7 @@ The distribution of recent coalescent events between individuals in space can be
 
 In order to make the inference approach available to the broader audience of evolutionary biologists and conservation scientists, we present `IdentityByDescentDispersal.jl`, a Julia [@bezanson_julia_2017] package with an efficient and easy-to-use implementation of the method. The package implements the core equations proposed by @ringbauer_inferring_2017 and can be used to perform composite likelihood-based inference using either maximum-likelihood estimation (MLE) or Bayesian inference.
 
-The method of @ringbauer_inferring_2017 was limited to a family of functions for the change in effective population density over time of the form $D_e(t) = Dt^{-\beta}$, for which the theory was analytically tractable. In addition, in the paper describing the original approach, the authors used gradient-free optimization to calculate maximum likelihood estimates (MLEs). Our implementation makes two major software contributions. First, we admit composite likelihood calculations for arbitrary functions $D_e(t)$ by evaluating the relevant integrals numerically through Gaussian quadrature rules. Second, our implementation takes advantage of the powerful Julia ecosystem and the work of @geoga_fitting_2022 to provide a version of the composite likelihood that is fully compatible with automatic differentiation (AD), including AD with respect to $\beta$.  By having a fully AD-compatible composite likelihood, `IdentityByDescentDispersal.jl` is compatible with standard gradient-based optimization and sampling methods available in the Julia ecosystem, which are typically more efficient than gradient-free methods. 
+The method of @ringbauer_inferring_2017 was limited to a family of functions for the change in effective population density over time of the form $D_e(t) = Dt^{-\beta}$, for which the theory was analytically tractable. In addition, in the paper describing the original approach, the authors used gradient-free optimization to calculate maximum likelihood estimates (MLEs). Our implementation makes two major software contributions. First, we admit composite likelihood calculations for arbitrary functions $D_e(t)$ by evaluating the relevant integrals numerically through Gaussian quadrature rules. Second, our implementation takes advantage of the powerful Julia ecosystem and the work of @geoga_fitting_2022 to provide a version of the composite likelihood that is fully compatible with automatic differentiation (AD), including AD with respect to $\beta$. By having a fully AD-compatible composite likelihood, `IdentityByDescentDispersal.jl` can be used together with standard gradient-based optimization and sampling methods available in the Julia ecosystem, which are typically more efficient than gradient-free methods.
 
 Lastly, our package comes with a template to simulate synthetic datasets and a pipeline for end-to-end analysis from VCF files to final estimates. We believe it will encourage a broader audience to adopt the inference scheme proposed by @ringbauer_inferring_2017, motivate further developments and expand its applications.
 
@@ -66,9 +66,9 @@ The second set of functions has the prefix `composite_loglikelihood` and allows 
 
 : `IdentityByDescentDispersal.jl` functions support three different parameterizations that are indicated by their respective suffixes. \label{tab:tab1}
 
-The Julia package is accompanied by two additional resources. First, we provide a simulation template in SLiM for forward-in-time population genetics simulation in a continuous space with tree-sequence recording [@haller_slim_2023; @haller_tree-sequence_2019]. This template can be used to assess model assumptions, guide empirical analysis, and perform simulation-based calibration. Assessing the performance of the data with synthetic datasets is a crucial step, as it is known that errors in the detection of IBD blocks are common [@browning_identity_2012] and that inferences based on composite likelihood tend to be overconfident, underestimating posterior uncertainty and yielding too narrow confidence intervals.
+The Julia package is accompanied by two additional resources. First, we provide a simulation template in SLiM for forward-in-time population genetics simulation in a continuous space with tree-sequence recording [@haller_slim_2023; @haller_tree-sequence_2019]. This template can be used to assess model assumptions, guide empirical analysis, and perform simulation-based calibration. Assessing the performance of the data with synthetic datasets is a crucial step, as it is known that errors in the detection of IBD blocks are common [@browning_identity_2012] and that inferences based on composite likelihood tend to be overconfident and yield underestimating posterior uncertainty and yielding too narrow confidence intervals.
 
-Second, we have also implemented a bioinformatics pipeline that carries out a complete analysis from detecting IBD blocks to finding the maximum-likelihood estimate of the effective population density and the effective dispersal rate. It is shared as a Snakemake pipeline, a popular bioinformatics workflow management tool [@molder_sustainable_2021]. It takes as input a set of phased VCF files, their corresponding genetic maps and a CSV file containing pairwise geographical distances between individuals. The pipeline detects IBD blocks using HapIBD [@zhou_fast_2020], post-processes them with Refined IBD [@browning_improving_2013] and produces a CSV file compatible for subsequent analysis with `IdentityByDescentDispersal.jl` via the `preprocess_dataset` function.
+Second, we have also implemented a bioinformatics pipeline that carries out a complete analysis from detecting IBD blocks to finding the MLE of the effective population density and the effective dispersal rate. It is shared as a Snakemake pipeline, a popular bioinformatics workflow management tool [@molder_sustainable_2021]. It takes as input a set of phased VCF files, their corresponding genetic maps and a CSV file containing pairwise geographical distances between individuals. The pipeline detects IBD blocks using HapIBD [@zhou_fast_2020], post-processes them with Refined IBD [@browning_improving_2013] and produces a CSV file compatible for subsequent analysis with `IdentityByDescentDispersal.jl` via the `preprocess_dataset` function.
 
 Both the SLiM simulation template and the Snakemake pipeline can be found in the GitHub repository at [https://github.com/currocam/IdentityByDescentDispersal.jl](https://github.com/currocam/IdentityByDescentDispersal.jl).
 
@@ -114,7 +114,5 @@ which estimates $D_{\text{MLE}}\approx 282$ diploids/km² (95% CI: 260–303) an
 # Availability
 
 `IdentityByDescentDispersal.jl` is a registered Julia package available through the official General registry. Its source code is hosted on GitHub at [https://github.com/currocam/IdentityByDescentDispersal.jl](https://github.com/currocam/IdentityByDescentDispersal.jl).
-
-# Acknowledgements
 
 # References
