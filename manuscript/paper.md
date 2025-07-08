@@ -15,16 +15,19 @@ authors:
   - name: Arthur Zwaenepoel
     orcid: 0000-0003-1085-2912
     affiliation: 1
-  - name: Els De Keyzer
+  - name: Els Lea R De Keyzer
     orcid: 0000-0003-0924-0118
     affiliation: 1
   - name: Hannes Svardal
     orcid: 0000-0001-7866-7313
-    affiliation: 1
+    affiliation: "1, 2"
 affiliations:
   - name: University of Antwerp, Belgium
     index: 1
     ror: 008x57b05
+  - name: Naturalis Biodiversity Center, Leiden, Netherlands
+    index: 2
+    ror: 0566bfb96
 date: 8 July 2025
 bibliography: paper.bib
 ---
@@ -115,5 +118,9 @@ which estimates $D_{\text{MLE}}\approx 282$ diploids/km² (95% CI: 260–303) an
 # Availability
 
 `IdentityByDescentDispersal.jl` is a registered Julia package available through the official General registry. Its source code is hosted on GitHub at [https://github.com/currocam/IdentityByDescentDispersal.jl](https://github.com/currocam/IdentityByDescentDispersal.jl).
+
+# Acknowledgements
+
+We acknowledge financial support from the Research Foundation - Flanders (FWO). This work was supported by FWO-G0A9B24N (F.C.J, H.S), FWO-1272625N (A.Z., H.S) and FWO-12A8423N (E.L.R.D.K., H.S).
 
 # References
