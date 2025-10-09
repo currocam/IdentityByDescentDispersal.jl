@@ -13,7 +13,8 @@ export safe_adbesselk,
     default_ibd_bins,
     composite_loglikelihood_constant_density,
     composite_loglikelihood_power_density,
-    composite_loglikelihood_custom
+    composite_loglikelihood_custom,
+    age_density_ibd_blocks_custom
 
 """
     x = safe_adbesselk(1, 1.0)
@@ -365,7 +366,7 @@ function preprocess_dataset(
     for (dist_i, distance) in enumerate(unique(individual_distances.distance))
         # Get all pairs at this distance
         pairs_at_distance =
-            individual_distances[individual_distances.distance .== distance, [:ID1, :ID2]]
+            individual_distances[individual_distances.distance.==distance, [:ID1, :ID2]]
         pair_set = Set(Tuple.(eachrow(pairs_at_distance)))
 
         # Filter IBD blocks for those pairs
@@ -555,5 +556,115 @@ function composite_loglikelihood_custom(
     end
     log_likelihood
 end
+
+# For posterior predictive simulations
+
+"""
+    age_density_ibd_blocks_custom(t::Real, r::Real, De::Function, parameters::AbstractArray, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool = true, diploid::Bool = true)
+Computes the expected density of identity-by-descent (IBD) blocks of length `L` and age `t` for a model where the effective population density is given by a custom function `De(t, parameters)`.
+This function returns the expected number of IBD blocks of age `t` per pair of individuals and per unit of block length.
+
+```math
+\\mathbb{E}[N_L^t] =  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t)
+```
+
+
+where:
+- `t` is the age of the IBD block,
+- `r` is the geographic distance between samples,
+- `De` is a user-defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
+- `parameters` is a user-defined array of parameters that the function `De` depends on.
+- `sigma` is the root mean square dispersal distance per generation,
+- `L` is the length of the IBD block (in Morgans),
+- `G` is the total map length of the genome (in Morgans),
+
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
+
+Reference:
+Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
+"""
+function age_density_ibd_blocks_custom(
+    t::Real,
+    r::Real,
+    De::Function,
+    parameters::AbstractArray,
+    sigma::Real,
+    L::Real,
+    G::Real,
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    # Input validation
+    if r < 0 || sigma ≤ 0 || L ≤ 0 || G ≤ 0
+        throw(ArgumentError("All provided parameters must be positive"))
+    end
+    if chromosomal_edges
+        fn(t) =
+            probability_coalescence(t, r, De(t, parameters), sigma) *
+            (4t * exp(-2L * t) + (G - L) * 4 * t^2 * exp(-2L * t))
+    else
+        fn(t) =
+            probability_coalescence(t, r, De(t, parameters), sigma) *
+            G *
+            4 *
+            t^2 *
+            exp(-2L * t)
+    end
+    result = fn(t)
+    diploid ? result * 4 : result
+end
+
+function age_density_ibd_blocks_custom(
+    t::Real,
+    r::Real,
+    De::Function,
+    parameters::AbstractArray,
+    sigma::Real,
+    L::Real,
+    G::AbstractArray,
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    sum([
+        age_density_ibd_blocks_custom(
+            t,
+            r,
+            De,
+            parameters,
+            sigma,
+            L,
+            g,
+            chromosomal_edges,
+            diploid,
+        ) for g in G
+    ])
+end
+
+function age_density_ibd_blocks_custom(
+    t::AbstractArray,
+    r::Real,
+    De::Function,
+    parameters::AbstractArray,
+    sigma::Real,
+    L::Real,
+    G::Union{Real,AbstractArray},
+    chromosomal_edges::Bool = true,
+    diploid::Bool = true,
+)
+    [
+        age_density_ibd_blocks_custom(
+            ti,
+            r,
+            De,
+            parameters,
+            sigma,
+            L,
+            G,
+            chromosomal_edges,
+            diploid,
+        ) for ti in t
+    ]
+end
+
 
 end

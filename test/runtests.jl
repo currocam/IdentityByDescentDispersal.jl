@@ -14,12 +14,13 @@ using Random, Test, Distributions, QuadGK, DataFrames
             σ = rand(Uniform(0, 1e5))
             de = t -> rand(Uniform(0, 1e5))
             @test iszero(IdentityByDescentDispersal.probability_coalescence(0, r, de, σ))
-            computed = IdentityByDescentDispersal.probability_coalescence.(
-                rand(Uniform(0, 1e5), 100),
-                r,
-                de,
-                σ,
-            )
+            computed =
+                IdentityByDescentDispersal.probability_coalescence.(
+                    rand(Uniform(0, 1e5), 100),
+                    r,
+                    de,
+                    σ,
+                )
             @test all(computed .>= 0)
             @test all(computed .<= 1)
         end
@@ -248,4 +249,41 @@ using Random, Test, Distributions, QuadGK, DataFrames
         end
     end
 
+    @testset "Testing posterior predictive" begin
+        r = rand(Uniform(0, 20))
+        De(t, params) = t * params[1]
+        sigma = rand(Uniform(0.1, 10.0))
+        L = rand(Uniform(1e-4, 1e-2))
+        t1 = rand(Uniform(5.0, 15.0))
+        t2 = rand(Uniform(5.0, 15.0))
+        param1 = rand(Uniform(1.0, 20.0))
+        G1 = rand(Uniform(0.5, 2.0))
+        G2 = rand(Uniform(0.5, 2.0))
+        # For t=t1 and G=G1
+        val = age_density_ibd_blocks_custom(t1, r, De, [param1], sigma, L, G1)
+        @test isa(val, Number)
+        # For t=t1 and G=[G1, G2]
+        val = age_density_ibd_blocks_custom(t1, r, De, [param1], sigma, L, [G1, G2])
+        @test isa(val, Number)
+        # For t=[t1, t2] and G=G1
+        val = age_density_ibd_blocks_custom([t1, t2], r, De, [param1], sigma, L, G1)
+        @test isa(val, Vector{Float64})
+        # For t=[t1, t2] and G=[G1, G2]
+        val = age_density_ibd_blocks_custom([t1, t2], r, De, [param1], sigma, L, [G1, G2])
+        @test isa(val, Vector{Float64})
+        # Operations should be vectorized through time
+        res1 = [
+            age_density_ibd_blocks_custom(t1, r, De, [param1], sigma, L, [G1, G2]),
+            age_density_ibd_blocks_custom(t2, r, De, [param1], sigma, L, [G1, G2]),
+        ]
+        res2 = age_density_ibd_blocks_custom([t1, t2], r, De, [param1], sigma, L, [G1, G2])
+        @test res1 ≈ res2
+        # The density across multiple contigs should be summed
+        res1 = sum([
+            age_density_ibd_blocks_custom(t1, r, De, [param1], sigma, L, G1),
+            age_density_ibd_blocks_custom(t1, r, De, [param1], sigma, L, G1),
+        ])
+        res2 = age_density_ibd_blocks_custom(t1, r, De, [param1], sigma, L, [G1, G1])
+        @test sum(res1) ≈ sum(res2)
+    end
 end
