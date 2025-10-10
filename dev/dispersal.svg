@@ -2,13 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="54.098576mm"
-   height="22.701263mm"
-   viewBox="0 0 54.098576 22.701263"
+   width="53.284092mm"
+   height="15.497791mm"
+   viewBox="0 0 53.284092 15.497791"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
-   sodipodi:docname="drawing.svg"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
+   sodipodi:docname="dispersal.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,38 +25,43 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showguides="true"
-     inkscape:zoom="4.1898534"
-     inkscape:cx="220.41344"
-     inkscape:cy="588.56475"
+     inkscape:zoom="3.5354504"
+     inkscape:cx="93.623148"
+     inkscape:cy="37.901818"
      inkscape:window-width="1920"
      inkscape:window-height="1027"
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg1">
+     inkscape:current-layer="g97">
     <sodipodi:guide
-       position="24.482076,14.010196"
+       position="24.069373,14.010195"
        orientation="1,0"
        id="guide11"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="36.684534,19.870596"
+       position="36.271831,19.870595"
        orientation="1,0"
        id="guide12"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="10.714173,14.010196"
+       position="10.30147,14.010195"
        orientation="1,0"
        id="guide13"
        inkscape:locked="false" />
     <inkscape:page
        x="0"
        y="0"
-       width="54.098576"
-       height="22.701263"
+       width="53.284092"
+       height="15.497791"
        id="page2"
        margin="0"
        bleed="0" />
+    <sodipodi:guide
+       position="54.962593,8.4361046"
+       orientation="0,-1"
+       id="guide1"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <defs
      id="defs1">
@@ -84,94 +89,19 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-29.425489,-142.39462)">
-    <g
-       id="g95"
-       inkscape:export-filename="dispersal.svg"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300">
-      <g
-         id="g10"
-         transform="translate(-2.5890922,-7.0305857)">
-        <text
-           xml:space="preserve"
-           style="font-style:italic;font-size:3.3514px;line-height:normal;font-family:Calibri;-inkscape-font-specification:'Calibri Italic';text-align:center;text-decoration-color:#000000;writing-mode:lr-tb;direction:ltr;dominant-baseline:central;text-anchor:middle;white-space:pre;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round"
-           x="42.058071"
-           y="170.49806"
-           id="text1"><tspan
-             sodipodi:role="line"
-             id="tspan1"
-             style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
-             x="42.058071"
-             y="170.49806">Child</tspan></text>
-        <rect
-           style="fill:#c76674;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
-           id="rect6"
-           width="3.7104933"
-           height="3.8264458"
-           x="32.014584"
-           y="168.30002"
-           ry="0.20879541" />
-      </g>
-      <g
-         id="g9"
-         transform="translate(14.189616,-12.980888)">
-        <text
-           xml:space="preserve"
-           style="font-style:italic;font-size:3.3514px;line-height:normal;font-family:Calibri;-inkscape-font-specification:'Calibri Italic';text-align:center;text-decoration-color:#000000;writing-mode:lr-tb;direction:ltr;dominant-baseline:central;text-anchor:middle;white-space:pre;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round"
-           x="43.830322"
-           y="176.44836"
-           id="text4"><tspan
-             sodipodi:role="line"
-             id="tspan4"
-             style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
-             x="43.830322"
-             y="176.44836">Mother</tspan></text>
-        <rect
-           style="fill:#8961b3;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
-           id="rect8"
-           width="3.7104933"
-           height="3.8264458"
-           x="32.014584"
-           y="174.25032"
-           ry="0.20879541" />
-      </g>
-      <g
-         id="g8"
-         transform="translate(34.542279,-21.02848)">
-        <text
-           xml:space="preserve"
-           style="font-style:italic;font-size:3.3514px;line-height:normal;font-family:Calibri;-inkscape-font-specification:'Calibri Italic';text-align:center;text-decoration-color:#000000;writing-mode:lr-tb;direction:ltr;dominant-baseline:central;text-anchor:middle;white-space:pre;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round"
-           x="43.370487"
-           y="184.49596"
-           id="text3"><tspan
-             sodipodi:role="line"
-             id="tspan3"
-             style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
-             x="43.370487"
-             y="184.49596">Father</tspan></text>
-        <rect
-           style="fill:#9a9945;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
-           id="rect7"
-           width="3.7104933"
-           height="3.8264458"
-           x="32.014584"
-           y="182.29791"
-           ry="0.20879541" />
-      </g>
-    </g>
-  </g>
+     transform="translate(-29.838192,-142.39462)" />
   <g
      id="g97"
-     transform="translate(-28.351067,-142.39462)">
+     transform="translate(-28.76377,-142.39462)">
     <g
        id="g96">
       <path
          style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:round"
-         d="m 28.752859,156.22669 53.294999,-0.495"
-         id="path1" />
+         d="m 28.763773,156.16485 53.284085,-2.5e-4"
+         id="path1"
+         sodipodi:nodetypes="cc" />
       <rect
-         style="fill:#9a9945;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
+         style="fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
          id="rect2"
          width="3.7104933"
          height="3.8264458"
@@ -179,9 +109,10 @@
          y="154.06596"
          ry="0.20879541" />
       <g
-         id="g11">
+         id="g11"
+         style="fill:#cccccc">
         <rect
-           style="fill:#c76674;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
+           style="fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
            id="rect1"
            width="3.7104933"
            height="3.8264458"
@@ -189,7 +120,7 @@
            y="153.9493"
            ry="0.20879541" />
         <rect
-           style="fill:#8961b3;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
+           style="fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:0.702745;stroke-linejoin:round"
            id="rect3"
            width="3.7104933"
            height="3.8264458"
@@ -199,12 +130,12 @@
       </g>
     </g>
     <path
-       style="fill:#008080;fill-opacity:1;stroke:#8961b3;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ArrowTriangleStylized)"
+       style="fill:#808080;fill-opacity:1;stroke:#808080;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ArrowTriangleStylized)"
        d="M 66.048559,150.50768 H 55.7134"
        id="path4"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:#008080;fill-opacity:1;stroke:#9a9945;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ArrowTriangleStylized)"
+       style="fill:#808080;fill-opacity:1;stroke:#808080;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ArrowTriangleStylized)"
        d="M 40.108458,150.50768 H 52.023766"
        id="path12"
        sodipodi:nodetypes="cc" />
