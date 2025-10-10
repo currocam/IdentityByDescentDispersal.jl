@@ -130,7 +130,7 @@ rule postprocess:
         Pkg.activate(; temp = true)
         Pkg.add(Pkg.PackageSpec(name="CSV", version="0.10.15"))
         Pkg.add(Pkg.PackageSpec(name="DataFrames", version="1.7.0"))
-        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.2"))
+        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.3"))
         using CSV, DataFrames, IdentityByDescentDispersal
         colnames = ["ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"]
         # Read IBD files and concatenate them:
