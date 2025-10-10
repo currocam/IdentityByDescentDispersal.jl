@@ -134,8 +134,8 @@ DataFrame(
 # that demonstrates how to do this provided a MCMC sample.
 let
     grid_times = 1:100
-    L = 0.05
-    grid_r = [0.1, 0.5, 1.0]
+    L = 0.04 # Smallest IBD block considered
+    grid_r = [0.1, 0.5, 1.0] # Geographic distances
     colors = [:blue, :red, :green] # Define colors for each r
     De(t, params) = params[1] # Custom De(t) parametrization
     p1 = plot(xlabel = "Time (generations ago)", ylabel = "Density shared IBD blocks")
@@ -157,7 +157,7 @@ let
                 p1,
                 grid_times,
                 dens,
-                label = first_line ? "r=$r" : "",
+                label = first_line ? "Distance=$r" : "",
                 color = colors[i],
                 alpha = 0.1,
             )
@@ -171,8 +171,8 @@ end
 # the densities for each bootstrap replicate.
 let
     grid_times = 1:100
-    L = 0.05
-    grid_r = [0.1, 0.5, 1.0]
+    L = 0.04 # Smallest IBD block considered
+    grid_r = [0.1, 0.5, 1.0] # Geographic distances
     colors = [:blue, :red, :green] # Define colors for each r
     De(t, params) = params[1] # Custom De(t) parametrization
     p1 = plot(xlabel = "Time (generations ago)", ylabel = "Density shared IBD blocks")
@@ -194,7 +194,7 @@ let
                 p1,
                 grid_times,
                 dens,
-                label = first_line ? "r=$r" : "",
+                label = first_line ? "Distance=$r" : "",
                 color = colors[i],
                 alpha = 0.1,
             )
