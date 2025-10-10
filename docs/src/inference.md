@@ -64,7 +64,7 @@ The `IdentityByDescentDispersal` is compatible with automatic differentiation. T
 Hamiltonian Monte Carlo algorithms such as `NUTS()` to estimate the posterior distribution.
 
 ````@example inference
-chains = sample(m, NUTS(), MCMCThreads(), 1000, 4);
+chains = sample(m, NUTS(), MCMCThreads(), 500, 4);
 nothing #hide
 ````
 
@@ -199,7 +199,7 @@ let
             first_line = false
         end
     end
-    display(p1)
+    p1
 end
 ````
 
@@ -239,7 +239,7 @@ let
             first_line = false
         end
     end
-    display(p1)
+    p1
 end
 ````
 
