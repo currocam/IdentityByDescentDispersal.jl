@@ -50,7 +50,7 @@ end
 m = constant_density(data["df"], data["contig_lengths"])
 # The `IdentityByDescentDispersal` is compatible with automatic differentiation. Therefore, we can use standard
 # Hamiltonian Monte Carlo algorithms such as `NUTS()` to estimate the posterior distribution.
-chains = sample(m, NUTS(), MCMCThreads(), 1000, 4);
+chains = sample(m, NUTS(), MCMCThreads(), 500, 4);
 # When fitting models with power-densities (i.e. using `composite_loglikelihood_power_density`), be aware that
 # the $\beta$ parameter controls the mean-square diﬀerentiability of the composite likelihood (through modified
 # second-kind Bessel function). If you run into issues, we suggest that:
@@ -164,7 +164,7 @@ let
             first_line = false
         end
     end
-    display(p1)
+    p1
 end
 
 # An equivalent plot can be done in a likelihood (frequentist) setting. For example, by calculating
@@ -201,7 +201,7 @@ let
             first_line = false
         end
     end
-    display(p1)
+    p1
 end
 # We expect to observe a decay in the density of expected shared IBD-blocks with time. The previous plot can be used
 # to determine some time interval $(1, t)$ from which we expect most of the signal to have arisen. This recipe
@@ -217,7 +217,7 @@ end
 # Such differences arise naturally when considering the effect of mating systems on dispersal patterns. For simplicity,
 # let's consider a 1-dimensional space where individuals can only move left or right as shown in the figure below.
 #
-# ![Illustration of dispersal in a 1-dimensional space with separate sexes](dispersal.svg)
+# ![Illustration of dispersal in a 1-dimensional space with separate sexes](dispersal.svg){ width=100% }
 #
 # Let's assume the displacement between the mother and the offspring, $d_{\text{mother-child}}$, is distributed
 # according to a normal distribution with a mean of zero and a variance of $\sigma_D^2$ and
