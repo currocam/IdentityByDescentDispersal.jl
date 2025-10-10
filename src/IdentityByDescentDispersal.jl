@@ -366,7 +366,7 @@ function preprocess_dataset(
     for (dist_i, distance) in enumerate(unique(individual_distances.distance))
         # Get all pairs at this distance
         pairs_at_distance =
-            individual_distances[individual_distances.distance.==distance, [:ID1, :ID2]]
+            individual_distances[individual_distances.distance .== distance, [:ID1, :ID2]]
         pair_set = Set(Tuple.(eachrow(pairs_at_distance)))
 
         # Filter IBD blocks for those pairs

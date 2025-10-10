@@ -14,13 +14,12 @@ using Random, Test, Distributions, QuadGK, DataFrames
             σ = rand(Uniform(0, 1e5))
             de = t -> rand(Uniform(0, 1e5))
             @test iszero(IdentityByDescentDispersal.probability_coalescence(0, r, de, σ))
-            computed =
-                IdentityByDescentDispersal.probability_coalescence.(
-                    rand(Uniform(0, 1e5), 100),
-                    r,
-                    de,
-                    σ,
-                )
+            computed = IdentityByDescentDispersal.probability_coalescence.(
+                rand(Uniform(0, 1e5), 100),
+                r,
+                de,
+                σ,
+            )
             @test all(computed .>= 0)
             @test all(computed .<= 1)
         end

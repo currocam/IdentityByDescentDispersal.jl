@@ -122,10 +122,91 @@ DataFrame(
 
 # ## Interpreting the output
 # Finally, we provide some references on how to interpret the results and relate them to the biological context.
+
 # ### Effective population density
 # The effective population density (De) is simply the inverse of the coalescent rate of lineages that become very close to each other.
 # It is equivalent to the effective population size of every deme in a stepping stone model where demes are separated by one distance unit.
-# It is most informative of recent demographic events as it is calculated from identity-by-descent blocks.
+#
+# The estimate is most informative of recent demographic events as it is calculated from long identity-by-descent blocks that typically arise recently.
+# We can get an idea of the temporal time-scale by looking at the theoretical predictions under the estimated demographic model.
+#
+# In a Bayesian setting, this sort of information is known as a posterior predictive distribution. Next, we provide a snippet of code
+# that demonstrates how to do this provided a MCMC sample.
+let
+    grid_times = 1:100
+    L = 0.05
+    grid_r = [0.1, 0.5, 1.0]
+    colors = [:blue, :red, :green] # Define colors for each r
+    De(t, params) = params[1] # Custom De(t) parametrization
+    p1 = plot(xlabel = "Time (generations ago)", ylabel = "Density shared IBD blocks")
+    posterior = sample(chains, 100)
+    for (i, r) in enumerate(grid_r)
+        first_line = true
+        for (D, sigma) in zip(posterior[:De], posterior[:σ])
+            params = [D]
+            dens = age_density_ibd_blocks_custom(
+                grid_times,
+                r,
+                De,
+                params,
+                sigma,
+                L,
+                data["contig_lengths"],
+            )
+            plot!(
+                p1,
+                grid_times,
+                dens,
+                label = first_line ? "r=$r" : "",
+                color = colors[i],
+                alpha = 0.1,
+            )
+            first_line = false
+        end
+    end
+    display(p1)
+end
+
+# An equivalent plot can be done in a likelihood (frequentist) setting. For example, by calculating
+# the densities for each bootstrap replicate.
+let
+    grid_times = 1:100
+    L = 0.05
+    grid_r = [0.1, 0.5, 1.0]
+    colors = [:blue, :red, :green] # Define colors for each r
+    De(t, params) = params[1] # Custom De(t) parametrization
+    p1 = plot(xlabel = "Time (generations ago)", ylabel = "Density shared IBD blocks")
+    for (i, r) in enumerate(grid_r)
+        first_line = true
+        for j = 1:nboots
+            D, sigma = boots[:, j]
+            params = [D]
+            dens = age_density_ibd_blocks_custom(
+                grid_times,
+                r,
+                De,
+                params,
+                sigma,
+                L,
+                data["contig_lengths"],
+            )
+            plot!(
+                p1,
+                grid_times,
+                dens,
+                label = first_line ? "r=$r" : "",
+                color = colors[i],
+                alpha = 0.1,
+            )
+            first_line = false
+        end
+    end
+    display(p1)
+end
+# We expect to observe a decay in the density of expected shared IBD-blocks with time. The previous plot can be used
+# to determine some time interval $(1, t)$ from which we expect most of the signal to have arisen. This recipe
+# is useful for identifying the time-span of the estimated demography and can be applied to other demographic models as well.
+#
 # ### Effective dispersal rate
 # Perhaps unintuitively, the mean per-generation dispersal distance when we average with respect to both parents is not necessarily equivalent
 # to the mean per-generation dispersal distance when we average across single generations. From population genetic data, we can estimate the latter (
@@ -136,7 +217,7 @@ DataFrame(
 # Such differences arise naturally when considering the effect of mating systems on dispersal patterns. For simplicity,
 # let's consider a 1-dimensional space where individuals can only move left or right as shown in the figure below.
 #
-# ![Illustration of dispersal in a 1-dimensional space with separate sexes](dispersal.png)
+# ![Illustration of dispersal in a 1-dimensional space with separate sexes](dispersal.svg)
 #
 # Let's assume the displacement between the mother and the offspring, $d_{\text{mother-child}}$, is distributed
 # according to a normal distribution with a mean of zero and a variance of $\sigma_D^2$ and
