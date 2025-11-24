@@ -1,244 +1,242 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Inference and model evaluation · IdentityByDescentDispersal.jl</title><meta name="title" content="Inference and model evaluation · IdentityByDescentDispersal.jl"/><meta property="og:title" content="Inference and model evaluation · IdentityByDescentDispersal.jl"/><meta property="twitter:title" content="Inference and model evaluation · IdentityByDescentDispersal.jl"/><meta name="description" content="Documentation for IdentityByDescentDispersal.jl."/><meta property="og:description" content="Documentation for IdentityByDescentDispersal.jl."/><meta property="twitter:description" content="Documentation for IdentityByDescentDispersal.jl."/><meta property="og:url" content="https://currocam.github.io/IdentityByDescentDispersal.jl/inference/"/><meta property="twitter:url" content="https://currocam.github.io/IdentityByDescentDispersal.jl/inference/"/><link rel="canonical" href="https://currocam.github.io/IdentityByDescentDispersal.jl/inference/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">IdentityByDescentDispersal.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../overview/">Theory overview</a></li><li><a class="tocitem" href="../tutorial/">Basic usage</a></li><li class="is-active"><a class="tocitem" href>Inference and model evaluation</a><ul class="internal"><li><a class="tocitem" href="#Simulating-synthetic-datasets"><span>Simulating synthetic datasets</span></a></li><li><a class="tocitem" href="#Processing-pipeline"><span>Processing pipeline</span></a></li><li><a class="tocitem" href="#Model-inference"><span>Model inference</span></a></li><li><a class="tocitem" href="#Model-diagnosis"><span>Model diagnosis</span></a></li><li><a class="tocitem" href="#Visualizing-the-posterior"><span>Visualizing the posterior</span></a></li><li><a class="tocitem" href="#Interpreting-the-output"><span>Interpreting the output</span></a></li></ul></li><li><span class="tocitem">Developer docs</span><ul><li><a class="tocitem" href="../95-reference/">Reference</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Inference and model evaluation</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Inference and model evaluation</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/docs/src/inference.jl#" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Inference-and-model-evaluation"><a class="docs-heading-anchor" href="#Inference-and-model-evaluation">Inference and model evaluation</a><a id="Inference-and-model-evaluation-1"></a><a class="docs-heading-anchor-permalink" href="#Inference-and-model-evaluation" title="Permalink"></a></h1><p>In this section, we go through the process of estimating the parameters of the model and evaluating the fitted model.</p><h2 id="Simulating-synthetic-datasets"><a class="docs-heading-anchor" href="#Simulating-synthetic-datasets">Simulating synthetic datasets</a><a id="Simulating-synthetic-datasets-1"></a><a class="docs-heading-anchor-permalink" href="#Simulating-synthetic-datasets" title="Permalink"></a></h2><p>The method proposed by Ringbauer et al. (2017) makes some assumptions to approximate the evolution of a population in a continuous space. We refer to the <code>Theory overview</code> for an introduction to the underlying theory. In any case, we advise researchers to simulate synthetic data that resembles the empirical data according to their expertise. This is a crucial step to determine the expected performance of the method and to guide different steps of the pre-processing strategy (such as which software to use to detect identity-by-descent blocks or how to bin the observed data).</p><p>For this purpose, we provide a <code>SLiM</code> model to simulate an individual-based population in a continuous space as well as two scripts that fit the model with either error-free identity-by-descent blocks or blocks detected using state-of-the-art software and compare it with the ground-truth parameters. Such models can be found at <a href="https://github.com/currocam/IdentityByDescentDispersal.jl/tree/main/simulations">simulations directory</a> and might be adapted to your specific needs.</p><h2 id="Processing-pipeline"><a class="docs-heading-anchor" href="#Processing-pipeline">Processing pipeline</a><a id="Processing-pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Processing-pipeline" title="Permalink"></a></h2><p>Inferring the effective density and dispersal rate from empirical datasets requires running an identity-by-descent detection software across different phased VCF files, post-processing them, and aggregating them appropriately. This procedure is error-prone and time-consuming.</p><p>To facilitate the analysis, we provide a <a href="https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/Snakefile">Snakemake pipeline</a> that can be used to perform a complete analysis, from detecting IBD blocks using HapIBD, post-processing them with Refined IBD, producing a CSV directly compatible with this package, and, optionally, finding a preliminary maximum likelihood estimate of the effective density. Effective dispersal rate. <a href="https://snakemake.readthedocs.io/">Snakemake</a> is a popular tool in bioinformatics and it allows easy parallelization across multiple cores or jobs when submitting to a cluster via SLURM, as well as automatically managing dependencies via Conda or Apptainer containers. Most of the time, running such a pipeline would require a single-command such as:</p><pre><code class="language-bash hljs">snakemake --configfile config.yaml --cores 8 --sdm conda</code></pre><p>The pipeline is configured via a configuration YAML file. An example of such a configuration file can be found <a href="https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/.test-workflow/config.yaml">here</a>. We refer to the <a href="https://snakemake.readthedocs.io/">extensive documentation of Snakemake</a> for more information.</p><h2 id="Model-inference"><a class="docs-heading-anchor" href="#Model-inference">Model inference</a><a id="Model-inference-1"></a><a class="docs-heading-anchor-permalink" href="#Model-inference" title="Permalink"></a></h2><p>Next, we exemplify the common steps of an analysis using <code>IdentityByDescentDispersal</code>. First, we load a synthetic dataset for which we know the ground truth. This is the dataset we simulated when showcasing how to <a href="https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/simulations/simulate_constant_density_ground_truth.md">simulate synthetic datasets using SLiM</a>.</p><pre><code class="language-julia hljs">using JLD2, DataFrames, IdentityByDescentDispersal, Turing
 data = load(&quot;../data/constant_density.jld2&quot;)
-ground_truth = (data[&quot;local_density&quot;], data[&quot;dispersal_rate&quot;])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(253.30778276266545, 0.07088723439378913)</code></pre><p>The <code>IdentityByDescentDispersal</code> is designed to be compatible with existing statistical software. Here, we decide to Use the <code>Turing</code> package, which is the most popular Bayesian modelling framework in Julia. Let&#39;s consider the following model:</p><pre><code class="language-julia hljs">@model function constant_density(df, contig_lengths)
+ground_truth = (data[&quot;local_density&quot;], data[&quot;dispersal_rate&quot;])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(200, 0.10024968827881711)</code></pre><p>The <code>IdentityByDescentDispersal</code> is designed to be compatible with existing statistical software. Here, we decide to Use the <code>Turing</code> package, which is the most popular Bayesian modelling framework in Julia. Let&#39;s consider the following model:</p><pre><code class="language-julia hljs">@model function constant_density(df, contig_lengths)
     De ~ Truncated(Normal(1000, 100), 0, Inf)
     σ ~ Truncated(Normal(1, 0.1), 0, Inf)
     Turing.@addlogprob! composite_loglikelihood_constant_density(De, σ, df, contig_lengths)
 end
-m = constant_density(data[&quot;df&quot;], data[&quot;contig_lengths&quot;])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">DynamicPPL.Model{typeof(Main.constant_density), (:df, :contig_lengths), (), (), Tuple{DataFrames.DataFrame, Vector{Float64}}, Tuple{}, DynamicPPL.DefaultContext}(Main.constant_density, (df = <span class="sgr1">9440×6 DataFrame
+m = constant_density(data[&quot;df&quot;], data[&quot;contig_lengths&quot;])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">DynamicPPL.Model{typeof(Main.constant_density), (:df, :contig_lengths), (), (), Tuple{DataFrames.DataFrame, Vector{Float64}}, Tuple{}, DynamicPPL.DefaultContext}(Main.constant_density, (df = 2080×6 DataFrame
   Row │ DISTANCE_INDEX  IBD_LEFT  IBD_RIGHT  NR_PAIRS  COUNT  DISTANCE
-      │<span class="sgr90"> Float64         Float64   Float64    Int64     Int64  Float64
+      │ Float64         Float64   Float64    Int64     Int64  Float64
 ──────┼────────────────────────────────────────────────────────────────
-    1 │           0.21     0.04       0.041       176     20  0.214839
-    2 │           0.21     0.041      0.042       176     16  0.214839
-    3 │           0.21     0.042      0.043       176     11  0.214839
-    4 │           0.21     0.043      0.044       176     16  0.214839
-    5 │           0.21     0.044      0.045       176     10  0.214839
-    6 │           0.21     0.045      0.046       176     11  0.214839
-    7 │           0.21     0.046      0.047       176     16  0.214839
-    8 │           0.21     0.047      0.048       176      5  0.214839
+    1 │           0.25     0.04       0.041       655     66  0.275209
+    2 │           0.25     0.041      0.042       655     33  0.275209
+    3 │           0.25     0.042      0.043       655     48  0.275209
+    4 │           0.25     0.043      0.044       655     59  0.275209
+    5 │           0.25     0.044      0.045       655     42  0.275209
+    6 │           0.25     0.045      0.046       655     21  0.275209
+    7 │           0.25     0.046      0.047       655     29  0.275209
+    8 │           0.25     0.047      0.048       655     36  0.275209
   ⋮   │       ⋮            ⋮          ⋮         ⋮        ⋮       ⋮
- 9434 │           0.55     0.193      0.194         1      0  0.556462
- 9435 │           0.55     0.194      0.195         1      0  0.556462
- 9436 │           0.55     0.195      0.196         1      0  0.556462
- 9437 │           0.55     0.196      0.197         1      0  0.556462
- 9438 │           0.55     0.197      0.198         1      0  0.556462
- 9439 │           0.55     0.198      0.199         1      0  0.556462
- 9440 │           0.55     0.199      0.2           1      0  0.556462
-</span><span class="sgr36">                                                      9425 rows omitted, contig_lengths = [1.0]), NamedTuple(), DynamicPPL.DefaultContext())</span></span></code></pre><p>The <code>IdentityByDescentDispersal</code> is compatible with automatic differentiation. Therefore, we can use standard Hamiltonian Monte Carlo algorithms such as <code>NUTS()</code> to estimate the posterior distribution.</p><pre><code class="language-julia hljs">chains = sample(m, NUTS(), MCMCThreads(), 500, 4);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌ Warning: Only a single thread available: MCMC chains are not sampled in parallel
-└ @ AbstractMCMC ~/.julia/packages/AbstractMCMC/z4BsN/src/sample.jl:432
-Sampling (1 thread)   0%|                               |  ETA: N/A
-┌ Info: Found initial step size
-└   ϵ = 0.003125
-Sampling (1 thread)   0%|▏                              |  ETA: 0:48:26
-Sampling (1 thread)   1%|▎                              |  ETA: 0:31:14
-Sampling (1 thread)   2%|▌                              |  ETA: 0:27:35
-Sampling (1 thread)   2%|▋                              |  ETA: 0:22:00
-Sampling (1 thread)   2%|▊                              |  ETA: 0:18:53
-Sampling (1 thread)   3%|▉                              |  ETA: 0:16:25
-Sampling (1 thread)   4%|█▏                             |  ETA: 0:15:07
-Sampling (1 thread)   4%|█▎                             |  ETA: 0:13:49
-Sampling (1 thread)   4%|█▍                             |  ETA: 0:12:44
-Sampling (1 thread)   5%|█▌                             |  ETA: 0:11:45
-Sampling (1 thread)   6%|█▊                             |  ETA: 0:11:07
-Sampling (1 thread)   6%|█▉                             |  ETA: 0:10:56
-Sampling (1 thread)   6%|██                             |  ETA: 0:10:30
-Sampling (1 thread)   7%|██▏                            |  ETA: 0:10:25
-Sampling (1 thread)   8%|██▍                            |  ETA: 0:10:20
-Sampling (1 thread)   8%|██▌                            |  ETA: 0:10:06
-Sampling (1 thread)   8%|██▋                            |  ETA: 0:10:03
-Sampling (1 thread)   9%|██▊                            |  ETA: 0:09:52
-Sampling (1 thread)  10%|███                            |  ETA: 0:09:44
-Sampling (1 thread)  10%|███▏                           |  ETA: 0:09:30
-Sampling (1 thread)  10%|███▎                           |  ETA: 0:09:19
-Sampling (1 thread)  11%|███▍                           |  ETA: 0:09:17
-Sampling (1 thread)  12%|███▋                           |  ETA: 0:09:11
-Sampling (1 thread)  12%|███▊                           |  ETA: 0:09:04
-Sampling (1 thread)  12%|███▉                           |  ETA: 0:08:56
-Sampling (1 thread)  13%|████                           |  ETA: 0:08:49
-Sampling (1 thread)  14%|████▏                          |  ETA: 0:08:42
-Sampling (1 thread)  14%|████▍                          |  ETA: 0:08:32
-Sampling (1 thread)  14%|████▌                          |  ETA: 0:08:28
-Sampling (1 thread)  15%|████▋                          |  ETA: 0:08:23
-Sampling (1 thread)  16%|████▊                          |  ETA: 0:08:22
-Sampling (1 thread)  16%|█████                          |  ETA: 0:08:17
-Sampling (1 thread)  16%|█████▏                         |  ETA: 0:08:12
-Sampling (1 thread)  17%|█████▎                         |  ETA: 0:08:09
-Sampling (1 thread)  18%|█████▍                         |  ETA: 0:08:03
-Sampling (1 thread)  18%|█████▋                         |  ETA: 0:07:57
-Sampling (1 thread)  18%|█████▊                         |  ETA: 0:07:54
-Sampling (1 thread)  19%|█████▉                         |  ETA: 0:07:48
-Sampling (1 thread)  20%|██████                         |  ETA: 0:07:45
-Sampling (1 thread)  20%|██████▎                        |  ETA: 0:07:39
-Sampling (1 thread)  20%|██████▍                        |  ETA: 0:07:36
-Sampling (1 thread)  21%|██████▌                        |  ETA: 0:07:36
-Sampling (1 thread)  22%|██████▋                        |  ETA: 0:07:32
-Sampling (1 thread)  22%|██████▉                        |  ETA: 0:07:30
-Sampling (1 thread)  22%|███████                        |  ETA: 0:07:27
-Sampling (1 thread)  23%|███████▏                       |  ETA: 0:07:23
-Sampling (1 thread)  24%|███████▎                       |  ETA: 0:07:17
-Sampling (1 thread)  24%|███████▌                       |  ETA: 0:07:12
-Sampling (1 thread)  24%|███████▋                       |  ETA: 0:07:08
-Sampling (1 thread)  25%|███████▊                       |  ETA: 0:07:04
-┌ Info: Found initial step size
-└   ϵ = 0.0015625
-Sampling (1 thread)  26%|███████▉                       |  ETA: 0:07:10
-Sampling (1 thread)  26%|████████                       |  ETA: 0:07:09
-Sampling (1 thread)  26%|████████▎                      |  ETA: 0:07:14
-Sampling (1 thread)  27%|████████▍                      |  ETA: 0:07:08
-Sampling (1 thread)  28%|████████▌                      |  ETA: 0:07:01
-Sampling (1 thread)  28%|████████▋                      |  ETA: 0:06:58
-Sampling (1 thread)  28%|████████▉                      |  ETA: 0:06:54
-Sampling (1 thread)  29%|█████████                      |  ETA: 0:06:49
-Sampling (1 thread)  30%|█████████▏                     |  ETA: 0:06:43
-Sampling (1 thread)  30%|█████████▎                     |  ETA: 0:06:41
-Sampling (1 thread)  30%|█████████▌                     |  ETA: 0:06:37
-Sampling (1 thread)  31%|█████████▋                     |  ETA: 0:06:33
-Sampling (1 thread)  32%|█████████▊                     |  ETA: 0:06:31
-Sampling (1 thread)  32%|█████████▉                     |  ETA: 0:06:27
-Sampling (1 thread)  32%|██████████▏                    |  ETA: 0:06:25
-Sampling (1 thread)  33%|██████████▎                    |  ETA: 0:06:20
-Sampling (1 thread)  34%|██████████▍                    |  ETA: 0:06:17
-Sampling (1 thread)  34%|██████████▌                    |  ETA: 0:06:14
-Sampling (1 thread)  34%|██████████▊                    |  ETA: 0:06:09
-Sampling (1 thread)  35%|██████████▉                    |  ETA: 0:06:07
-Sampling (1 thread)  36%|███████████                    |  ETA: 0:06:05
-Sampling (1 thread)  36%|███████████▏                   |  ETA: 0:06:02
-Sampling (1 thread)  36%|███████████▍                   |  ETA: 0:05:59
-Sampling (1 thread)  37%|███████████▌                   |  ETA: 0:05:55
-Sampling (1 thread)  38%|███████████▋                   |  ETA: 0:05:52
-Sampling (1 thread)  38%|███████████▊                   |  ETA: 0:05:49
-Sampling (1 thread)  38%|███████████▉                   |  ETA: 0:05:45
-Sampling (1 thread)  39%|████████████▏                  |  ETA: 0:05:42
-Sampling (1 thread)  40%|████████████▎                  |  ETA: 0:05:39
-Sampling (1 thread)  40%|████████████▍                  |  ETA: 0:05:37
-Sampling (1 thread)  40%|████████████▌                  |  ETA: 0:05:33
-Sampling (1 thread)  41%|████████████▊                  |  ETA: 0:05:30
-Sampling (1 thread)  42%|████████████▉                  |  ETA: 0:05:27
-Sampling (1 thread)  42%|█████████████                  |  ETA: 0:05:24
-Sampling (1 thread)  42%|█████████████▏                 |  ETA: 0:05:20
-Sampling (1 thread)  43%|█████████████▍                 |  ETA: 0:05:17
-Sampling (1 thread)  44%|█████████████▌                 |  ETA: 0:05:15
-Sampling (1 thread)  44%|█████████████▋                 |  ETA: 0:05:12
-Sampling (1 thread)  44%|█████████████▊                 |  ETA: 0:05:09
-Sampling (1 thread)  45%|██████████████                 |  ETA: 0:05:06
-Sampling (1 thread)  46%|██████████████▏                |  ETA: 0:05:03
-Sampling (1 thread)  46%|██████████████▎                |  ETA: 0:05:00
-Sampling (1 thread)  46%|██████████████▍                |  ETA: 0:04:57
-Sampling (1 thread)  47%|██████████████▋                |  ETA: 0:04:54
-Sampling (1 thread)  48%|██████████████▊                |  ETA: 0:04:51
-Sampling (1 thread)  48%|██████████████▉                |  ETA: 0:04:48
-Sampling (1 thread)  48%|███████████████                |  ETA: 0:04:44
-Sampling (1 thread)  49%|███████████████▎               |  ETA: 0:04:41
-Sampling (1 thread)  50%|███████████████▍               |  ETA: 0:04:38
-Sampling (1 thread)  50%|███████████████▌               |  ETA: 0:04:35
-┌ Info: Found initial step size
-└   ϵ = 0.0125
-Sampling (1 thread)  50%|███████████████▋               |  ETA: 0:04:32
-Sampling (1 thread)  51%|███████████████▊               |  ETA: 0:04:34
-Sampling (1 thread)  52%|████████████████               |  ETA: 0:04:31
-Sampling (1 thread)  52%|████████████████▏              |  ETA: 0:04:27
-Sampling (1 thread)  52%|████████████████▎              |  ETA: 0:04:24
-Sampling (1 thread)  53%|████████████████▍              |  ETA: 0:04:20
-Sampling (1 thread)  54%|████████████████▋              |  ETA: 0:04:16
-Sampling (1 thread)  54%|████████████████▊              |  ETA: 0:04:13
-Sampling (1 thread)  55%|████████████████▉              |  ETA: 0:04:10
-Sampling (1 thread)  55%|█████████████████              |  ETA: 0:04:06
-Sampling (1 thread)  56%|█████████████████▎             |  ETA: 0:04:04
-Sampling (1 thread)  56%|█████████████████▍             |  ETA: 0:04:01
-Sampling (1 thread)  56%|█████████████████▌             |  ETA: 0:03:58
-Sampling (1 thread)  57%|█████████████████▋             |  ETA: 0:03:55
-Sampling (1 thread)  57%|█████████████████▉             |  ETA: 0:03:54
-Sampling (1 thread)  58%|██████████████████             |  ETA: 0:03:51
-Sampling (1 thread)  58%|██████████████████▏            |  ETA: 0:03:48
-Sampling (1 thread)  59%|██████████████████▎            |  ETA: 0:03:46
-Sampling (1 thread)  60%|██████████████████▌            |  ETA: 0:03:43
-Sampling (1 thread)  60%|██████████████████▋            |  ETA: 0:03:41
-Sampling (1 thread)  60%|██████████████████▊            |  ETA: 0:03:38
-Sampling (1 thread)  61%|██████████████████▉            |  ETA: 0:03:35
-Sampling (1 thread)  62%|███████████████████▏           |  ETA: 0:03:32
-Sampling (1 thread)  62%|███████████████████▎           |  ETA: 0:03:29
-Sampling (1 thread)  62%|███████████████████▍           |  ETA: 0:03:27
-Sampling (1 thread)  63%|███████████████████▌           |  ETA: 0:03:24
-Sampling (1 thread)  64%|███████████████████▋           |  ETA: 0:03:21
-Sampling (1 thread)  64%|███████████████████▉           |  ETA: 0:03:18
-Sampling (1 thread)  64%|████████████████████           |  ETA: 0:03:15
-Sampling (1 thread)  65%|████████████████████▏          |  ETA: 0:03:12
-Sampling (1 thread)  66%|████████████████████▎          |  ETA: 0:03:10
-Sampling (1 thread)  66%|████████████████████▌          |  ETA: 0:03:07
-Sampling (1 thread)  66%|████████████████████▋          |  ETA: 0:03:04
-Sampling (1 thread)  67%|████████████████████▊          |  ETA: 0:03:01
-Sampling (1 thread)  68%|████████████████████▉          |  ETA: 0:02:59
-Sampling (1 thread)  68%|█████████████████████▏         |  ETA: 0:02:56
-Sampling (1 thread)  68%|█████████████████████▎         |  ETA: 0:02:53
-Sampling (1 thread)  69%|█████████████████████▍         |  ETA: 0:02:50
-Sampling (1 thread)  70%|█████████████████████▌         |  ETA: 0:02:47
-Sampling (1 thread)  70%|█████████████████████▊         |  ETA: 0:02:44
-Sampling (1 thread)  70%|█████████████████████▉         |  ETA: 0:02:42
-Sampling (1 thread)  71%|██████████████████████         |  ETA: 0:02:39
-Sampling (1 thread)  72%|██████████████████████▏        |  ETA: 0:02:36
-Sampling (1 thread)  72%|██████████████████████▍        |  ETA: 0:02:33
-Sampling (1 thread)  72%|██████████████████████▌        |  ETA: 0:02:30
-Sampling (1 thread)  73%|██████████████████████▋        |  ETA: 0:02:28
-Sampling (1 thread)  74%|██████████████████████▊        |  ETA: 0:02:25
-Sampling (1 thread)  74%|███████████████████████        |  ETA: 0:02:22
-Sampling (1 thread)  74%|███████████████████████▏       |  ETA: 0:02:19
-Sampling (1 thread)  75%|███████████████████████▎       |  ETA: 0:02:16
+ 2074 │           0.6      0.193      0.194         5      0  0.619258
+ 2075 │           0.6      0.194      0.195         5      0  0.619258
+ 2076 │           0.6      0.195      0.196         5      0  0.619258
+ 2077 │           0.6      0.196      0.197         5      0  0.619258
+ 2078 │           0.6      0.197      0.198         5      0  0.619258
+ 2079 │           0.6      0.198      0.199         5      0  0.619258
+ 2080 │           0.6      0.199      0.2           5      0  0.619258
+                                                      2065 rows omitted, contig_lengths = [1.0]), NamedTuple(), DynamicPPL.DefaultContext())</code></pre><p>The <code>IdentityByDescentDispersal</code> is compatible with automatic differentiation. Therefore, we can use standard Hamiltonian Monte Carlo algorithms such as <code>NUTS()</code> to estimate the posterior distribution.</p><pre><code class="language-julia hljs">chains = sample(m, NUTS(), MCMCThreads(), 500, 4);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Sampling (4 threads)   0%|                              |  ETA: N/A
 ┌ Info: Found initial step size
 └   ϵ = 0.00625
-Sampling (1 thread)  76%|███████████████████████▍       |  ETA: 0:02:14
-Sampling (1 thread)  76%|███████████████████████▌       |  ETA: 0:02:13
-Sampling (1 thread)  76%|███████████████████████▊       |  ETA: 0:02:10
-Sampling (1 thread)  77%|███████████████████████▉       |  ETA: 0:02:07
-Sampling (1 thread)  78%|████████████████████████       |  ETA: 0:02:04
-Sampling (1 thread)  78%|████████████████████████▏      |  ETA: 0:02:00
-Sampling (1 thread)  78%|████████████████████████▍      |  ETA: 0:01:58
-Sampling (1 thread)  79%|████████████████████████▌      |  ETA: 0:01:55
-Sampling (1 thread)  80%|████████████████████████▋      |  ETA: 0:01:52
-Sampling (1 thread)  80%|████████████████████████▊      |  ETA: 0:01:49
-Sampling (1 thread)  80%|█████████████████████████      |  ETA: 0:01:47
-Sampling (1 thread)  81%|█████████████████████████▏     |  ETA: 0:01:44
-Sampling (1 thread)  82%|█████████████████████████▎     |  ETA: 0:01:41
-Sampling (1 thread)  82%|█████████████████████████▍     |  ETA: 0:01:39
-Sampling (1 thread)  82%|█████████████████████████▋     |  ETA: 0:01:36
-Sampling (1 thread)  83%|█████████████████████████▊     |  ETA: 0:01:33
-Sampling (1 thread)  84%|█████████████████████████▉     |  ETA: 0:01:30
-Sampling (1 thread)  84%|██████████████████████████     |  ETA: 0:01:28
-Sampling (1 thread)  84%|██████████████████████████▎    |  ETA: 0:01:25
-Sampling (1 thread)  85%|██████████████████████████▍    |  ETA: 0:01:22
-Sampling (1 thread)  86%|██████████████████████████▌    |  ETA: 0:01:19
-Sampling (1 thread)  86%|██████████████████████████▋    |  ETA: 0:01:16
-Sampling (1 thread)  86%|██████████████████████████▉    |  ETA: 0:01:14
-Sampling (1 thread)  87%|███████████████████████████    |  ETA: 0:01:11
-Sampling (1 thread)  88%|███████████████████████████▏   |  ETA: 0:01:08
-Sampling (1 thread)  88%|███████████████████████████▎   |  ETA: 0:01:05
-Sampling (1 thread)  88%|███████████████████████████▍   |  ETA: 0:01:03
-Sampling (1 thread)  89%|███████████████████████████▋   |  ETA: 0:01:00
-Sampling (1 thread)  90%|███████████████████████████▊   |  ETA: 0:00:57
-Sampling (1 thread)  90%|███████████████████████████▉   |  ETA: 0:00:54
-Sampling (1 thread)  90%|████████████████████████████   |  ETA: 0:00:52
-Sampling (1 thread)  91%|████████████████████████████▎  |  ETA: 0:00:49
-Sampling (1 thread)  92%|████████████████████████████▍  |  ETA: 0:00:46
-Sampling (1 thread)  92%|████████████████████████████▌  |  ETA: 0:00:43
-Sampling (1 thread)  92%|████████████████████████████▋  |  ETA: 0:00:41
-Sampling (1 thread)  93%|████████████████████████████▉  |  ETA: 0:00:38
-Sampling (1 thread)  94%|█████████████████████████████  |  ETA: 0:00:35
-Sampling (1 thread)  94%|█████████████████████████████▏ |  ETA: 0:00:33
-Sampling (1 thread)  94%|█████████████████████████████▎ |  ETA: 0:00:30
-Sampling (1 thread)  95%|█████████████████████████████▌ |  ETA: 0:00:27
-Sampling (1 thread)  96%|█████████████████████████████▋ |  ETA: 0:00:24
-Sampling (1 thread)  96%|█████████████████████████████▊ |  ETA: 0:00:22
-Sampling (1 thread)  96%|█████████████████████████████▉ |  ETA: 0:00:19
-Sampling (1 thread)  97%|██████████████████████████████▏|  ETA: 0:00:16
-Sampling (1 thread)  98%|██████████████████████████████▎|  ETA: 0:00:14
-Sampling (1 thread)  98%|██████████████████████████████▍|  ETA: 0:00:11
-Sampling (1 thread)  98%|██████████████████████████████▌|  ETA: 0:00:08
-Sampling (1 thread)  99%|██████████████████████████████▊|  ETA: 0:00:05
-Sampling (1 thread) 100%|██████████████████████████████▉|  ETA: 0:00:03
-Sampling (1 thread) 100%|███████████████████████████████| Time: 0:08:59
-Sampling (1 thread) 100%|███████████████████████████████| Time: 0:08:59</code></pre><p>When fitting models with power-densities (i.e. using <code>composite_loglikelihood_power_density</code>), be aware that the <span>$\beta$</span> parameter controls the mean-square diﬀerentiability of the composite likelihood (through modified second-kind Bessel function). If you run into issues, we suggest that:</p><ul><li>reparametrize the model (perhaps using a custom function via the <code>composite_loglikelihood_custom</code> interface).</li><li>tighten the priors to constrain the space of parameters to a region where gradients are defined.</li><li>use gradient-free inference methods such as <code>Nelder-Mead</code> when computing maximum likelihood estimates or <code>Metropolis-Hastings</code> when doing Bayesian inference.</li></ul><h2 id="Model-diagnosis"><a class="docs-heading-anchor" href="#Model-diagnosis">Model diagnosis</a><a id="Model-diagnosis-1"></a><a class="docs-heading-anchor-permalink" href="#Model-diagnosis" title="Permalink"></a></h2><p>Diagnosing the posterior samples obtained via Markov Chain Monte Carlo is a crucial step in any Bayesian inference. We refer to existing resources such as this lecture on <a href="https://myweb.uiowa.edu/pbreheny/uk/teaching/701/notes/3-5.pdf">Bayesian modelling in Biostatistics</a> Most popular approaches involve calculating quantities such as the effective number of samples (ESS) and <span>$\hat {R}$</span>, which can be computed directly from <code>Turing</code> output.</p><p>As a rule of thumb, we aim to run the chain long enough to obtain an ESS greater than 100.</p><pre><code class="language-julia hljs">ess(chains) |&gt; DataFrame</code></pre><div><div style = "float: left;"><span>2×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">parameters</th><th style = "text-align: left;">ess</th><th style = "text-align: left;">ess_per_sec</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">De</td><td style = "text-align: right;">330.173</td><td style = "text-align: right;">0.620224</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">σ</td><td style = "text-align: right;">301.081</td><td style = "text-align: right;">0.565576</td></tr></tbody></table></div><p>A <span>$\hat {R}$</span> greater than 1.05 indicates the chains have not mixed well.</p><pre><code class="language-julia hljs">rhat(chains) |&gt; DataFrame</code></pre><div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">parameters</th><th style = "text-align: left;">rhat</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">De</td><td style = "text-align: right;">1.012</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">σ</td><td style = "text-align: right;">1.01002</td></tr></tbody></table></div><p>Convergence issues can also be inspected through a <code>traceplot</code>:</p><pre><code class="language-julia hljs">using Plots, StatsPlots
-traceplot(chains)</code></pre><img src="ccb3df88.svg" alt="Example block output"/><h2 id="Visualizing-the-posterior"><a class="docs-heading-anchor" href="#Visualizing-the-posterior">Visualizing the posterior</a><a id="Visualizing-the-posterior-1"></a><a class="docs-heading-anchor-permalink" href="#Visualizing-the-posterior" title="Permalink"></a></h2><p>After finishing the sampling process and assessing convergence, we can visualize the estimated posterior distribution of the parameters and compare it with the prior distribution and the ground-truth:</p><pre><code class="language-julia hljs">using Distributions
+┌ Info: Found initial step size
+└   ϵ = 0.0015625
+┌ Info: Found initial step size
+└   ϵ = 0.003125
+┌ Info: Found initial step size
+└   ϵ = 0.00625
+Sampling (4 threads)   0%|▏                             |  ETA: 0:40:39
+Sampling (4 threads)   1%|▎                             |  ETA: 0:20:45
+Sampling (4 threads)   2%|▌                             |  ETA: 0:14:20
+Sampling (4 threads)   2%|▋                             |  ETA: 0:11:36
+Sampling (4 threads)   2%|▊                             |  ETA: 0:09:19
+Sampling (4 threads)   3%|▉                             |  ETA: 0:07:58
+Sampling (4 threads)   4%|█                             |  ETA: 0:07:10
+Sampling (4 threads)   4%|█▎                            |  ETA: 0:06:16
+Sampling (4 threads)   4%|█▍                            |  ETA: 0:05:52
+Sampling (4 threads)   5%|█▌                            |  ETA: 0:05:24
+Sampling (4 threads)   6%|█▋                            |  ETA: 0:05:01
+Sampling (4 threads)   6%|█▊                            |  ETA: 0:04:41
+Sampling (4 threads)   6%|██                            |  ETA: 0:04:23
+Sampling (4 threads)   7%|██▏                           |  ETA: 0:04:05
+Sampling (4 threads)   8%|██▎                           |  ETA: 0:03:53
+Sampling (4 threads)   8%|██▍                           |  ETA: 0:03:41
+Sampling (4 threads)   8%|██▌                           |  ETA: 0:03:28
+Sampling (4 threads)   9%|██▊                           |  ETA: 0:03:21
+Sampling (4 threads)  10%|██▉                           |  ETA: 0:03:16
+Sampling (4 threads)  10%|███                           |  ETA: 0:03:09
+Sampling (4 threads)  10%|███▏                          |  ETA: 0:03:03
+Sampling (4 threads)  11%|███▎                          |  ETA: 0:02:57
+Sampling (4 threads)  12%|███▌                          |  ETA: 0:02:51
+Sampling (4 threads)  12%|███▋                          |  ETA: 0:02:43
+Sampling (4 threads)  12%|███▊                          |  ETA: 0:02:39
+Sampling (4 threads)  13%|███▉                          |  ETA: 0:02:34
+Sampling (4 threads)  14%|████                          |  ETA: 0:02:31
+Sampling (4 threads)  14%|████▎                         |  ETA: 0:02:26
+Sampling (4 threads)  14%|████▍                         |  ETA: 0:02:22
+Sampling (4 threads)  15%|████▌                         |  ETA: 0:02:19
+Sampling (4 threads)  16%|████▋                         |  ETA: 0:02:17
+Sampling (4 threads)  16%|████▊                         |  ETA: 0:02:14
+Sampling (4 threads)  16%|█████                         |  ETA: 0:02:11
+Sampling (4 threads)  17%|█████▏                        |  ETA: 0:02:09
+Sampling (4 threads)  18%|█████▎                        |  ETA: 0:02:04
+Sampling (4 threads)  18%|█████▍                        |  ETA: 0:02:01
+Sampling (4 threads)  18%|█████▌                        |  ETA: 0:02:00
+Sampling (4 threads)  19%|█████▊                        |  ETA: 0:01:56
+Sampling (4 threads)  20%|█████▉                        |  ETA: 0:01:54
+Sampling (4 threads)  20%|██████                        |  ETA: 0:01:53
+Sampling (4 threads)  20%|██████▏                       |  ETA: 0:01:50
+Sampling (4 threads)  21%|██████▎                       |  ETA: 0:01:48
+Sampling (4 threads)  22%|██████▌                       |  ETA: 0:01:46
+Sampling (4 threads)  22%|██████▋                       |  ETA: 0:01:44
+Sampling (4 threads)  22%|██████▊                       |  ETA: 0:01:41
+Sampling (4 threads)  23%|██████▉                       |  ETA: 0:01:41
+Sampling (4 threads)  24%|███████                       |  ETA: 0:01:39
+Sampling (4 threads)  24%|███████▎                      |  ETA: 0:01:38
+Sampling (4 threads)  24%|███████▍                      |  ETA: 0:01:36
+Sampling (4 threads)  25%|███████▌                      |  ETA: 0:01:34
+Sampling (4 threads)  26%|███████▋                      |  ETA: 0:01:32
+Sampling (4 threads)  26%|███████▊                      |  ETA: 0:01:31
+Sampling (4 threads)  26%|████████                      |  ETA: 0:01:30
+Sampling (4 threads)  27%|████████▏                     |  ETA: 0:01:28
+Sampling (4 threads)  28%|████████▎                     |  ETA: 0:01:27
+Sampling (4 threads)  28%|████████▍                     |  ETA: 0:01:26
+Sampling (4 threads)  28%|████████▌                     |  ETA: 0:01:25
+Sampling (4 threads)  29%|████████▊                     |  ETA: 0:01:23
+Sampling (4 threads)  30%|████████▉                     |  ETA: 0:01:22
+Sampling (4 threads)  30%|█████████                     |  ETA: 0:01:21
+Sampling (4 threads)  30%|█████████▏                    |  ETA: 0:01:20
+Sampling (4 threads)  31%|█████████▎                    |  ETA: 0:01:19
+Sampling (4 threads)  32%|█████████▌                    |  ETA: 0:01:18
+Sampling (4 threads)  32%|█████████▋                    |  ETA: 0:01:16
+Sampling (4 threads)  32%|█████████▊                    |  ETA: 0:01:15
+Sampling (4 threads)  33%|█████████▉                    |  ETA: 0:01:15
+Sampling (4 threads)  34%|██████████                    |  ETA: 0:01:14
+Sampling (4 threads)  34%|██████████▎                   |  ETA: 0:01:12
+Sampling (4 threads)  34%|██████████▍                   |  ETA: 0:01:12
+Sampling (4 threads)  35%|██████████▌                   |  ETA: 0:01:11
+Sampling (4 threads)  36%|██████████▋                   |  ETA: 0:01:10
+Sampling (4 threads)  36%|██████████▊                   |  ETA: 0:01:09
+Sampling (4 threads)  36%|███████████                   |  ETA: 0:01:08
+Sampling (4 threads)  37%|███████████▏                  |  ETA: 0:01:08
+Sampling (4 threads)  38%|███████████▎                  |  ETA: 0:01:06
+Sampling (4 threads)  38%|███████████▍                  |  ETA: 0:01:05
+Sampling (4 threads)  38%|███████████▌                  |  ETA: 0:01:05
+Sampling (4 threads)  39%|███████████▊                  |  ETA: 0:01:04
+Sampling (4 threads)  40%|███████████▉                  |  ETA: 0:01:03
+Sampling (4 threads)  40%|████████████                  |  ETA: 0:01:02
+Sampling (4 threads)  40%|████████████▏                 |  ETA: 0:01:01
+Sampling (4 threads)  41%|████████████▎                 |  ETA: 0:01:01
+Sampling (4 threads)  42%|████████████▌                 |  ETA: 0:01:00
+Sampling (4 threads)  42%|████████████▋                 |  ETA: 0:00:59
+Sampling (4 threads)  42%|████████████▊                 |  ETA: 0:00:58
+Sampling (4 threads)  43%|████████████▉                 |  ETA: 0:00:58
+Sampling (4 threads)  44%|█████████████                 |  ETA: 0:00:57
+Sampling (4 threads)  44%|█████████████▎                |  ETA: 0:00:56
+Sampling (4 threads)  44%|█████████████▍                |  ETA: 0:00:55
+Sampling (4 threads)  45%|█████████████▌                |  ETA: 0:00:55
+Sampling (4 threads)  46%|█████████████▋                |  ETA: 0:00:54
+Sampling (4 threads)  46%|█████████████▊                |  ETA: 0:00:53
+Sampling (4 threads)  46%|██████████████                |  ETA: 0:00:52
+Sampling (4 threads)  47%|██████████████▏               |  ETA: 0:00:52
+Sampling (4 threads)  48%|██████████████▎               |  ETA: 0:00:51
+Sampling (4 threads)  48%|██████████████▍               |  ETA: 0:00:51
+Sampling (4 threads)  48%|██████████████▌               |  ETA: 0:00:50
+Sampling (4 threads)  49%|██████████████▊               |  ETA: 0:00:50
+Sampling (4 threads)  50%|██████████████▉               |  ETA: 0:00:49
+Sampling (4 threads)  50%|███████████████               |  ETA: 0:00:48
+Sampling (4 threads)  50%|███████████████▏              |  ETA: 0:00:47
+Sampling (4 threads)  51%|███████████████▎              |  ETA: 0:00:47
+Sampling (4 threads)  52%|███████████████▌              |  ETA: 0:00:46
+Sampling (4 threads)  52%|███████████████▋              |  ETA: 0:00:46
+Sampling (4 threads)  52%|███████████████▊              |  ETA: 0:00:45
+Sampling (4 threads)  53%|███████████████▉              |  ETA: 0:00:45
+Sampling (4 threads)  54%|████████████████              |  ETA: 0:00:44
+Sampling (4 threads)  54%|████████████████▎             |  ETA: 0:00:43
+Sampling (4 threads)  55%|████████████████▍             |  ETA: 0:00:43
+Sampling (4 threads)  55%|████████████████▌             |  ETA: 0:00:42
+Sampling (4 threads)  56%|████████████████▋             |  ETA: 0:00:42
+Sampling (4 threads)  56%|████████████████▊             |  ETA: 0:00:41
+Sampling (4 threads)  56%|█████████████████             |  ETA: 0:00:41
+Sampling (4 threads)  57%|█████████████████▏            |  ETA: 0:00:40
+Sampling (4 threads)  57%|█████████████████▎            |  ETA: 0:00:40
+Sampling (4 threads)  58%|█████████████████▍            |  ETA: 0:00:39
+Sampling (4 threads)  58%|█████████████████▌            |  ETA: 0:00:39
+Sampling (4 threads)  59%|█████████████████▊            |  ETA: 0:00:38
+Sampling (4 threads)  60%|█████████████████▉            |  ETA: 0:00:37
+Sampling (4 threads)  60%|██████████████████            |  ETA: 0:00:37
+Sampling (4 threads)  60%|██████████████████▏           |  ETA: 0:00:36
+Sampling (4 threads)  61%|██████████████████▎           |  ETA: 0:00:36
+Sampling (4 threads)  62%|██████████████████▌           |  ETA: 0:00:35
+Sampling (4 threads)  62%|██████████████████▋           |  ETA: 0:00:35
+Sampling (4 threads)  62%|██████████████████▊           |  ETA: 0:00:34
+Sampling (4 threads)  63%|██████████████████▉           |  ETA: 0:00:34
+Sampling (4 threads)  64%|███████████████████           |  ETA: 0:00:33
+Sampling (4 threads)  64%|███████████████████▎          |  ETA: 0:00:33
+Sampling (4 threads)  64%|███████████████████▍          |  ETA: 0:00:32
+Sampling (4 threads)  65%|███████████████████▌          |  ETA: 0:00:32
+Sampling (4 threads)  66%|███████████████████▋          |  ETA: 0:00:31
+Sampling (4 threads)  66%|███████████████████▊          |  ETA: 0:00:31
+Sampling (4 threads)  66%|████████████████████          |  ETA: 0:00:30
+Sampling (4 threads)  67%|████████████████████▏         |  ETA: 0:00:30
+Sampling (4 threads)  68%|████████████████████▎         |  ETA: 0:00:29
+Sampling (4 threads)  68%|████████████████████▍         |  ETA: 0:00:29
+Sampling (4 threads)  68%|████████████████████▌         |  ETA: 0:00:28
+Sampling (4 threads)  69%|████████████████████▊         |  ETA: 0:00:28
+Sampling (4 threads)  70%|████████████████████▉         |  ETA: 0:00:27
+Sampling (4 threads)  70%|█████████████████████         |  ETA: 0:00:27
+Sampling (4 threads)  70%|█████████████████████▏        |  ETA: 0:00:26
+Sampling (4 threads)  71%|█████████████████████▎        |  ETA: 0:00:26
+Sampling (4 threads)  72%|█████████████████████▌        |  ETA: 0:00:25
+Sampling (4 threads)  72%|█████████████████████▋        |  ETA: 0:00:25
+Sampling (4 threads)  72%|█████████████████████▊        |  ETA: 0:00:24
+Sampling (4 threads)  73%|█████████████████████▉        |  ETA: 0:00:24
+Sampling (4 threads)  74%|██████████████████████        |  ETA: 0:00:24
+Sampling (4 threads)  74%|██████████████████████▎       |  ETA: 0:00:23
+Sampling (4 threads)  74%|██████████████████████▍       |  ETA: 0:00:23
+Sampling (4 threads)  75%|██████████████████████▌       |  ETA: 0:00:22
+Sampling (4 threads)  76%|██████████████████████▋       |  ETA: 0:00:22
+Sampling (4 threads)  76%|██████████████████████▊       |  ETA: 0:00:21
+Sampling (4 threads)  76%|███████████████████████       |  ETA: 0:00:21
+Sampling (4 threads)  77%|███████████████████████▏      |  ETA: 0:00:20
+Sampling (4 threads)  78%|███████████████████████▎      |  ETA: 0:00:20
+Sampling (4 threads)  78%|███████████████████████▍      |  ETA: 0:00:19
+Sampling (4 threads)  78%|███████████████████████▌      |  ETA: 0:00:19
+Sampling (4 threads)  79%|███████████████████████▊      |  ETA: 0:00:18
+Sampling (4 threads)  80%|███████████████████████▉      |  ETA: 0:00:18
+Sampling (4 threads)  80%|████████████████████████      |  ETA: 0:00:17
+Sampling (4 threads)  80%|████████████████████████▏     |  ETA: 0:00:17
+Sampling (4 threads)  81%|████████████████████████▎     |  ETA: 0:00:17
+Sampling (4 threads)  82%|████████████████████████▌     |  ETA: 0:00:16
+Sampling (4 threads)  82%|████████████████████████▋     |  ETA: 0:00:16
+Sampling (4 threads)  82%|████████████████████████▊     |  ETA: 0:00:15
+Sampling (4 threads)  83%|████████████████████████▉     |  ETA: 0:00:15
+Sampling (4 threads)  84%|█████████████████████████     |  ETA: 0:00:14
+Sampling (4 threads)  84%|█████████████████████████▎    |  ETA: 0:00:14
+Sampling (4 threads)  84%|█████████████████████████▍    |  ETA: 0:00:13
+Sampling (4 threads)  85%|█████████████████████████▌    |  ETA: 0:00:13
+Sampling (4 threads)  86%|█████████████████████████▋    |  ETA: 0:00:13
+Sampling (4 threads)  86%|█████████████████████████▊    |  ETA: 0:00:12
+Sampling (4 threads)  86%|██████████████████████████    |  ETA: 0:00:12
+Sampling (4 threads)  87%|██████████████████████████▏   |  ETA: 0:00:11
+Sampling (4 threads)  88%|██████████████████████████▎   |  ETA: 0:00:11
+Sampling (4 threads)  88%|██████████████████████████▍   |  ETA: 0:00:10
+Sampling (4 threads)  88%|██████████████████████████▌   |  ETA: 0:00:10
+Sampling (4 threads)  89%|██████████████████████████▊   |  ETA: 0:00:09
+Sampling (4 threads)  90%|██████████████████████████▉   |  ETA: 0:00:09
+Sampling (4 threads)  90%|███████████████████████████   |  ETA: 0:00:09
+Sampling (4 threads)  90%|███████████████████████████▏  |  ETA: 0:00:08
+Sampling (4 threads)  91%|███████████████████████████▎  |  ETA: 0:00:08
+Sampling (4 threads)  92%|███████████████████████████▌  |  ETA: 0:00:07
+Sampling (4 threads)  92%|███████████████████████████▋  |  ETA: 0:00:07
+Sampling (4 threads)  92%|███████████████████████████▊  |  ETA: 0:00:06
+Sampling (4 threads)  93%|███████████████████████████▉  |  ETA: 0:00:06
+Sampling (4 threads)  94%|████████████████████████████  |  ETA: 0:00:06
+Sampling (4 threads)  94%|████████████████████████████▎ |  ETA: 0:00:05
+Sampling (4 threads)  94%|████████████████████████████▍ |  ETA: 0:00:05
+Sampling (4 threads)  95%|████████████████████████████▌ |  ETA: 0:00:04
+Sampling (4 threads)  96%|████████████████████████████▋ |  ETA: 0:00:04
+Sampling (4 threads)  96%|████████████████████████████▊ |  ETA: 0:00:03
+Sampling (4 threads)  96%|█████████████████████████████ |  ETA: 0:00:03
+Sampling (4 threads)  97%|█████████████████████████████▏|  ETA: 0:00:03
+Sampling (4 threads)  98%|█████████████████████████████▎|  ETA: 0:00:02
+Sampling (4 threads)  98%|█████████████████████████████▍|  ETA: 0:00:02
+Sampling (4 threads)  98%|█████████████████████████████▌|  ETA: 0:00:01
+Sampling (4 threads)  99%|█████████████████████████████▊|  ETA: 0:00:01
+Sampling (4 threads) 100%|█████████████████████████████▉|  ETA: 0:00:00
+Sampling (4 threads) 100%|██████████████████████████████| Time: 0:01:26
+Sampling (4 threads) 100%|██████████████████████████████| Time: 0:01:26</code></pre><p>When fitting models with power-densities (i.e. using <code>composite_loglikelihood_power_density</code>), be aware that the <span>$\beta$</span> parameter controls the mean-square diﬀerentiability of the composite likelihood (through modified second-kind Bessel function). If you run into issues, we suggest that:</p><ul><li>reparametrize the model (perhaps using a custom function via the <code>composite_loglikelihood_custom</code> interface).</li><li>tighten the priors to constrain the space of parameters to a region where gradients are defined.</li><li>use gradient-free inference methods such as <code>Nelder-Mead</code> when computing maximum likelihood estimates or <code>Metropolis-Hastings</code> when doing Bayesian inference.</li></ul><h2 id="Model-diagnosis"><a class="docs-heading-anchor" href="#Model-diagnosis">Model diagnosis</a><a id="Model-diagnosis-1"></a><a class="docs-heading-anchor-permalink" href="#Model-diagnosis" title="Permalink"></a></h2><p>Diagnosing the posterior samples obtained via Markov Chain Monte Carlo is a crucial step in any Bayesian inference. We refer to existing resources such as this lecture on <a href="https://myweb.uiowa.edu/pbreheny/uk/teaching/701/notes/3-5.pdf">Bayesian modelling in Biostatistics</a> Most popular approaches involve calculating quantities such as the effective number of samples (ESS) and <span>$\hat {R}$</span>, which can be computed directly from <code>Turing</code> output.</p><p>As a rule of thumb, we aim to run the chain long enough to obtain an ESS greater than 100.</p><pre><code class="language-julia hljs">ess(chains) |&gt; DataFrame</code></pre><div><div style = "float: left;"><span>2×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">parameters</th><th style = "text-align: left;">ess</th><th style = "text-align: left;">ess_per_sec</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">De</td><td style = "text-align: right;">487.469</td><td style = "text-align: right;">1.52679</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">σ</td><td style = "text-align: right;">503.632</td><td style = "text-align: right;">1.57741</td></tr></tbody></table></div><p>A <span>$\hat {R}$</span> greater than 1.05 indicates the chains have not mixed well.</p><pre><code class="language-julia hljs">rhat(chains) |&gt; DataFrame</code></pre><div><div style = "float: left;"><span>2×2 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">parameters</th><th style = "text-align: left;">rhat</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "Symbol" style = "text-align: left;">Symbol</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">De</td><td style = "text-align: right;">1.01049</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">σ</td><td style = "text-align: right;">1.00985</td></tr></tbody></table></div><p>Convergence issues can also be inspected through a <code>traceplot</code>:</p><pre><code class="language-julia hljs">using Plots, StatsPlots
+traceplot(chains)</code></pre><img src="64737bd6.svg" alt="Example block output"/><h2 id="Visualizing-the-posterior"><a class="docs-heading-anchor" href="#Visualizing-the-posterior">Visualizing the posterior</a><a id="Visualizing-the-posterior-1"></a><a class="docs-heading-anchor-permalink" href="#Visualizing-the-posterior" title="Permalink"></a></h2><p>After finishing the sampling process and assessing convergence, we can visualize the estimated posterior distribution of the parameters and compare it with the prior distribution and the ground-truth:</p><pre><code class="language-julia hljs">using Distributions
 p1 = plot(
     Truncated(Normal(1000, 100), 0, Inf),
     label = &quot;Prior&quot;,
@@ -256,7 +254,7 @@ p2 = plot(
 )
 density!(p2, chains[:σ][:], label = &quot;Posterior&quot;)
 vline!(p2, [ground_truth[2]], label = &quot;Ground-truth&quot;)
-plot(p1, p2, layout = (2, 1), size = (600, 800))</code></pre><img src="18f2b659.svg" alt="Example block output"/><p>Notice that, although the inference is accurate, we do not expect the posterior estimates to have nominal coverage (e.g., that a 90% credibility interval contains the true parameter 90% of the time). This is because we are assuming every pairwise observation is independent when constructing the composite likelihood and therefore we are overconfident in our estimations. In their publication, Ringbuaer et al. (2017) computed a bootstrapping confidence interval of the maximum-likelihood estimate but still do not achieve nominal coverage.</p><p>A bootstrapping confidence interval can be easily computed with the <code>maximum_likelihood</code> function and taking samples with replacement of the rows of the <code>DataFrame</code>. Notice, however, that other resampling schemes are possible. We advise you to experiment with different approaches and evaluate the performance with simulated datasets.</p><pre><code class="language-julia hljs">nboots = 100
+plot(p1, p2, layout = (2, 1), size = (600, 800))</code></pre><img src="d28e9bb2.svg" alt="Example block output"/><p>Notice that, although the inference is accurate, we do not expect the posterior estimates to have nominal coverage (e.g., that a 90% credibility interval contains the true parameter 90% of the time). This is because we are assuming every pairwise observation is independent when constructing the composite likelihood and therefore we are overconfident in our estimations. In their publication, Ringbuaer et al. (2017) computed a bootstrapping confidence interval of the maximum-likelihood estimate but still do not achieve nominal coverage.</p><p>A bootstrapping confidence interval can be easily computed with the <code>maximum_likelihood</code> function and taking samples with replacement of the rows of the <code>DataFrame</code>. Notice, however, that other resampling schemes are possible. We advise you to experiment with different approaches and evaluate the performance with simulated datasets.</p><pre><code class="language-julia hljs">nboots = 100
 boots = zeros(2, nboots)
 df = data[&quot;df&quot;]
 for i = 1:nboots
@@ -270,7 +268,7 @@ DataFrame(
     parameter = [&quot;De&quot;, &quot;σ&quot;],
     confidence_interval95 = [conf_De, conf_σ],
     ground_truth = [ground_truth[1], ground_truth[2]],
-)</code></pre><div><div style = "float: left;"><span>2×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "header"><th class = "rowNumber" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">parameter</th><th style = "text-align: left;">confidence_interval95</th><th style = "text-align: left;">ground_truth</th></tr><tr class = "subheader headerLastRow"><th class = "rowNumber" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Vector{Float64}" style = "text-align: left;">Array…</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">De</td><td style = "text-align: left;">[259.734, 306.642]</td><td style = "text-align: right;">253.308</td></tr><tr><td class = "rowNumber" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">σ</td><td style = "text-align: left;">[0.0643797, 0.0725044]</td><td style = "text-align: right;">0.0708872</td></tr></tbody></table></div><h2 id="Interpreting-the-output"><a class="docs-heading-anchor" href="#Interpreting-the-output">Interpreting the output</a><a id="Interpreting-the-output-1"></a><a class="docs-heading-anchor-permalink" href="#Interpreting-the-output" title="Permalink"></a></h2><p>Finally, we provide some references on how to interpret the results and relate them to the biological context.</p><h3 id="Effective-population-density"><a class="docs-heading-anchor" href="#Effective-population-density">Effective population density</a><a id="Effective-population-density-1"></a><a class="docs-heading-anchor-permalink" href="#Effective-population-density" title="Permalink"></a></h3><p>The effective population density (De) is simply the inverse of the coalescent rate of lineages that become very close to each other. It is equivalent to the effective population size of every deme in a stepping stone model where demes are separated by one distance unit.</p><p>The estimate is most informative of recent demographic events as it is calculated from long identity-by-descent blocks that typically arise recently. We can get an idea of the temporal time-scale by looking at the theoretical predictions under the estimated demographic model.</p><p>In a Bayesian setting, this sort of information is known as a posterior predictive distribution. Next, we provide a snippet of code that demonstrates how to do this provided a MCMC sample.</p><pre><code class="language-julia hljs">let
+)</code></pre><div><div style = "float: left;"><span>2×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">parameter</th><th style = "text-align: left;">confidence_interval95</th><th style = "text-align: left;">ground_truth</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Vector{Float64}" style = "text-align: left;">Array…</th><th title = "Float64" style = "text-align: left;">Float64</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">De</td><td style = "text-align: left;">[155.159, 252.277]</td><td style = "text-align: right;">200.0</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">σ</td><td style = "text-align: left;">[0.0873155, 0.11828]</td><td style = "text-align: right;">0.10025</td></tr></tbody></table></div><h2 id="Interpreting-the-output"><a class="docs-heading-anchor" href="#Interpreting-the-output">Interpreting the output</a><a id="Interpreting-the-output-1"></a><a class="docs-heading-anchor-permalink" href="#Interpreting-the-output" title="Permalink"></a></h2><p>Finally, we provide some references on how to interpret the results and relate them to the biological context.</p><h3 id="Effective-population-density"><a class="docs-heading-anchor" href="#Effective-population-density">Effective population density</a><a id="Effective-population-density-1"></a><a class="docs-heading-anchor-permalink" href="#Effective-population-density" title="Permalink"></a></h3><p>The effective population density (De) is simply the inverse of the coalescent rate of lineages that become very close to each other. It is equivalent to the effective population size of every deme in a stepping stone model where demes are separated by one distance unit.</p><p>The estimate is most informative of recent demographic events as it is calculated from long identity-by-descent blocks that typically arise recently. We can get an idea of the temporal time-scale by looking at the theoretical predictions under the estimated demographic model.</p><p>In a Bayesian setting, this sort of information is known as a posterior predictive distribution. Next, we provide a snippet of code that demonstrates how to do this provided a MCMC sample.</p><pre><code class="language-julia hljs">let
     grid_times = 1:100
     L = 0.04 # Smallest IBD block considered
     grid_r = [0.1, 0.5, 1.0] # Geographic distances
@@ -303,7 +301,7 @@ DataFrame(
         end
     end
     p1
-end</code></pre><img src="fd769ac6.svg" alt="Example block output"/><p>An equivalent plot can be done in a likelihood (frequentist) setting. For example, by calculating the densities for each bootstrap replicate.</p><pre><code class="language-julia hljs">let
+end</code></pre><img src="f9f41171.svg" alt="Example block output"/><p>An equivalent plot can be done in a likelihood (frequentist) setting. For example, by calculating the densities for each bootstrap replicate.</p><pre><code class="language-julia hljs">let
     grid_times = 1:100
     L = 0.04 # Smallest IBD block considered
     grid_r = [0.1, 0.5, 1.0] # Geographic distances
@@ -336,10 +334,10 @@ end</code></pre><img src="fd769ac6.svg" alt="Example block output"/><p>An equiva
         end
     end
     p1
-end</code></pre><img src="337cfee8.svg" alt="Example block output"/><p>We expect to observe a decay in the density of expected shared IBD-blocks with time. The previous plot can be used to determine some time interval <span>$(1, t)$</span> from which we expect most of the signal to have arisen. This recipe is useful for identifying the time-span of the estimated demography and can be applied to other demographic models as well.</p><h3 id="Effective-dispersal-rate"><a class="docs-heading-anchor" href="#Effective-dispersal-rate">Effective dispersal rate</a><a id="Effective-dispersal-rate-1"></a><a class="docs-heading-anchor-permalink" href="#Effective-dispersal-rate" title="Permalink"></a></h3><p>Perhaps unintuitively, the mean per-generation dispersal distance when we average with respect to both parents is not necessarily equivalent to the mean per-generation dispersal distance when we average across single generations. From population genetic data, we can estimate the latter ( refer to the <code>Theory overview</code> section for more details). Therefore, interpreting the estimated effective dispersal rate in the context of the ecology of one population has to be done carefully.</p><p>For example, consider a population with two separate sexes for which there are differences in the process of dispersal. Such differences arise naturally when considering the effect of mating systems on dispersal patterns. For simplicity, let&#39;s consider a 1-dimensional space where individuals can only move left or right as shown in the figure below.</p><p><img src="../dispersal.png" alt="Illustration of dispersal in a 1-dimensional space with separate sexes"/></p><p>Let&#39;s assume the displacement between the mother and the offspring, <span>$d_{\text{mother-child}}$</span>, is distributed according to a normal distribution with a mean of zero and a variance of <span>$\sigma_D^2$</span> and the displacement between the father and the mother, <span>$d_{\text{mother-father}}$</span>, is also distributed according to a normal distribution with a mean of zero and a variance of <span>$\sigma_M^2$</span>. Because the mating process (that determines the displacement from the mother to the father) is independent from the specific dispersal process of the offspring (that determines the displacement from the mother to the offspring), then the displacement between the father and the offspring is distributed according to a normal distribution with a mean of zero and a variance of <span>$\sigma_D^2 + \sigma_M^2$</span>.</p><p>As mentioned earlier, what we can estimate is the mean per-generation dispersal of the &quot;lineages&quot;. Because the lineage is either inherited from the mother or the father, the displacement is distributed as a mixture of two normal distributions. If sex ratio is 0.5, then the displacement is distributed as a mixture of two normal distributions with weights <span>$w = [0.5, 0.5]$</span>. This distribution has a mean of zero and a variance of <span>$\sigma_D^2 + 0.5\sigma_M^2$</span> but it is <em>not</em> normally distributed. Therefore, and under these assumptions, what we can estimate from genetic data is actually <span>$\sigma = \sqrt{0.5\sigma_D^2 + 0.5(\sigma_D^2+\sigma_M^2)} = \sqrt{\sigma_D^2 + 0.5\sigma_M^2)}$</span> and it is not possible to separate the effects of <span>$\sigma_D$</span> and <span>$\sigma_M$</span> without additional information. If a priori information is available, it is possible to obtain estimates of both <span>$\sigma_D$</span> and <span>$\sigma_M$</span> that are consistent with the observed data. However, this requires additional consideration as the posterior distribution will be multimodal.</p><pre><code class="language-julia hljs">@model function constant_density2(df, contig_lengths)
+end</code></pre><img src="a29352e5.svg" alt="Example block output"/><p>We expect to observe a decay in the density of expected shared IBD-blocks with time. The previous plot can be used to determine some time interval <span>$(1, t)$</span> from which we expect most of the signal to have arisen. This recipe is useful for identifying the time-span of the estimated demography and can be applied to other demographic models as well.</p><h3 id="Effective-dispersal-rate"><a class="docs-heading-anchor" href="#Effective-dispersal-rate">Effective dispersal rate</a><a id="Effective-dispersal-rate-1"></a><a class="docs-heading-anchor-permalink" href="#Effective-dispersal-rate" title="Permalink"></a></h3><p>Perhaps unintuitively, the mean per-generation dispersal distance when we average with respect to both parents is not necessarily equivalent to the mean per-generation dispersal distance when we average across single generations. From population genetic data, we can estimate the latter ( refer to the <code>Theory overview</code> section for more details). Therefore, interpreting the estimated effective dispersal rate in the context of the ecology of one population has to be done carefully.</p><p>For example, consider a population with two separate sexes for which there are differences in the process of dispersal. Such differences arise naturally when considering the effect of mating systems on dispersal patterns. For simplicity, let&#39;s consider a 1-dimensional space where individuals can only move left or right as shown in the figure below.</p><p><img src="../dispersal.png" alt="Illustration of dispersal in a 1-dimensional space with separate sexes"/></p><p>Let&#39;s assume the displacement between the mother and the offspring, <span>$d_{\text{mother-child}}$</span>, is distributed according to a normal distribution with a mean of zero and a variance of <span>$\sigma_D^2$</span> and the displacement between the father and the mother, <span>$d_{\text{mother-father}}$</span>, is also distributed according to a normal distribution with a mean of zero and a variance of <span>$\sigma_M^2$</span>. Because the mating process (that determines the displacement from the mother to the father) is independent from the specific dispersal process of the offspring (that determines the displacement from the mother to the offspring), then the displacement between the father and the offspring is distributed according to a normal distribution with a mean of zero and a variance of <span>$\sigma_D^2 + \sigma_M^2$</span>.</p><p>As mentioned earlier, what we can estimate is the mean per-generation dispersal of the &quot;lineages&quot;. Because the lineage is either inherited from the mother or the father, the displacement is distributed as a mixture of two normal distributions. If sex ratio is 0.5, then the displacement is distributed as a mixture of two normal distributions with weights <span>$w = [0.5, 0.5]$</span>. This distribution has a mean of zero and a variance of <span>$\sigma_D^2 + 0.5\sigma_M^2$</span> but it is <em>not</em> normally distributed. Therefore, and under these assumptions, what we can estimate from genetic data is actually <span>$\sigma = \sqrt{0.5\sigma_D^2 + 0.5(\sigma_D^2+\sigma_M^2)} = \sqrt{\sigma_D^2 + 0.5\sigma_M^2)}$</span> and it is not possible to separate the effects of <span>$\sigma_D$</span> and <span>$\sigma_M$</span> without additional information. If a priori information is available, it is possible to obtain estimates of both <span>$\sigma_D$</span> and <span>$\sigma_M$</span> that are consistent with the observed data. However, this requires additional consideration as the posterior distribution will be multimodal.</p><pre><code class="language-julia hljs">@model function constant_density2(df, contig_lengths)
     De ~ Truncated(Normal(1000, 100), 0, Inf)
     σ_D ~ Truncated(Normal(1, 0.1), 0, Inf)
     σ_M ~ Truncated(Normal(0.1, 0.01), 0, Inf)
     σ := sqrt(σ_D^2 + 0.5 * σ_M^2)
     Turing.@addlogprob! composite_loglikelihood_constant_density(De, σ, df, contig_lengths)
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">constant_density2 (generic function with 2 methods)</code></pre><p>As mentioned earlier, the per-generation distance averaging across lineages is not necessarily equal to the mean per-generation distance when we average with respect to both mother and father. Notice that the average displacement is defined as <span>$\hat d = 0.5 d_{\text{mother-child}} + 0.5 (d_{\text{mother-child} - d_{\text{mother-father}}})$</span> which is distributed as a normal distribution with mean zero and variance <span>$\sqrt{\sigma_{D}^{2} + 0.25 \sigma_{M}^{2}}$</span>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial/">« Basic usage</a><a class="docs-footer-nextpage" href="../95-reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Friday 10 October 2025 10:41">Friday 10 October 2025</span>. Using Julia version 1.12.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">constant_density2 (generic function with 2 methods)</code></pre><p>As mentioned earlier, the per-generation distance averaging across lineages is not necessarily equal to the mean per-generation distance when we average with respect to both mother and father. Notice that the average displacement is defined as <span>$\hat d = 0.5 d_{\text{mother-child}} + 0.5 (d_{\text{mother-child} - d_{\text{mother-father}}})$</span> which is distributed as a normal distribution with mean zero and variance <span>$\sqrt{\sigma_{D}^{2} + 0.25 \sigma_{M}^{2}}$</span>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial/">« Basic usage</a><a class="docs-footer-nextpage" href="../95-reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Monday 24 November 2025 11:17">Monday 24 November 2025</span>. Using Julia version 1.12.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
