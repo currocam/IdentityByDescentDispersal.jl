@@ -598,17 +598,13 @@ function age_density_ibd_blocks_custom(
     if r < 0 || sigma ≤ 0 || L ≤ 0 || G ≤ 0
         throw(ArgumentError("All provided parameters must be positive"))
     end
-    if chromosomal_edges
-        fn(t) =
-            probability_coalescence(t, r, De(t, parameters), sigma) *
-            (4t * exp(-2L * t) + (G - L) * 4 * t^2 * exp(-2L * t))
-    else
-        fn(t) =
-            probability_coalescence(t, r, De(t, parameters), sigma) *
-            G *
-            4 *
-            t^2 *
-            exp(-2L * t)
+    fn(t) = begin
+        phi = probability_coalescence(t, r, De(t, parameters), sigma)
+        if chromosomal_edges
+            phi * (4t * exp(-2L * t) + (G - L) * 4 * t^2 * exp(-2L * t))
+        else
+            phi * G * 4 * t^2 * exp(-2L * t)
+        end
     end
     result = fn(t)
     diploid ? result * 4 : result
