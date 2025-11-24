@@ -25,7 +25,7 @@ run(
 tskit = pyimport("tskit")
 ts = tskit.load(outpath);
 
-# We take a sample of 200 diploid individuals.
+# We take a sample of 100 diploid individuals.
 rng = MersenneTwister(seed)
 n_samples = 100
 sampled = randperm(rng, ts.num_individuals)[1:n_samples] .- 1

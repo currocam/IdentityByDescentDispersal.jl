@@ -49,7 +49,7 @@ tskit = pyimport("tskit")
 ts = tskit.load(outpath);
 ````
 
-We take a sample of 200 diploid individuals.
+We take a sample of 100 diploid individuals.
 
 ````julia
 rng = MersenneTwister(seed)
