@@ -49,7 +49,7 @@ jobs:
             DocMeta.setdocmeta!(IdentityByDescentDispersal, :DocTestSetup, :(using IdentityByDescentDispersal); recursive=true)
             doctest(IdentityByDescentDispersal)'
       - name: Generate and deploy documentation
-        run: julia --project=docs docs/make.jl
+        run: julia --project=docs --threads=auto docs/make.jl
         env:
           JULIA_PKG_SERVER: ""
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
