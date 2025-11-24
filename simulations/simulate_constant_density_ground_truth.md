@@ -32,12 +32,12 @@ SD = 0.1 # Dispersal rate of the offspring
 SM = 0.01 # Mate choice kernel
 outpath = "s$(seed).trees"
 run(
-    `slim -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
+    `slim -p -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
 )
 ````
 
 ````
-Process(`slim -s 1000 -d NE=200 -d SD=0.1 -d SM=0.01 -d 'OUTPATH="s1000.trees"' constant_density.slim`, ProcessExited(0))
+Process(`slim -p -s 1000 -d NE=200 -d SD=0.1 -d SM=0.01 -d 'OUTPATH="s1000.trees"' constant_density.slim`, ProcessExited(0))
 ````
 
 ## Data preprocessing
@@ -158,7 +158,7 @@ ground_truth = local_density, dispersal_rate
 ````
 
 ````
-(253.30778276266545, 0.07088723439378913)
+(200, 0.10024968827881711)
 ````
 
 Finally, we can compute the MLE estimate and compare it with the ground truth:
@@ -166,7 +166,7 @@ Finally, we can compute the MLE estimate and compare it with the ground truth:
 ````julia
 using Turing
 @model function constant_density(df, contig_lengths)
-    D ~ Uniform(0, 1000)
+    D ~ Uniform(0, 4000)
     σ ~ Uniform(0, 1)
     Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
 end
@@ -174,14 +174,18 @@ contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
 mle_estimate = maximum_likelihood(m)
 coef_table = mle_estimate |> coeftable |> DataFrame
-pretty_table(coef_table, backend = Val(:markdown))
+pretty_table(coef_table)
 ````
 
 ````
-| **Name**<br>`String` | **Coef.**<br>`Float64` | **Std. Error**<br>`Float64` | **z**<br>`Float64` | **Pr(>\|z\|)**<br>`Float64` | **Lower 95%**<br>`Float64` | **Upper 95%**<br>`Float64` |
-|---------------------:|-----------------------:|----------------------------:|-------------------:|----------------------------:|---------------------------:|---------------------------:|
-| D                    | 287.675                | 10.9813                     | 26.1968            | 2.89283e-151                | 266.152                    | 309.198                    |
-| σ                    | 0.0679146              | 0.00167208                  | 40.6169            | 0.0                         | 0.0646374                  | 0.0711918                  |
+┌────────┬──────────┬────────────┬─────────┬──────────────┬───────────┬─────────
+│   Name │    Coef. │ Std. Error │       z │     Pr(>|z|) │ Lower 95% │ Upper  ⋯
+│ String │  Float64 │    Float64 │ Float64 │      Float64 │   Float64 │   Floa ⋯
+├────────┼──────────┼────────────┼─────────┼──────────────┼───────────┼─────────
+│      D │  198.732 │    14.1339 │ 14.0607 │  6.62193e-45 │    171.03 │   226. ⋯
+│      σ │ 0.102122 │ 0.00426059 │  23.969 │ 5.86208e-127 │ 0.0937712 │  0.110 ⋯
+└────────┴──────────┴────────────┴─────────┴──────────────┴───────────┴─────────
+                                                                1 column omitted
 
 ````
 

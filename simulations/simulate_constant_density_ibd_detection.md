@@ -55,14 +55,6 @@ pyslim = pyimport("pyslim")
 rts = pyslim.recapitate(ts, ancestral_Ne = NE, recombination_rate = 1e-8);
 ````
 
-````
-/Users/currocampuzano/.julia/conda/3/aarch64/lib/python3.12/site-packages/pyslim/slim_metadata.py:874: UserWarning: This tree sequence is not the current SLiM format, so some operations may not work. Use `pyslim.update( )` to update the tree sequence.
-  warnings.warn(
-/Users/currocampuzano/.julia/conda/3/aarch64/lib/python3.12/site-packages/msprime/ancestry.py:1290: TimeUnitsMismatchWarning: The initial_state has time_units=ticks but time is measured in generations in msprime. This may lead to significant discrepancies between the timescales. If you wish to suppress this warning, you can use, e.g., warnings.simplefilter('ignore', msprime.TimeUnitsMismatchWarning)
-  sim = _parse_sim_ancestry(
-
-````
-
 We take a sample of 100 diploid individuals.
 
 ````julia
@@ -140,7 +132,6 @@ Process(`bash -c 'gunzip -c s1000.ibd.gz | java -jar merge-ibd-segments.jar s100
 ````
 
 Read IBD blocks
-TO-DO: I'm not really sure what that the SCORE column is...
 
 ````julia
 colnames = ["ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"]
@@ -226,7 +217,7 @@ ground_truth = local_density, dispersal_rate
 ````
 
 ````
-(253.30778276266545, 0.07088723439378913)
+(200, 0.10024968827881711)
 ````
 
 Finally, we can compute the MLE estimate and compare it with the ground truth:
@@ -242,14 +233,18 @@ contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
 mle_estimate = maximum_likelihood(m)
 coef_table = mle_estimate |> coeftable |> DataFrame
-pretty_table(coef_table, backend = Val(:markdown))
+pretty_table(coef_table)
 ````
 
 ````
-| **Name**<br>`String` | **Coef.**<br>`Float64` | **Std. Error**<br>`Float64` | **z**<br>`Float64` | **Pr(>\|z\|)**<br>`Float64` | **Lower 95%**<br>`Float64` | **Upper 95%**<br>`Float64` |
-|---------------------:|-----------------------:|----------------------------:|-------------------:|----------------------------:|---------------------------:|---------------------------:|
-| D                    | 540.071                | 51.5594                     | 10.4747            | 1.12876e-25                 | 439.016                    | 641.125                    |
-| σ                    | 0.0898484              | 0.00515178                  | 17.4403            | 4.08232e-68                 | 0.0797511                  | 0.0999457                  |
+┌────────┬──────────┬────────────┬─────────┬─────────────┬───────────┬──────────
+│   Name │    Coef. │ Std. Error │       z │    Pr(>|z|) │ Lower 95% │ Upper 9 ⋯
+│ String │  Float64 │    Float64 │ Float64 │     Float64 │   Float64 │   Float ⋯
+├────────┼──────────┼────────────┼─────────┼─────────────┼───────────┼──────────
+│      D │  122.131 │    65.4391 │ 1.86633 │    0.061995 │  -6.12721 │    250. ⋯
+│      σ │ 0.262934 │  0.0733643 │ 3.58395 │ 0.000338438 │  0.119143 │  0.4067 ⋯
+└────────┴──────────┴────────────┴─────────┴─────────────┴───────────┴──────────
+                                                                1 column omitted
 
 ````
 

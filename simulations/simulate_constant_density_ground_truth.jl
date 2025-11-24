@@ -16,7 +16,7 @@ SD = 0.1 # Dispersal rate of the offspring
 SM = 0.01 # Mate choice kernel
 outpath = "s$(seed).trees"
 run(
-    `slim -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
+    `slim -p -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
 )
 
 # ## Data preprocessing
@@ -118,7 +118,7 @@ ground_truth = local_density, dispersal_rate
 # Finally, we can compute the MLE estimate and compare it with the ground truth:
 using Turing
 @model function constant_density(df, contig_lengths)
-    D ~ Uniform(0, 1000)
+    D ~ Uniform(0, 4000)
     σ ~ Uniform(0, 1)
     Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
 end
@@ -126,4 +126,4 @@ contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
 mle_estimate = maximum_likelihood(m)
 coef_table = mle_estimate |> coeftable |> DataFrame
-pretty_table(coef_table, backend = Val(:markdown))
+pretty_table(coef_table)

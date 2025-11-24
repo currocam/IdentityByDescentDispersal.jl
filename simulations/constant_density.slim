@@ -1,6 +1,6 @@
 initialize() {
 	// Set up a 2 dimensional torus
-	initializeSLiMOptions(dimensionality="xy", periodicity="xy");
+	initializeSLiMOptions(dimensionality="xy");
 	initializeTreeSeq();
 	initializeMutationType("m1", 0.5, "f", 0.0);
 	initializeGenomicElementType("g1", m1, 1.0);
@@ -18,11 +18,11 @@ initialize() {
 	i1.setInteractionFunction("n", 1.0, SM);
 	// We define a second kernel to keep track of the local population density
 	// experienced by the population
-	initializeInteractionType(2, "xy", reciprocal=T, maxDistance=0.5-1e-5);
 	// We have to account for differences between the dispersal gestating mate - offspring
 	// and the non-gestating mate - offspring
-	defineConstant("SIGMA", sqrt(SD^2 / 2+ SM^2 / 4));
-	defineGlobal("LOCAL_DENSITY", float(5000));
+	defineConstant("SIGMA", sqrt(SD^2 + SM^2 / 2));
+	defineConstant("RUNTIME", 20000);
+	defineGlobal("LOCAL_DENSITY", float(RUNTIME));
 	defineConstantIfInteractive("OUTPATH", "out.trees");
 }
 
@@ -33,14 +33,21 @@ mateChoice() {
 
 1 early() {
 	sim.addSubpop("p1", NE);
-	p1.individuals.setSpatialPosition(p1.pointPeriodic(p1.pointUniform(NE)));
+	p1.individuals.setSpatialPosition(p1.pointUniform(NE));
 	i1.evaluate(p1);
 }
 
+
 1: late() {
-	p1.deviatePositions(NULL, "periodic", 0.1, "n", 0.1);
-	i2.evaluate(p1);
-	LOCAL_DENSITY[sim.cycle-1] = mean(i2.localPopulationDensity(p1.individuals));
+	p1.deviatePositions(NULL, "reprising", INF, "n", SD);
+	inds = p1.individuals;
+	bounds = p1.spatialBounds;
+	// make a density map: 0 is empty, 1 is maximum density
+	density = summarizeIndividuals(inds, c(10, 10), bounds,
+		operation="individuals.size();", empty=0.0, perUnitArea=T);
+	p1.defineSpatialMap("density", "xy", density, F,
+		range(density), c("black", "orange", "red"));
+	LOCAL_DENSITY[sim.cycle-1] = 	mean(density);
 }
 
 2: first() {
@@ -48,12 +55,10 @@ mateChoice() {
 
 }
 
-
-
-5000 late() {
+RUNTIME late() {
 	sim.treeSeqOutput(
 		OUTPATH,
-		metadata=Dictionary("SIGMA", SIGMA, "D", mean(LOCAL_DENSITY))
+		metadata=Dictionary("SIGMA", SIGMA, "D", NE, "D_empirical", mean(LOCAL_DENSITY))
 		);
 }
 
