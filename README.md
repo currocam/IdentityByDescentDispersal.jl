@@ -47,7 +47,7 @@ mean(chain[:D]), mean(chain[:σ])
 ```
 
 ```
-(23.70889539436043, 0.47267472059392046)
+(194.94699818577357, 0.10348761950261687)
 ```
 
 Please refer to the [documentation](https://currocam.github.io/IdentityByDescentDispersal.jl/dev/) for the complete reference of functions and detailed overview of this package and its usage to perform maximum-likelihood or Bayesian inference.
