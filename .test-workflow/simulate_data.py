@@ -1,12 +1,24 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "msprime",
+#     "numpy",
+#     "pandas",
+#     "pyslim",
+#     "tskit",
+# ]
+# ///
 import os
 import subprocess
+import tempfile
+from itertools import combinations
+
+import msprime
 import numpy as np
 import pandas as pd
-from itertools import combinations
-import tskit
-import tempfile
 import pyslim
-import msprime
+import tskit
 
 
 # Compute pairwise distances on a unit torus between 2D points.
@@ -40,10 +52,11 @@ def simulate_data(
         subprocess.run(
             [
                 "slim",
+                "-p",
                 "-s",
                 str(seed),
                 "-d",
-                f"D={D}",
+                f"NE={D}",
                 "-d",
                 f"SD={SD}",
                 "-d",
