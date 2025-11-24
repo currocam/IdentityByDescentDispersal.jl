@@ -169,8 +169,8 @@ that demonstrates how to do this provided a MCMC sample.
 ````@example inference
 let
     grid_times = 1:100
-    L = 0.05
-    grid_r = [0.1, 0.5, 1.0]
+    L = 0.04 # Smallest IBD block considered
+    grid_r = [0.1, 0.5, 1.0] # Geographic distances
     colors = [:blue, :red, :green] # Define colors for each r
     De(t, params) = params[1] # Custom De(t) parametrization
     p1 = plot(xlabel = "Time (generations ago)", ylabel = "Density shared IBD blocks")
@@ -192,7 +192,7 @@ let
                 p1,
                 grid_times,
                 dens,
-                label = first_line ? "r=$r" : "",
+                label = first_line ? "Distance=$r" : "",
                 color = colors[i],
                 alpha = 0.1,
             )
@@ -209,8 +209,8 @@ the densities for each bootstrap replicate.
 ````@example inference
 let
     grid_times = 1:100
-    L = 0.05
-    grid_r = [0.1, 0.5, 1.0]
+    L = 0.04 # Smallest IBD block considered
+    grid_r = [0.1, 0.5, 1.0] # Geographic distances
     colors = [:blue, :red, :green] # Define colors for each r
     De(t, params) = params[1] # Custom De(t) parametrization
     p1 = plot(xlabel = "Time (generations ago)", ylabel = "Density shared IBD blocks")
@@ -232,7 +232,7 @@ let
                 p1,
                 grid_times,
                 dens,
-                label = first_line ? "r=$r" : "",
+                label = first_line ? "Distance=$r" : "",
                 color = colors[i],
                 alpha = 0.1,
             )
@@ -257,7 +257,7 @@ For example, consider a population with two separate sexes for which there are d
 Such differences arise naturally when considering the effect of mating systems on dispersal patterns. For simplicity,
 let's consider a 1-dimensional space where individuals can only move left or right as shown in the figure below.
 
-![Illustration of dispersal in a 1-dimensional space with separate sexes](dispersal.svg)
+![Illustration of dispersal in a 1-dimensional space with separate sexes](dispersal.png)
 
 Let's assume the displacement between the mother and the offspring, $d_{\text{mother-child}}$, is distributed
 according to a normal distribution with a mean of zero and a variance of $\sigma_D^2$ and
