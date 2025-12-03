@@ -14,12 +14,13 @@ using Random, Test, Distributions, QuadGK, DataFrames
             σ = rand(Uniform(0, 1e5))
             de = t -> rand(Uniform(0, 1e5))
             @test iszero(IdentityByDescentDispersal.probability_coalescence(0, r, de, σ))
-            computed = IdentityByDescentDispersal.probability_coalescence.(
-                rand(Uniform(0, 1e5), 100),
-                r,
-                de,
-                σ,
-            )
+            computed =
+                IdentityByDescentDispersal.probability_coalescence.(
+                    rand(Uniform(0, 1e5), 100),
+                    r,
+                    de,
+                    σ,
+                )
             @test all(computed .>= 0)
             @test all(computed .<= 1)
         end
@@ -213,20 +214,21 @@ using Random, Test, Distributions, QuadGK, DataFrames
         @test computed == expected
     end
     @testset "Test that composite likelihood function do not throw errors" begin
-        n_obs = 10
-        left_bins = sort(rand(Uniform(0, 0.10), n_obs))
-        delta = rand(Uniform(0, 0.01), n_obs)
-        right_bins = left_bins .+ delta
-        n_contigs = 3
-        contig_lengths = rand(Uniform(0.5, 1.5), n_contigs)
-        df = DataFrame(
-            DISTANCE = rand(Uniform(0, 10), n_obs),
-            IBD_LEFT = left_bins,
-            IBD_RIGHT = right_bins,
-            NR_PAIRS = rand(1:50, n_obs),
-            COUNT = rand(0:50, n_obs),
-        )
         for _ = 1:50
+            n_obs = 10
+            left_bins = sort(rand(Uniform(0, 0.10), n_obs))
+            # Delta values should  trigger either trapezoidal or quadrature integration
+            delta = rand(Uniform(0, 0.01), n_obs)
+            right_bins = left_bins .+ delta
+            n_contigs = 3
+            contig_lengths = rand(Uniform(0.5, 1.5), n_contigs)
+            df = DataFrame(
+                DISTANCE = rand(Uniform(0, 10), n_obs),
+                IBD_LEFT = left_bins,
+                IBD_RIGHT = right_bins,
+                NR_PAIRS = rand(1:50, n_obs),
+                COUNT = rand(0:50, n_obs),
+            )
             D = rand(Uniform(0, 5))
             σ = rand(Uniform(0, 10))
             beta = rand(Uniform(-1, 1))

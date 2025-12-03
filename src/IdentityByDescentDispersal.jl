@@ -366,7 +366,7 @@ function preprocess_dataset(
     for (dist_i, distance) in enumerate(unique(individual_distances.distance))
         # Get all pairs at this distance
         pairs_at_distance =
-            individual_distances[individual_distances.distance .== distance, [:ID1, :ID2]]
+            individual_distances[individual_distances.distance.==distance, [:ID1, :ID2]]
         pair_set = Set(Tuple.(eachrow(pairs_at_distance)))
 
         # Filter IBD blocks for those pairs
@@ -394,6 +394,10 @@ function preprocess_dataset(
     result
 end
 
+# We discretize the IBD blocks into bins of a given size. Original implementation
+# used a simple trapezoidal rule with a very small bin size. We fall back to
+# an accurate quadrature rule when the bin size is larger than:
+const BIN_THRESHOLD = 0.002 # Morgans
 
 """
     composite_loglikelihood_constant_density(D::Real, sigma::Real, df::DataFrame, contig_lengths::AbstractArray{<:Real}, chromosomal_edges::Bool=true, diploid::Bool=true) -> Real
@@ -413,7 +417,7 @@ function composite_loglikelihood_constant_density(
     D::Real,
     sigma::Real,
     df::DataFrame,
-    contig_lengths::AbstractArray{<:Real},
+    contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
 )
@@ -422,29 +426,56 @@ function composite_loglikelihood_constant_density(
         return -Inf
     end
 
-    # Iterate across each row computing the expected rate and updating the log-likelihood
     log_likelihood = 0.0
-    for (i, row) in enumerate(eachrow(df))
-        r, L, nr_pairs, count = row.DISTANCE, row.IBD_LEFT, row.NR_PAIRS, row.COUNT
-        ΔL = row.IBD_RIGHT - row.IBD_LEFT
-        λ =
-            expected_ibd_blocks_constant_density(
-                r,
-                D,
-                sigma,
-                L,
-                contig_lengths,
-                chromosomal_edges,
-                diploid,
-            ) *
-            ΔL *
-            nr_pairs
+
+    for row in eachrow(df)
+        r = row.DISTANCE
+        L_left = row.IBD_LEFT
+        L_right = row.IBD_RIGHT
+        nr_pairs = row.NR_PAIRS
+        count = row.COUNT
+        ΔL = L_right - L_left
+
+        # Compute expected IBD blocks
+        if ΔL < BIN_THRESHOLD
+            λ =
+                expected_ibd_blocks_constant_density(
+                    r,
+                    D,
+                    sigma,
+                    L_left,
+                    contig_lengths,
+                    chromosomal_edges,
+                    diploid,
+                ) *
+                ΔL *
+                nr_pairs
+        else
+            λ, _ = quadgk(
+                x -> expected_ibd_blocks_constant_density(
+                    r,
+                    D,
+                    sigma,
+                    x,
+                    contig_lengths,
+                    chromosomal_edges,
+                    diploid,
+                ),
+                L_left,
+                L_right,
+            )
+            λ *= nr_pairs
+        end
+
+        # Check for invalid λ
         if λ < 0 || isnan(λ)
             return -Inf
         end
+
         log_likelihood += logpdf(Poisson(λ), count)
     end
-    log_likelihood
+
+    return log_likelihood
 end
 
 """
@@ -467,7 +498,7 @@ function composite_loglikelihood_power_density(
     beta::Real,
     sigma::Real,
     df::DataFrame,
-    contig_lengths::AbstractArray{<:Real},
+    contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
 )
@@ -476,30 +507,60 @@ function composite_loglikelihood_power_density(
         return -Inf
     end
 
-    # Iterate across each row computing the expected rate and updating the log-likelihood
     log_likelihood = 0.0
-    for (i, row) in enumerate(eachrow(df))
-        r, L, nr_pairs, count = row.DISTANCE, row.IBD_LEFT, row.NR_PAIRS, row.COUNT
-        ΔL = row.IBD_RIGHT - row.IBD_LEFT
-        λ =
-            expected_ibd_blocks_power_density(
-                r,
-                D,
-                beta,
-                sigma,
-                L,
-                contig_lengths,
-                chromosomal_edges,
-                diploid,
-            ) *
-            ΔL *
-            nr_pairs
+
+    for row in eachrow(df)
+        r = row.DISTANCE
+        L_left = row.IBD_LEFT
+        L_right = row.IBD_RIGHT
+        nr_pairs = row.NR_PAIRS
+        count = row.COUNT
+        ΔL = L_right - L_left
+
+        # Compute expected IBD blocks
+        if ΔL < BIN_THRESHOLD
+            # Small interval: trapezoidal approximation
+            λ =
+                expected_ibd_blocks_power_density(
+                    r,
+                    D,
+                    beta,
+                    sigma,
+                    L_left,
+                    contig_lengths,
+                    chromosomal_edges,
+                    diploid,
+                ) *
+                ΔL *
+                nr_pairs
+        else
+            # Larger interval: integrate over the interval
+            λ, _ = quadgk(
+                x -> expected_ibd_blocks_power_density(
+                    r,
+                    D,
+                    beta,
+                    sigma,
+                    x,
+                    contig_lengths,
+                    chromosomal_edges,
+                    diploid,
+                ),
+                L_left,
+                L_right,
+            )
+            λ *= nr_pairs
+        end
+
+        # Check for invalid λ
         if λ < 0 || isnan(λ)
             return -Inf
         end
+
         log_likelihood += logpdf(Poisson(λ), count)
     end
-    log_likelihood
+
+    return log_likelihood
 end
 
 """
@@ -522,7 +583,7 @@ function composite_loglikelihood_custom(
     parameters::AbstractArray,
     sigma::Real,
     df::DataFrame,
-    contig_lengths::AbstractArray{<:Real},
+    contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
 )
@@ -531,30 +592,60 @@ function composite_loglikelihood_custom(
         return -Inf
     end
 
-    # Iterate across each row computing the expected rate and updating the log-likelihood
     log_likelihood = 0.0
-    for (i, row) in enumerate(eachrow(df))
-        r, L, nr_pairs, count = row.DISTANCE, row.IBD_LEFT, row.NR_PAIRS, row.COUNT
-        ΔL = row.IBD_RIGHT - row.IBD_LEFT
-        λ =
-            expected_ibd_blocks_custom(
-                r,
-                De,
-                parameters,
-                sigma,
-                L,
-                contig_lengths,
-                chromosomal_edges,
-                diploid,
-            ) *
-            ΔL *
-            nr_pairs
+
+    for row in eachrow(df)
+        r = row.DISTANCE
+        L_left = row.IBD_LEFT
+        L_right = row.IBD_RIGHT
+        nr_pairs = row.NR_PAIRS
+        count = row.COUNT
+        ΔL = L_right - L_left
+
+        # Compute expected IBD blocks
+        if ΔL < BIN_THRESHOLD
+            # Small interval: trapezoidal approximation
+            λ =
+                expected_ibd_blocks_custom(
+                    r,
+                    De,
+                    parameters,
+                    sigma,
+                    L_left,
+                    contig_lengths,
+                    chromosomal_edges,
+                    diploid,
+                ) *
+                ΔL *
+                nr_pairs
+        else
+            # Larger interval: integrate over the interval
+            λ, _ = quadgk(
+                x -> expected_ibd_blocks_custom(
+                    r,
+                    De,
+                    parameters,
+                    sigma,
+                    x,
+                    contig_lengths,
+                    chromosomal_edges,
+                    diploid,
+                ),
+                L_left,
+                L_right,
+            )
+            λ *= nr_pairs
+        end
+
+        # Check for invalid λ
         if λ < 0 || isnan(λ)
             return -Inf
         end
+
         log_likelihood += logpdf(Poisson(λ), count)
     end
-    log_likelihood
+
+    return log_likelihood
 end
 
 # For posterior predictive simulations
