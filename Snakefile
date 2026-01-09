@@ -130,7 +130,8 @@ rule postprocess:
         Pkg.activate(; temp = true)
         Pkg.add(Pkg.PackageSpec(name="CSV", version="0.10.15"))
         Pkg.add(Pkg.PackageSpec(name="DataFrames", version="1.7.0"))
-        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.3"))
+        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.4"))
+        println("Packages installed")
         using CSV, DataFrames, IdentityByDescentDispersal
         colnames = ["ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"]
         # Read IBD files and concatenate them:
@@ -150,8 +151,6 @@ rule postprocess:
 
 
 # MLE estimate example assuming a constant density
-
-
 rule mle_constant_density:
     input:
         f"{out_dir}/ibd_dispersal_data.csv",
@@ -161,33 +160,57 @@ rule mle_constant_density:
         "logs/constant_density_mle",
     params:
         contig_lengths=contig_lengths,
+        random_seed=21738,
+    threads: 2
     shell:
         """
-        julia -e '
+        julia -t {threads} -e '
         # Parse contig lengths
         contig_lengths = "{params.contig_lengths}"
         contig_lengths = parse.(Float64, split(contig_lengths, " "))
         println("Parsed contig lengths:")
         println(contig_lengths)
+        # Install packages in a temporary environment
         import Pkg
         Pkg.activate(; temp = true)
         Pkg.add(Pkg.PackageSpec(name="CSV", version="0.10.15"))
         Pkg.add(Pkg.PackageSpec(name="DataFrames", version="1.7.0"))
         Pkg.add(Pkg.PackageSpec(name="Turing", version="0.39.1"))
         Pkg.add(Pkg.PackageSpec(name="StatsBase", version="0.34.5"))
-        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.2"))
+        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.4"))
+        # Find MLE
         using CSV, DataFrames, IdentityByDescentDispersal, Turing, StatsBase
+        using Random; Random.seed!({params.random_seed})
         df = CSV.read("{input}", DataFrame)
         @model function constant_density(df, contig_lengths)
             D ~ Uniform(0, 1e8)
             σ ~ Uniform(0, 1e8)
-            Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
+            # Partition rows into chunks, one per thread
+            n_threads = Threads.nthreads()
+            n_rows = nrow(df)
+            chunk_size = ceil(Int, n_rows / n_threads)
+            row_indices = [i:min(i+chunk_size-1, n_rows) for i in 1:chunk_size:n_rows]
+            # Spawn one task per chunk (thread)
+            tasks = map(row_indices) do indices
+                Threads.@spawn begin
+                    try
+                        chunk = df[indices, :]
+                        return composite_loglikelihood_constant_density(D, σ, chunk, contig_lengths)
+                    catch e
+                        println("(D=$D, σ=$σ) Error: $e")
+                        return -Inf
+                    end
+                end
+            end
+            Turing.@addlogprob! sum(fetch.(tasks))
         end
         m = constant_density(df, contig_lengths);
-        mle_estimate = maximum_likelihood(m)
+        # Using MAP with uniform priors gives better convergence
+        mle_estimate = maximum_a_posteriori(m)
         println("MLE Estimate:")
         println(mle_estimate)
         coef_table = mle_estimate |> coeftable |> DataFrame
+        select!(coef_table, Not(:z, Symbol("Pr(>|z|)")))
         CSV.write("{output}", coef_table)
         ' &> {log}
         """
