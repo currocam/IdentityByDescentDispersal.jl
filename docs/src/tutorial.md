@@ -21,6 +21,7 @@ Next, we show how to compute the expected density of identity-by-descent blocks 
 
 ````@example tutorial
 using Plots
+using QuadGK
 
 L = 0.01         # Block length threshold (in Morgans)
 G = 1.0          # Genome length (in Morgans)
@@ -65,6 +66,12 @@ individuals that are 1 kM apart in a population with constant effective populati
 
 ````@example tutorial
 expected_ibd_blocks_constant_density(1.0, 10.0, 0.5, L, G) * 0.001
+````
+
+However, we can also compute the expected number of blocks for any bin size using numerical integration (and we do this when computing log-likelihoods internally when necessary):
+
+````@example tutorial
+quadgk(x -> expected_ibd_blocks_constant_density(x, 10.0, 0.5, L, G) * 0.001, 1.0, 1.1)[1]
 ````
 
 Ringbauer et al. (2017) derived analytical solutions for the expected density of identity-by-descent blocks for

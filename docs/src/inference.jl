@@ -109,7 +109,11 @@ boots = zeros(2, nboots)
 df = data["df"]
 for i = 1:nboots
     df_resampled = df[sample(1:nrow(df), nrow(df), replace = true), :]
-    mle = maximum_likelihood(constant_density(df_resampled, data["contig_lengths"]))
+    mle = maximum_likelihood(
+        constant_density(df_resampled, data["contig_lengths"]),
+        lb = [0.0, 0.0],
+        ub = [Inf, Inf],
+    )
     boots[:, i] = mle.values
 end
 conf_De = quantile(boots[1, :], [0.025, 0.975])
