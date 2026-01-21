@@ -10,7 +10,6 @@ using IdentityByDescentDispersal
 ````
 
 ## Forward-in-time simulation
-We will use SLiM to simulate a constant density population living in a 2D torus and `tskit` and tree-sequence recording to analyze the ground truth of IBD blocks.
 
 ````julia
 run(`slim --version`)
@@ -30,6 +29,19 @@ seed = 1000
 NE = 200 # Number of diploid individuals
 SD = 0.1 # Dispersal rate of the offspring
 SM = 0.01 # Mate choice kernel
+function euclidean_distance(points)
+    coords = points[:, 1:2]
+    n = size(coords, 1)
+    dist_matrix = zeros(n, n)
+    for i = 1:n
+        for j = 1:n
+            dx = coords[i, 1] - coords[j, 1]
+            dy = coords[i, 2] - coords[j, 2]
+            dist_matrix[i, j] = sqrt(dx^2 + dy^2)
+        end
+    end
+    return dist_matrix
+end
 outpath = "s$(seed).trees"
 run(
     `slim -p -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
@@ -57,30 +69,10 @@ n_samples = 100
 sampled = randperm(rng, ts.num_individuals)[1:n_samples] .- 1
 nodes = reduce(vcat, [ts.individual(i).nodes for i in sampled])
 ts = ts.simplify(samples = nodes);
-````
 
-Then, we compute pairwise distances across individuals (in the torus)
-
-````julia
-function torus_distance(points::AbstractMatrix{<:Real})
-    coords = points[:, 1:2]
-    n = size(coords, 1)
-    dist_matrix = zeros(n, n)
-
-    for i = 1:n
-        for j = 1:n
-            dx = abs(coords[i, 1] - coords[j, 1])
-            dy = abs(coords[i, 2] - coords[j, 2])
-            dx = min(dx, 1 - dx)
-            dy = min(dy, 1 - dy)
-            dist_matrix[i, j] = sqrt(dx^2 + dy^2)
-        end
-    end
-    return dist_matrix
-end
 df_dist = let
-    points = ts.individual_locations
-    dist_matrix = torus_distance(points)
+    points = reduce(hcat, [collect(row) for row in ts.individual_locations])'
+    dist_matrix = euclidean_distance(points)
     n = size(points, 1)
     df = DataFrame(ID1 = Int[], ID2 = Int[], distance = Float64[])
     for i = 1:n
@@ -168,7 +160,12 @@ using Turing
 @model function constant_density(df, contig_lengths)
     D ~ Uniform(0, 4000)
     σ ~ Uniform(0, 1)
-    Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
+    try
+        Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
+    catch e
+        @warn "Error in constant_density model: $e"
+        Turing.@addlogprob! -Inf
+    end
 end
 contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
@@ -182,8 +179,8 @@ pretty_table(coef_table)
 │   Name │    Coef. │ Std. Error │       z │     Pr(>|z|) │ Lower 95% │ Upper  ⋯
 │ String │  Float64 │    Float64 │ Float64 │      Float64 │   Float64 │   Floa ⋯
 ├────────┼──────────┼────────────┼─────────┼──────────────┼───────────┼─────────
-│      D │  198.732 │    14.1339 │ 14.0607 │  6.62193e-45 │    171.03 │   226. ⋯
-│      σ │ 0.102122 │ 0.00426059 │  23.969 │ 5.86208e-127 │ 0.0937712 │  0.110 ⋯
+│      D │  191.427 │    13.8445 │ 13.8269 │  1.75394e-43 │   164.292 │   218. ⋯
+│      σ │ 0.104336 │  0.0044079 │ 23.6701 │ 7.32273e-124 │ 0.0956963 │  0.112 ⋯
 └────────┴──────────┴────────────┴─────────┴──────────────┴───────────┴─────────
                                                                 1 column omitted
 

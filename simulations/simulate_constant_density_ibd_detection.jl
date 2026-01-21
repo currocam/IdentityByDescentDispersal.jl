@@ -2,8 +2,6 @@
 using PyCall, Random, CSV, DataFrames, StatsBase, PrettyTables
 using IdentityByDescentDispersal
 # ## Forward-in-time simulation
-# We will use SLiM to simulate a constant density population living in a 2D torus and `tskit` and tree-sequence recording to analyze the ground truth of IBD blocks.
-
 run(`slim --version`)
 
 # Recall that the average distance between the "mother" and father are not equal. The distance in one axis to the father is modeled as
@@ -14,6 +12,19 @@ seed = 1000
 NE = 200 # Number of individuals
 SD = 0.1 # Dispersal rate of the offspring
 SM = 0.01 # Mate choice kernel
+function euclidean_distance(points)
+    coords = points[:, 1:2]
+    n = size(coords, 1)
+    dist_matrix = zeros(n, n)
+    for i = 1:n
+        for j = 1:n
+            dx = coords[i, 1] - coords[j, 1]
+            dy = coords[i, 2] - coords[j, 2]
+            dist_matrix[i, j] = sqrt(dx^2 + dy^2)
+        end
+    end
+    return dist_matrix
+end
 outpath = "s$(seed).trees"
 run(
     `slim -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
@@ -52,14 +63,16 @@ with open($outvcf, "w") as vcf_file:
 # Run IBD detection software
 # wget https://faculty.washington.edu/browning/hap-ibd.jar
 run(`curl -o hap-ibd.jar https://faculty.washington.edu/browning/hap-ibd.jar`)
-# Create a dummy genetic map in Plink format
+# Create a dummy genetic map in Plink format for recombination rate 1e-8
 mapfile = "s$(seed).plink.map"
 open(mapfile, "w") do io
     print(io, "1\trs\t0\t1\t\n1\trs\t100\t100000000\t\n")
 end
 
 # Execute HapIBD software
-run(`java -jar hap-ibd.jar gt=$outvcf map=$mapfile out=s$(seed)`)
+run(
+    `java -Duser.language=en -Duser.country=US -jar hap-ibd.jar gt=$outvcf map=$mapfile out=s$(seed)`,
+)
 
 # Preprocess detected IBD blocks
 run(
@@ -67,35 +80,19 @@ run(
 )
 postprocessed_file = "s$(seed).postprocessed.ibd"
 run(
-    `bash -c "gunzip -c s$(seed).ibd.gz | java -jar merge-ibd-segments.jar $outvcf $mapfile 0.6 1 > $postprocessed_file"`,
+    `bash -c "gunzip -c s$(seed).ibd.gz | java -Duser.language=en -Duser.country=US -jar merge-ibd-segments.jar $outvcf $mapfile 0.6 1 > $postprocessed_file"`,
 )
 
 # Read IBD blocks
 # TO-DO: I'm not really sure what that the SCORE column is...
 colnames = ["ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"]
-df_ibds = CSV.read(postprocessed_file, DataFrame; header = colnames);
+df_ibds = CSV.read(postprocessed_file, DataFrame; delim = "\t", header = colnames);
 df_ibds.span = df_ibds.LENGTH ./ 100;
 
-# Then, we compute pairwise distances across individuals (in the torus)
-function torus_distance(points::AbstractMatrix{<:Real})
-    coords = points[:, 1:2]
-    n = size(coords, 1)
-    dist_matrix = zeros(n, n)
-
-    for i = 1:n
-        for j = 1:n
-            dx = abs(coords[i, 1] - coords[j, 1])
-            dy = abs(coords[i, 2] - coords[j, 2])
-            dx = min(dx, 1 - dx)
-            dy = min(dy, 1 - dy)
-            dist_matrix[i, j] = sqrt(dx^2 + dy^2)
-        end
-    end
-    return dist_matrix
-end
+# Then, we compute pairwise distances across individuals
 df_dist = let
-    points = ts.individual_locations
-    dist_matrix = torus_distance(points)
+    points = reduce(hcat, [collect(row) for row in ts.individual_locations])'
+    dist_matrix = euclidean_distance(points)
     n = size(points, 1)
     df = DataFrame(ID1 = String[], ID2 = String[], distance = Float64[])
     for i = 1:n
@@ -145,8 +142,18 @@ ground_truth = local_density, dispersal_rate
 using Turing
 @model function constant_density(df, contig_lengths)
     D ~ Uniform(0, 1000)
-    σ ~ Uniform(0, 1)
-    Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
+    σ ~ Uniform(0, 100)
+    try
+        Turing.@addlogprob! composite_loglikelihood_constant_density(
+            D,
+            σ,
+            df,
+            contig_lengths,
+        )
+    catch e
+        @warn "Error in constant_density model: $e"
+        Turing.@addlogprob! -Inf
+    end
 end
 contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
