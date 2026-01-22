@@ -1,3 +1,4 @@
+
 initialize() {
 	initializeSLiMOptions(dimensionality="xy");
 	initializeTreeSeq();
@@ -8,21 +9,20 @@ initialize() {
 	initializeRecombinationRate(1e-8);
 	initializeMutationRate(0.0);
 	// Define constants:
-	defineConstantIfInteractive("NE", 50); // Number of individuals
+	defineConstantIfInteractive("NE", 200); // Number of individuals
 	defineConstantIfInteractive("SM", 0.01); // Mate choice
-	defineConstantIfInteractive("SD", 0.1); // Dispersal
+	defineConstantIfInteractive("SD", 0.5); // Dispersal
 	// Set up spatial interaction type
 	// We use a Gaussian kernel to choose a mate
 	initializeInteractionType(1, "xy", reciprocal=T, maxDistance=SM*3);
 	i1.setInteractionFunction("n", 1.0, SM);
 	// We define a second kernel to keep track of the local population density
 	// experienced by the population
-	// We have to account for differences between the dispersal gestating mate - offspring
-	// and the non-gestating mate - offspring
-	defineConstant("SIGMA", sqrt(SD^2 + SM^2 / 2));
 	defineConstant("RUNTIME", 20000);
 	defineGlobal("LOCAL_DENSITY", float(RUNTIME));
+	defineGlobal("CORRECTED_SD", float(RUNTIME));
 	defineConstantIfInteractive("OUTPATH", "out.trees");
+
 }
 
 mateChoice() {
@@ -32,21 +32,33 @@ mateChoice() {
 
 1 early() {
 	sim.addSubpop("p1", NE);
-	p1.individuals.setSpatialPosition(p1.pointUniform(NE));
+	// Simple squared-like area
+	habitat_suitability = matrix(rep(1.0, 100*100), ncol=100);
+	habitat_suitability[30:60, 30:60] = 0.05;
+	map = p1.defineSpatialMap("mapHabitat", "xy", habitat_suitability, interpolate=F,
+		valueRange=c(0.0, 1.0), colors=c("white", "black"));
+	defineConstant("HABITAT_MAP", map);
+	defineConstant("FRACTION_SUITABILITY", mean(habitat_suitability));
+	p1.individuals.setSpatialPosition(p1.pointUniformWithMap(NE, HABITAT_MAP));
 	i1.evaluate(p1);
 }
 
 
 1: late() {
-	p1.deviatePositions(NULL, "reprising", INF, "n", SD);
 	inds = p1.individuals;
+	prevPos = inds.spatialPosition;
+	p1.deviatePositionsWithMap(NULL, "reprising", HABITAT_MAP, INF, "n", SD);
+	newPos = inds.spatialPosition;
+	distances = sqrt((prevPos-newPos)^2);
+	// Compute distances
 	bounds = p1.spatialBounds;
 	// make a density map: 0 is empty, 1 is maximum density
-	density = summarizeIndividuals(inds, c(100, 100), bounds,
+	density = summarizeIndividuals(inds, c(10, 10), bounds,
 		operation="individuals.size();", empty=0.0, perUnitArea=T);
 	p1.defineSpatialMap("density", "xy", density, F,
 		range(density), c("black", "orange", "red"));
 	LOCAL_DENSITY[sim.cycle-1] = 	mean(density);
+	CORRECTED_SD[sim.cycle-1] = 	mean(distances);
 }
 
 2: first() {
@@ -55,9 +67,13 @@ mateChoice() {
 }
 
 RUNTIME late() {
+	// We have to account for differences between the dispersal gestating mate - offspring
+	// and the non-gestating mate - offspring
+	defineConstant("SIGMA_UNCORRECTED", sqrt(SD^2 + SM^2 / 2));
+	defineConstant("SIGMA", sqrt(mean(CORRECTED_SD)^2 + SM^2 / 2));
 	sim.treeSeqOutput(
 		OUTPATH,
-		metadata=Dictionary("SIGMA", SIGMA, "D", NE, "D_empirical", mean(LOCAL_DENSITY))
+		metadata=Dictionary("SIGMA", SIGMA, "D", NE, "D_empirical", mean(LOCAL_DENSITY), "SIGMA_UNCORRECTED", SIGMA_UNCORRECTED, "FRACTION_SUITABILITY", FRACTION_SUITABILITY)
 		);
 }
 

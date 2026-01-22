@@ -3,6 +3,7 @@ using BesselK: adbesselk
 using QuadGK: quadgk
 using DataFrames: DataFrame, transform
 using Distributions: Poisson, logpdf
+using HCubature: hcubature
 import Tables
 import DataAPI
 export safe_adbesselk,
@@ -619,21 +620,23 @@ function composite_loglikelihood_custom(
                 ΔL *
                 nr_pairs
         else
-            # Larger interval: integrate over the interval
-            λ, _ = quadgk(
-                x -> expected_ibd_blocks_custom(
-                    r,
-                    De,
-                    parameters,
-                    sigma,
-                    x,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ),
-                L_left,
-                L_right,
+            # Larger interval: Double integration with an improper integral
+            # First, we define the "base" integrand function
+            integrand(L, t) = age_density_ibd_blocks_custom(
+                t,
+                r,
+                De,
+                parameters,
+                sigma,
+                L,
+                contig_lengths,
+                chromosomal_edges,
+                diploid,
             )
+            # Now, we define a integrand with a change of variables to properly
+            # handle the improper integral (0, Inf) -> [0, 1]
+            integrand2(x) = integrand(x[1], x[2] / (1 - x[2])) / (1 - x[2])^2
+            λ, _ = hcubature(integrand2, (L_left, 0), (L_right, 1))
             λ *= nr_pairs
         end
 

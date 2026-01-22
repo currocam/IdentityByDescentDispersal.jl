@@ -1,5 +1,5 @@
 using IdentityByDescentDispersal
-using Random, Test, Distributions, QuadGK, DataFrames
+using Random, Test, Distributions, QuadGK, DataFrames, HCubature
 
 
 @testset "IdentityByDescentDispersal.jl" begin
@@ -285,5 +285,25 @@ using Random, Test, Distributions, QuadGK, DataFrames
         ])
         res2 = age_density_ibd_blocks_custom(t1, r, De, [param1], sigma, L, [G1, G1])
         @test sum(res1) ≈ sum(res2)
+    end
+    @testset "Testing that nested integration logic is correct" begin
+        # See composite_loglikelihood_custom logic
+        for _ = 1:50
+            r = rand(Uniform(0, 1e5))
+            σ = rand(Uniform(0, 1e5))
+            D = rand(Uniform(0, 100))
+            L_left = rand(Uniform(0.01, 0.1))
+            L_right = rand(Uniform(L_left, 0.2))
+            De(t, x) = x[1]
+            parameters = [D]
+            integrand(L, t) = age_density_ibd_blocks_custom(t, r, De, parameters, σ, L, 1.0)
+            integrand2(x) = integrand(x[1], x[2] / (1 - x[2])) / (1 - x[2])^2
+            λ_nested, _ = hcubature(integrand2, (L_left, 0.0), (L_right, 1.0))
+            # This should be equivalent to the 1-D integral of the closed form solution
+            # r::Real, D::Real, sigma::Real, L::Real, G::Real, chromosomal_edges::Bool=true, diploid::Bool=true
+            integrand3(x) = expected_ibd_blocks_constant_density(r, D, σ, x[1], 1.0)
+            λ_unnested, _ = hcubature(integrand3, (L_left,), (L_right,))
+            @test isapprox(λ_nested, λ_unnested, atol = 1e-4)
+        end
     end
 end

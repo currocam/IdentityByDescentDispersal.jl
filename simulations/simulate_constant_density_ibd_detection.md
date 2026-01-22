@@ -10,7 +10,6 @@ using IdentityByDescentDispersal
 ````
 
 ## Forward-in-time simulation
-We will use SLiM to simulate a constant density population living in a 2D torus and `tskit` and tree-sequence recording to analyze the ground truth of IBD blocks.
 
 ````julia
 run(`slim --version`)
@@ -30,6 +29,19 @@ seed = 1000
 NE = 200 # Number of individuals
 SD = 0.1 # Dispersal rate of the offspring
 SM = 0.01 # Mate choice kernel
+function euclidean_distance(points)
+    coords = points[:, 1:2]
+    n = size(coords, 1)
+    dist_matrix = zeros(n, n)
+    for i = 1:n
+        for j = 1:n
+            dx = coords[i, 1] - coords[j, 1]
+            dy = coords[i, 2] - coords[j, 2]
+            dist_matrix[i, j] = sqrt(dx^2 + dy^2)
+        end
+    end
+    return dist_matrix
+end
 outpath = "s$(seed).trees"
 run(
     `slim -s $seed -d NE=$NE -d SD=$SD -d SM=$SM -d OUTPATH="\"$outpath\"" constant_density.slim`,
@@ -53,6 +65,12 @@ We perform recapitation to ensure samples are fully coalesced
 ````julia
 pyslim = pyimport("pyslim")
 rts = pyslim.recapitate(ts, ancestral_Ne = NE, recombination_rate = 1e-8);
+````
+
+````
+/Users/curro/.julia/conda/3/aarch64/lib/python3.12/site-packages/msprime/ancestry.py:1290: TimeUnitsMismatchWarning: The initial_state has time_units=ticks but time is measured in generations in msprime. This may lead to significant discrepancies between the timescales. If you wish to suppress this warning, you can use, e.g., warnings.simplefilter('ignore', msprime.TimeUnitsMismatchWarning)
+  sim = _parse_sim_ancestry(
+
 ````
 
 We take a sample of 100 diploid individuals.
@@ -96,7 +114,7 @@ run(`curl -o hap-ibd.jar https://faculty.washington.edu/browning/hap-ibd.jar`)
 Process(`curl -o hap-ibd.jar https://faculty.washington.edu/browning/hap-ibd.jar`, ProcessExited(0))
 ````
 
-Create a dummy genetic map in Plink format
+Create a dummy genetic map in Plink format for recombination rate 1e-8
 
 ````julia
 mapfile = "s$(seed).plink.map"
@@ -108,11 +126,11 @@ end
 Execute HapIBD software
 
 ````julia
-run(`java -jar hap-ibd.jar gt=$outvcf map=$mapfile out=s$(seed)`)
+run(`java -Duser.language=en -Duser.country=US -jar hap-ibd.jar gt=$outvcf map=$mapfile out=s$(seed)`)
 ````
 
 ````
-Process(`java -jar hap-ibd.jar gt=s1000.vcf map=s1000.plink.map out=s1000`, ProcessExited(0))
+Process(`java -Duser.language=en -Duser.country=US -jar hap-ibd.jar gt=s1000.vcf map=s1000.plink.map out=s1000`, ProcessExited(0))
 ````
 
 Preprocess detected IBD blocks
@@ -123,44 +141,29 @@ run(
 )
 postprocessed_file = "s$(seed).postprocessed.ibd"
 run(
-    `bash -c "gunzip -c s$(seed).ibd.gz | java -jar merge-ibd-segments.jar $outvcf $mapfile 0.6 1 > $postprocessed_file"`,
+    `bash -c "gunzip -c s$(seed).ibd.gz | java -Duser.language=en -Duser.country=US -jar merge-ibd-segments.jar $outvcf $mapfile 0.6 1 > $postprocessed_file"`,
 )
 ````
 
 ````
-Process(`bash -c 'gunzip -c s1000.ibd.gz | java -jar merge-ibd-segments.jar s1000.vcf s1000.plink.map 0.6 1 > s1000.postprocessed.ibd'`, ProcessExited(0))
+Process(`bash -c 'gunzip -c s1000.ibd.gz | java -Duser.language=en -Duser.country=US -jar merge-ibd-segments.jar s1000.vcf s1000.plink.map 0.6 1 > s1000.postprocessed.ibd'`, ProcessExited(0))
 ````
 
 Read IBD blocks
+TO-DO: I'm not really sure what that the SCORE column is...
 
 ````julia
 colnames = ["ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"]
-df_ibds = CSV.read(postprocessed_file, DataFrame; header = colnames);
+df_ibds = CSV.read(postprocessed_file, DataFrame; delim = "\t", header = colnames);
 df_ibds.span = df_ibds.LENGTH ./ 100;
 ````
 
-Then, we compute pairwise distances across individuals (in the torus)
+Then, we compute pairwise distances across individuals
 
 ````julia
-function torus_distance(points::AbstractMatrix{<:Real})
-    coords = points[:, 1:2]
-    n = size(coords, 1)
-    dist_matrix = zeros(n, n)
-
-    for i = 1:n
-        for j = 1:n
-            dx = abs(coords[i, 1] - coords[j, 1])
-            dy = abs(coords[i, 2] - coords[j, 2])
-            dx = min(dx, 1 - dx)
-            dy = min(dy, 1 - dy)
-            dist_matrix[i, j] = sqrt(dx^2 + dy^2)
-        end
-    end
-    return dist_matrix
-end
 df_dist = let
-    points = ts.individual_locations
-    dist_matrix = torus_distance(points)
+    points = reduce(hcat, [collect(row) for row in ts.individual_locations])'
+    dist_matrix = euclidean_distance(points)
     n = size(points, 1)
     df = DataFrame(ID1 = String[], ID2 = String[], distance = Float64[])
     for i = 1:n
@@ -226,8 +229,13 @@ Finally, we can compute the MLE estimate and compare it with the ground truth:
 using Turing
 @model function constant_density(df, contig_lengths)
     D ~ Uniform(0, 1000)
-    σ ~ Uniform(0, 1)
-    Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
+    σ ~ Uniform(0, 100)
+    try
+        Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
+    catch e
+        @warn "Error in constant_density model: $e"
+        Turing.@addlogprob! -Inf
+    end
 end
 contig_lengths = [1.0]
 m = constant_density(df2, contig_lengths);
@@ -241,8 +249,8 @@ pretty_table(coef_table)
 │   Name │    Coef. │ Std. Error │       z │    Pr(>|z|) │ Lower 95% │ Upper 9 ⋯
 │ String │  Float64 │    Float64 │ Float64 │     Float64 │   Float64 │   Float ⋯
 ├────────┼──────────┼────────────┼─────────┼─────────────┼───────────┼──────────
-│      D │  122.131 │    65.4391 │ 1.86633 │    0.061995 │  -6.12721 │    250. ⋯
-│      σ │ 0.262934 │  0.0733643 │ 3.58395 │ 0.000338438 │  0.119143 │  0.4067 ⋯
+│      D │  129.855 │    64.4083 │ 2.01612 │   0.0437877 │   3.61675 │   256.0 ⋯
+│      σ │ 0.254582 │  0.0659176 │ 3.86212 │ 0.000112406 │  0.125386 │  0.3837 ⋯
 └────────┴──────────┴────────────┴─────────┴─────────────┴───────────┴──────────
                                                                 1 column omitted
 
