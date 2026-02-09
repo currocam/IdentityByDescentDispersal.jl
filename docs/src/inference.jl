@@ -4,13 +4,13 @@
 #
 # ## Simulating synthetic datasets
 # The method proposed by Ringbauer et al. (2017) makes some assumptions to approximate the evolution
-# of a population in a continuous space. We refer to the `Theory overview` for an introduction
+# of a population in a continuous space. We refer to the [Theory overview](@ref) for an introduction
 # to the underlying theory. In any case, we advise researchers to simulate synthetic data that resembles
 # the empirical data according to their expertise. This is a crucial step to determine the expected
 # performance of the method and to guide different steps of the pre-processing strategy (such as which software
 # to use to detect identity-by-descent blocks or how to bin the observed data).
 #
-# For this purpose, we provide a `SLiM` model to simulate an individual-based population in a continuous
+# For this purpose, we provide a `SLiM` (Haller et al., 2019) model to simulate an individual-based population in a continuous
 # space as well as two scripts that fit the model with either error-free identity-by-descent blocks
 # or blocks detected using state-of-the-art software and compare it with the ground-truth parameters.
 # Such models can be found at [simulations directory](https://github.com/currocam/IdentityByDescentDispersal.jl/tree/main/simulations) and might be adapted to your specific needs.
@@ -214,7 +214,7 @@ end
 # ### Effective dispersal rate
 # Perhaps unintuitively, the mean per-generation dispersal distance when we average with respect to both parents is not necessarily equivalent
 # to the mean per-generation dispersal distance when we average across single generations. From population genetic data, we can estimate the latter (
-# refer to the `Theory overview` section for more details). Therefore, interpreting the estimated effective dispersal rate in the context of
+# refer to the [Theory overview](@ref) section for more details). Therefore, interpreting the estimated effective dispersal rate in the context of
 # the ecology of one population has to be done carefully.
 #
 # For example, consider a population with two separate sexes for which there are differences in the process of dispersal.

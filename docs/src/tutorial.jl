@@ -1,4 +1,4 @@
-# This section demonstrates the basic usage of the package. We refer to the `Inference and model evaluation` section
+# This section demonstrates the basic usage of the package. We refer to the [Inference and model evaluation](@ref) section
 # of the documentation for an explanation of how to use this package to estimate parameters of demographic models from observed data.
 
 using IdentityByDescentDispersal
@@ -8,7 +8,7 @@ using IdentityByDescentDispersal
 # Genetic distances between populations are often a function of geographic distance. This phenomenon is often referred to as isolation-by-distance.
 # Isolation-by-distance is reflected in the patterns of identity-by-descent blocks (also known as IBD blocks).
 # It is possible to derive the expected patterns of shared identity-by-descent blocks under a diffusion approximation and certain demographic models.
-# We refer to the publication of Ringbauer et al. (2017) and the `Model overview` section of the documentation for more details.
+# We refer to the publication of Ringbauer et al. (2017) and the [Theory overview](@ref) section of the documentation for more details.
 #
 # The main feature of this package is to compute the expected density of identity-by-descent blocks under different demographic scenarios.
 # Next, we show how to compute the expected density of identity-by-descent blocks under a constant population density using the `expected_ibd_blocks_constant_density` function.

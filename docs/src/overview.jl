@@ -121,9 +121,9 @@ plot(
 #
 # We say that a segment of DNA is a shared identity-by-descent block if it has
 # been inherited from a common ancestor without being broken up by
-# recombination. A shared identity-by-descent block of length $l$ that finds its
-# common ancestor at time $t$ has experienced $2t$ meiosis. Therefore, we expect
-# $l$ to decay with $t$.
+# recombination. A shared identity-by-descent block of length $L$ that finds its
+# common ancestor at time $t$ has "survived" exactly $2t$ meiosis events. Therefore, we expect
+# larger blocks to be more recent, as $L$ decays with $t$.
 #
 # If we model recombination as a Poisson process and measure genetic distance in
 # Morgans (as is typically done), then the probability that a region of length
