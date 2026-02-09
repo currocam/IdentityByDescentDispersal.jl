@@ -1,11 +1,9 @@
 module IdentityByDescentDispersal
 using BesselK: adbesselk
 using QuadGK: quadgk
-using DataFrames: DataFrame, transform
+using DataFrames: DataFrame, transform, ByRow, nrow
 using Distributions: Poisson, logpdf
 using HCubature: hcubature
-import Tables
-import DataAPI
 export safe_adbesselk,
     expected_ibd_blocks_constant_density,
     expected_ibd_blocks_power_density,
@@ -343,10 +341,10 @@ function preprocess_dataset(
     end
 
     ibd_blocks =
-        transform(ibd_blocks, [:ID1, :ID2] => Tables.ByRow(normalize_pair) => [:ID1, :ID2])
+        transform(ibd_blocks, [:ID1, :ID2] => ByRow(normalize_pair) => [:ID1, :ID2])
     individual_distances = transform(
         individual_distances,
-        [:ID1, :ID2] => Tables.ByRow(normalize_pair) => [:ID1, :ID2],
+        [:ID1, :ID2] => ByRow(normalize_pair) => [:ID1, :ID2],
     )
 
     # Result DataFrame
@@ -383,7 +381,7 @@ function preprocess_dataset(
             # Select blocks in this bin
             in_bin = (ibd_filtered.span .>= left_bin) .& (ibd_filtered.span .< right_bin)
             ibd_in_bin = ibd_filtered[in_bin, :]
-            count = DataAPI.nrow(ibd_in_bin)
+            count = nrow(ibd_in_bin)
 
             push!(
                 result,
@@ -422,7 +420,7 @@ function composite_loglikelihood_constant_density(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
-    verbose::Bool = true
+    verbose::Bool = true,
 )
     # Input validation
     if D ≤ 0 || sigma ≤ 0 || isempty(contig_lengths)
@@ -510,7 +508,7 @@ function composite_loglikelihood_power_density(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
-    verbose::Bool = true
+    verbose::Bool = true,
 )
     # Input validation
     if D ≤ 0 || sigma ≤ 0 || isempty(contig_lengths)
@@ -602,7 +600,7 @@ function composite_loglikelihood_custom(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
-    verbose::Bool = true
+    verbose::Bool = true,
 )
     # Input validation
     if sigma ≤ 0 || isempty(contig_lengths)
