@@ -3,14 +3,14 @@
 # and evaluating the fitted model.
 #
 # ## Simulating synthetic datasets
-# The method proposed by Ringbauer et al. (2017) makes some assumptions to approximate the evolution
-# of a population in a continuous space. We refer to the `Theory overview` for an introduction
+# The method proposed by [ringbauer_inferring_2017](@cite) makes some assumptions to approximate the evolution
+# of a population in a continuous space. We refer to the [Theory overview](@ref) for an introduction
 # to the underlying theory. In any case, we advise researchers to simulate synthetic data that resembles
 # the empirical data according to their expertise. This is a crucial step to determine the expected
 # performance of the method and to guide different steps of the pre-processing strategy (such as which software
 # to use to detect identity-by-descent blocks or how to bin the observed data).
 #
-# For this purpose, we provide a `SLiM` model to simulate an individual-based population in a continuous
+# For this purpose, we provide a `SLiM` [haller_tree-sequence_2019](@cite) model to simulate an individual-based population in a continuous
 # space as well as two scripts that fit the model with either error-free identity-by-descent blocks
 # or blocks detected using state-of-the-art software and compare it with the ground-truth parameters.
 # Such models can be found at [simulations directory](https://github.com/currocam/IdentityByDescentDispersal.jl/tree/main/simulations) and might be adapted to your specific needs.
@@ -22,8 +22,8 @@
 #
 # To facilitate the analysis, we provide a [Snakemake pipeline](https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/Snakefile) that can be used to perform a complete analysis,
 # from detecting IBD blocks using HapIBD, post-processing them with Refined IBD, producing a CSV directly compatible
-# with this package, and, optionally, finding a preliminary maximum likelihood estimate of the effective density.
-# Effective dispersal rate. [Snakemake](https://snakemake.readthedocs.io/) is a popular tool in bioinformatics
+# with this package, and, optionally, finding a preliminary maximum likelihood estimate of the effective density and effective dispersal rate.
+# [Snakemake](https://snakemake.readthedocs.io/) is a popular tool in bioinformatics
 # and it allows easy parallelization across multiple cores or jobs when submitting to a cluster via SLURM, as well as
 # automatically managing dependencies via Conda or Apptainer containers. Most of the time, running such a pipeline
 # would require a single-command such as:
@@ -37,20 +37,30 @@
 # Next, we exemplify the common steps of an analysis using `IdentityByDescentDispersal`. First, we load a synthetic
 # dataset for which we know the ground truth. This is the dataset we simulated when showcasing how to [simulate synthetic
 # datasets using SLiM](https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/simulations/simulate_constant_density_ground_truth.md).
-using JLD2, DataFrames, IdentityByDescentDispersal, Turing
-data = load("../data/constant_density.jld2")
+using JLD2, DataFrames, IdentityByDescentDispersal, Turing, Random
+Random.seed!(1234)
+# Load the synthetic dataset from the package's docs/data directory
+data = load(
+    joinpath(pkgdir(IdentityByDescentDispersal), "docs", "data", "constant_density.jld2"),
+)
 ground_truth = (data["local_density"], data["dispersal_rate"])
 # The `IdentityByDescentDispersal` is designed to be compatible with existing statistical software. Here, we decide to
 # Use the `Turing` package, which is the most popular Bayesian modelling framework in Julia. Let's consider the following model:
 @model function constant_density(df, contig_lengths)
     De ~ Truncated(Normal(1000, 100), 0, Inf)
     σ ~ Truncated(Normal(1, 0.1), 0, Inf)
-    Turing.@addlogprob! composite_loglikelihood_constant_density(De, σ, df, contig_lengths)
+    Turing.@addlogprob! composite_loglikelihood_constant_density(
+        De,
+        σ,
+        df,
+        contig_lengths,
+        verbose = false,
+    )
 end
 m = constant_density(data["df"], data["contig_lengths"])
 # The `IdentityByDescentDispersal` is compatible with automatic differentiation. Therefore, we can use standard
 # Hamiltonian Monte Carlo algorithms such as `NUTS()` to estimate the posterior distribution.
-chains = sample(m, NUTS(), MCMCThreads(), 500, 4);
+chains = sample(m, NUTS(), MCMCThreads(), 500, 4; progress = false);
 # When fitting models with power-densities (i.e. using `composite_loglikelihood_power_density`), be aware that
 # the $\beta$ parameter controls the mean-square diﬀerentiability of the composite likelihood (through modified
 # second-kind Bessel function). If you run into issues, we suggest that:
@@ -59,7 +69,7 @@ chains = sample(m, NUTS(), MCMCThreads(), 500, 4);
 # - use gradient-free inference methods such as `Nelder-Mead` when computing maximum likelihood estimates or `Metropolis-Hastings` when doing Bayesian inference.
 # ## Model diagnosis
 # Diagnosing the posterior samples obtained via Markov Chain Monte Carlo is a crucial step in any Bayesian inference.
-# We refer to existing resources such as this lecture on [Bayesian modelling in Biostatistics](https://myweb.uiowa.edu/pbreheny/uk/teaching/701/notes/3-5.pdf)
+# We refer to existing resources such as this lecture on [Bayesian modelling in Biostatistics.](https://myweb.uiowa.edu/pbreheny/uk/teaching/701/notes/3-5.pdf)
 # Most popular approaches involve calculating quantities such as the effective number of samples (ESS)
 # and $\hat {R}$, which can be computed directly from `Turing` output.
 
@@ -97,7 +107,7 @@ vline!(p2, [ground_truth[2]], label = "Ground-truth")
 plot(p1, p2, layout = (2, 1), size = (600, 800))
 # Notice that, although the inference is accurate, we do not expect the posterior estimates to have nominal
 # coverage (e.g., that a 90% credibility interval contains the true parameter 90% of the time). This is because we are assuming every pairwise observation is independent when constructing the
-# composite likelihood and therefore we are overconfident in our estimations. In their publication, Ringbuaer et al. (2017)
+# composite likelihood and therefore we are overconfident in our estimations. In their publication, [ringbauer_inferring_2017](@cite)
 # computed a bootstrapping confidence interval of the maximum-likelihood estimate but still do not achieve
 # nominal coverage.
 #
@@ -109,11 +119,7 @@ boots = zeros(2, nboots)
 df = data["df"]
 for i = 1:nboots
     df_resampled = df[sample(1:nrow(df), nrow(df), replace = true), :]
-    mle = maximum_likelihood(
-        constant_density(df_resampled, data["contig_lengths"]),
-        lb = [0.0, 0.0],
-        ub = [Inf, Inf],
-    )
+    mle = maximum_likelihood(constant_density(df_resampled, data["contig_lengths"]))
     boots[:, i] = mle.values
 end
 conf_De = quantile(boots[1, :], [0.025, 0.975])
@@ -214,7 +220,7 @@ end
 # ### Effective dispersal rate
 # Perhaps unintuitively, the mean per-generation dispersal distance when we average with respect to both parents is not necessarily equivalent
 # to the mean per-generation dispersal distance when we average across single generations. From population genetic data, we can estimate the latter (
-# refer to the `Theory overview` section for more details). Therefore, interpreting the estimated effective dispersal rate in the context of
+# refer to the [Theory overview](@ref) section for more details). Therefore, interpreting the estimated effective dispersal rate in the context of
 # the ecology of one population has to be done carefully.
 #
 # For example, consider a population with two separate sexes for which there are differences in the process of dispersal.
