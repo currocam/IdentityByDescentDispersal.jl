@@ -1,4 +1,4 @@
-# This section demonstrates the basic usage of the package. We refer to the `Inference and model evaluation` section
+# This section demonstrates the basic usage of the package. We refer to the [Inference and model evaluation](@ref) section
 # of the documentation for an explanation of how to use this package to estimate parameters of demographic models from observed data.
 
 using IdentityByDescentDispersal
@@ -8,7 +8,7 @@ using IdentityByDescentDispersal
 # Genetic distances between populations are often a function of geographic distance. This phenomenon is often referred to as isolation-by-distance.
 # Isolation-by-distance is reflected in the patterns of identity-by-descent blocks (also known as IBD blocks).
 # It is possible to derive the expected patterns of shared identity-by-descent blocks under a diffusion approximation and certain demographic models.
-# We refer to the publication of Ringbauer et al. (2017) and the `Model overview` section of the documentation for more details.
+# We refer to the publication of [ringbauer_inferring_2017](@cite) and the [Theory overview](@ref) section of the documentation for more details.
 #
 # The main feature of this package is to compute the expected density of identity-by-descent blocks under different demographic scenarios.
 # Next, we show how to compute the expected density of identity-by-descent blocks under a constant population density using the `expected_ibd_blocks_constant_density` function.
@@ -58,11 +58,11 @@ plot!(
 
 expected_ibd_blocks_constant_density(1.0, 10.0, 0.5, L, G) * 0.001
 
-# However, we can also compute the expected number of blocks for any bin size using numerical integration (and we do this when computing log-likelihoods internally when necessary):
+# However, we can also compute the expected number of blocks for any bin size using numerical integration (and we do this automatically when computing log-likelihoods internally if necessary):
 
 quadgk(x -> expected_ibd_blocks_constant_density(x, 10.0, 0.5, L, G) * 0.001, 1.0, 1.1)[1]
 
-# Ringbauer et al. (2017) derived analytical solutions for the expected density of identity-by-descent blocks for
+# [ringbauer_inferring_2017](@cite) derived analytical solutions for the expected density of identity-by-descent blocks for
 # the family of functions of effective population density of the form $D_e(t) = D_1 t^{-\beta}$. A constant effective population density is a special
 # case of this family with $\beta = 0$. For other values of $\beta$, the expected density of identity-by-descent blocks can be computed using the
 # `expected_ibd_blocks_power_density` function.
@@ -139,13 +139,14 @@ plot(p1, p2, layout = (2, 1), size = (600, 800))
 # Therefore, the log probability of observing `Y` identity-by-descent blocks whose length fall in the bin $[L_i, L_i + \Delta L]$ from a pair of individuals that are $r$ units apart can be calculated simply as:
 
 using Distributions
+delta_L = 0.001
 λ = expected_ibd_blocks_constant_density(
     0.2, # Distance,
     0.5, # Dispersal rate
     2.0, # Effective density
     0.01, # Block length threshold (in Morgans)
     1.0, # Genome length (in Morgans)
-)
+) * delta_L
 Y = 5 # Observed number of IBD blocks
 logpdf(Poisson(λ), Y)
 
@@ -172,7 +173,7 @@ contig_lengths = [1.0, 1.5]; # Contig lengths (in Morgans)
 
 # Preprocessing the data requires combining the different sources of information and binning the identity-by-descent blocks.
 # For this purpose, we provide a helper function `preprocess_dataset` that returns a `DataFrame` in a "long" format.
-# Of course, you may specify your own bins, but here we use the same bins used by Ringbauer et al. (2017), which can be accessed via the `default_ibd_bins` function.
+# Of course, you may specify your own bins, but here we use the same bins used by [ringbauer_inferring_2017](@cite), which can be accessed via the `default_ibd_bins` function.
 bins, min_length = default_ibd_bins()
 df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length);
 
@@ -180,7 +181,8 @@ df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length);
 # by aggregating observations from pairs that have the exact same distance. However, if distances are available at the individual level, you may consider binning them to reduce
 # the runtime. You might find an example of this in the [simulations](https://github.com/currocam/IdentityByDescentDispersal.jl/tree/main/simulations) subdirectory.
 
-# We can now use the df `DataFrame`to compute composite log likelihoods of different parameters using the family of `composite_loglikelihood_*` functions.
+# We can now use the df `DataFrame`to compute composite log likelihoods of different parameters using the family of `composite_loglikelihood_*` functions. They will
+# automatically choose an appropriate integration method based on the binning of the data.
 # The second major feature of this package is that functions are all compatible with automatic differentiation. Analytical solutions depend on a modified Bessel function of the second kind, which is not widely implemented in a way that allows for automatic differentiation .
 # Here, we rely on the `BesselK.jl` package for doing this. In addition, we rely on the system of `QuadGK.jl` for numerical integration compatible with automatic differentiation. This allows us to perform gradient-based optimization and interact with existing software.
 #
@@ -190,16 +192,18 @@ df = preprocess_dataset(ibd_blocks, individual_distances, bins, min_length);
 
 # For example, we can estimate the parameters of a constant density model using maximum likelihood estimation:
 
-using Turing, StatsBase, StatsPlots
+using Turing, StatsBase, StatsPlots, Random
+
+Random.seed!(1000)
 @model function constant_density(df, contig_lengths)
-    D ~ Uniform(0, 100)
-    σ ~ Uniform(0, 20)
+    D ~ Uniform(0, 1000)
+    σ ~ Uniform(0, 1000)
     Turing.@addlogprob! composite_loglikelihood_constant_density(D, σ, df, contig_lengths)
 end
 
 # Generate a MLE estimate.
 mle_estimate = maximum_likelihood(constant_density(df, contig_lengths))
-DataFrame(coeftable(mle_estimate)) # computed from the Fisher information matrix
+coefs = DataFrame(coeftable(mle_estimate)); # computed from the Fisher information matrix
 
 # ### Bayesian inference
 #
@@ -213,7 +217,7 @@ DataFrame(coeftable(mle_estimate)) # computed from the Fisher information matrix
 end
 m = power_density(df, contig_lengths)
 # Sample 4 chains in a serial fashion.
-chains = sample(m, NUTS(), MCMCSerial(), 1000, 4)
+chains = sample(m, NUTS(), MCMCSerial(), 1000, 4; progress = false)
 plot(chains)
 
 # More complex models can be built with cautious consideration of identifiability. For example, we can fit a piecewise exponential density model using a custom function and numerical integration.
@@ -238,5 +242,5 @@ end
     )
 end
 m = exponential_density(df, contig_lengths)
-chain = sample(m, NUTS(), 1000;)
+chain = sample(m, NUTS(), 1000; progress = false)
 DataFrame(summarize(chain))

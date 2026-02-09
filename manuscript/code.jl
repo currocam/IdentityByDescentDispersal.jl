@@ -3,7 +3,7 @@
 using CSV, DataFrames, Turing, StatsBase, StatsPlots
 using NCDatasets, ArviZ, IdentityByDescentDispersal
 using Random, Plots, JLD2
-Random.seed!(1234)
+Random.seed!(1000)
 data = load("docs/data/constant_density.jld2")
 # Pretend we have a CSV file
 CSV.write("ibd_dispersal_data.csv", data["df"])

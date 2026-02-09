@@ -1,11 +1,9 @@
 module IdentityByDescentDispersal
 using BesselK: adbesselk
 using QuadGK: quadgk
-using DataFrames: DataFrame, transform
+using DataFrames: DataFrame, transform, ByRow, nrow
 using Distributions: Poisson, logpdf
 using HCubature: hcubature
-import Tables
-import DataAPI
 export safe_adbesselk,
     expected_ibd_blocks_constant_density,
     expected_ibd_blocks_power_density,
@@ -71,25 +69,22 @@ end
 Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model with constant population density.
 This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 
+- `r` is the geographic distance between samples,
+- `D` is the effective population density (diploid individuals per unit area),
+- `sigma` is the root mean square dispersal distance per generation,
+- `L` is the length of the IBD block (in Morgans),
+- `G` is the total map length of the genome (in Morgans)
+
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
+
+We calculate it as
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt =
 \\frac{G}{8\\pi D \\sigma^2}
 \\left(\\frac{r}{\\sqrt{L} \\sigma}\\right)^2
 K_2\\left(\\frac{\\sqrt{2L} \\, r}{\\sigma}\\right)
 ```
-
-where:
-- `r` is the geographic distance between samples,
-- `D` is the effective population density (diploid individuals per unit area),
-- `sigma` is the root mean square dispersal distance per generation,
-- `L` is the length of the IBD block (in Morgans),
-- `G` is the total map length of the genome (in Morgans),
-- `K₂` is the modified Bessel function of the second kind of order 2.
-
-If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
-
-There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
-
+where `K₂` is the modified Bessel function of the second kind of order 2.
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 """
@@ -145,6 +140,17 @@ end
 
 Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-\beta}``
 This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
+
+- `r` is the geographic distance between samples,
+- `D` is the effective population density (diploid individuals per unit area),
+- `beta` is the power of the density function,
+- `sigma` is the root mean square dispersal distance per generation,
+- `L` is the length of the IBD block (in Morgans),
+- `G` is the total map length of the genome (in Morgans),
+
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
+
+We calculate it as
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt =
 2^{\\frac{-3\\beta}{2}-3}
@@ -152,18 +158,7 @@ This function returns the expected number of IBD blocks per pair of individuals 
 \\left(\\frac{r}{\\sqrt{L} \\sigma}\\right)^{(2+\\beta)}
 K_{2+\\beta}\\left(\\frac{\\sqrt{2L} \\, r}{\\sigma}\\right)
 ```
-
-where:
-- `r` is the geographic distance between samples,
-- `D` is the effective population density (diploid individuals per unit area),
-- `beta` is the power of the density function,
-- `sigma` is the root mean square dispersal distance per generation,
-- `L` is the length of the IBD block (in Morgans),
-- `G` is the total map length of the genome (in Morgans),
-- `K₂` is the modified Bessel function of the second kind of order 2.
-
-If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
-
+where `K₂` is the modified Bessel function of the second kind of order 2.
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 """
@@ -222,22 +217,21 @@ end
 Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model where the effective population density is given by a custom function `De(t, parameters)`.
 This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 
-```math
-\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
-```
-
-The integral is computed numerically using Gaussian-Legendre quadrature rules with the `QuadGK` package.
-
-where:
 - `r` is the geographic distance between samples,
 - `De` is  a user-defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
 - `parameters` is a user-defined array of parameters that the function `De` depends on.
 - `sigma` is the root mean square dispersal distance per generation,
 - `L` is the length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
-- `K₂` is the modified Bessel function of the second kind of order 2.
 
-If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
+
+We calculate it as
+```math
+\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
+```
+
+where the integral is computed numerically using Gaussian-Legendre quadrature rules with the `QuadGK` package.
 
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
@@ -312,7 +306,7 @@ function default_ibd_bins()
 end
 
 """
-    preprocess_dataset(ibd_blocks::DataFrame, dist_matrix::AbstractMatrix, bins::AbstractVector, min_length::Real)
+    preprocess_dataset(ibd_blocks::DataFrame, individual_distances::DataFrame, bins::AbstractVector, min_length::Real)
 
 Preprocesses the input data for identity-by-descent (IBD) block analysis.
 
@@ -343,10 +337,10 @@ function preprocess_dataset(
     end
 
     ibd_blocks =
-        transform(ibd_blocks, [:ID1, :ID2] => Tables.ByRow(normalize_pair) => [:ID1, :ID2])
+        transform(ibd_blocks, [:ID1, :ID2] => ByRow(normalize_pair) => [:ID1, :ID2])
     individual_distances = transform(
         individual_distances,
-        [:ID1, :ID2] => Tables.ByRow(normalize_pair) => [:ID1, :ID2],
+        [:ID1, :ID2] => ByRow(normalize_pair) => [:ID1, :ID2],
     )
 
     # Result DataFrame
@@ -383,7 +377,7 @@ function preprocess_dataset(
             # Select blocks in this bin
             in_bin = (ibd_filtered.span .>= left_bin) .& (ibd_filtered.span .< right_bin)
             ibd_in_bin = ibd_filtered[in_bin, :]
-            count = DataAPI.nrow(ibd_in_bin)
+            count = nrow(ibd_in_bin)
 
             push!(
                 result,
@@ -412,6 +406,7 @@ Computes the composite log-likelihood of the observed IBD blocks under a model w
 Optionally:
 - `chromosomal_edges`: Whether to account for chromosomal edge effects.
 - `diploid`: Whether to account for diploidy.
+- `verbose`: Whether to print warnings when the computation fails.
 
 """
 function composite_loglikelihood_constant_density(
@@ -421,62 +416,68 @@ function composite_loglikelihood_constant_density(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
+    verbose::Bool = true,
 )
     # Input validation
     if D ≤ 0 || sigma ≤ 0 || isempty(contig_lengths)
         return -Inf
     end
+    try
+        log_likelihood = 0.0
+        for row in eachrow(df)
+            r = row.DISTANCE
+            L_left = row.IBD_LEFT
+            L_right = row.IBD_RIGHT
+            nr_pairs = row.NR_PAIRS
+            count = row.COUNT
+            ΔL = L_right - L_left
 
-    log_likelihood = 0.0
-
-    for row in eachrow(df)
-        r = row.DISTANCE
-        L_left = row.IBD_LEFT
-        L_right = row.IBD_RIGHT
-        nr_pairs = row.NR_PAIRS
-        count = row.COUNT
-        ΔL = L_right - L_left
-
-        # Compute expected IBD blocks
-        if ΔL < BIN_THRESHOLD
-            λ =
-                expected_ibd_blocks_constant_density(
-                    r,
-                    D,
-                    sigma,
+            # Compute expected IBD blocks
+            if ΔL < BIN_THRESHOLD
+                λ =
+                    expected_ibd_blocks_constant_density(
+                        r,
+                        D,
+                        sigma,
+                        L_left,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ) *
+                    ΔL *
+                    nr_pairs
+            else
+                λ, _ = quadgk(
+                    x -> expected_ibd_blocks_constant_density(
+                        r,
+                        D,
+                        sigma,
+                        x,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ),
                     L_left,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ) *
-                ΔL *
-                nr_pairs
-        else
-            λ, _ = quadgk(
-                x -> expected_ibd_blocks_constant_density(
-                    r,
-                    D,
-                    sigma,
-                    x,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ),
-                L_left,
-                L_right,
-            )
-            λ *= nr_pairs
-        end
+                    L_right,
+                )
+                λ *= nr_pairs
+            end
 
-        # Check for invalid λ
-        if λ < 0 || isnan(λ)
-            return -Inf
-        end
+            # Check for invalid λ
+            if λ < 0 || isnan(λ)
+                return -Inf
+            end
 
-        log_likelihood += logpdf(Poisson(λ), count)
+            log_likelihood += logpdf(Poisson(λ), count)
+        end
+        return log_likelihood
+    catch e
+        if verbose
+            @warn("(De=$(D), σ=$(sigma)) failed with error: $(e)")
+        end
+        return -Inf
     end
 
-    return log_likelihood
 end
 
 """
@@ -492,6 +493,7 @@ Computes the composite log-likelihood of the observed IBD blocks under a model w
 Optionally:
 - `chromosomal_edges`: Whether to account for chromosomal edge effects.
 - `diploid`: Whether to account for diploidy.
+- `verbose`: Whether to print warnings when the computation fails.
 
 """
 function composite_loglikelihood_power_density(
@@ -502,66 +504,72 @@ function composite_loglikelihood_power_density(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
+    verbose::Bool = true,
 )
     # Input validation
     if D ≤ 0 || sigma ≤ 0 || isempty(contig_lengths)
         return -Inf
     end
 
-    log_likelihood = 0.0
+    try
+        log_likelihood = 0.0
 
-    for row in eachrow(df)
-        r = row.DISTANCE
-        L_left = row.IBD_LEFT
-        L_right = row.IBD_RIGHT
-        nr_pairs = row.NR_PAIRS
-        count = row.COUNT
-        ΔL = L_right - L_left
+        for row in eachrow(df)
+            r = row.DISTANCE
+            L_left = row.IBD_LEFT
+            L_right = row.IBD_RIGHT
+            nr_pairs = row.NR_PAIRS
+            count = row.COUNT
+            ΔL = L_right - L_left
 
-        # Compute expected IBD blocks
-        if ΔL < BIN_THRESHOLD
-            # Small interval: trapezoidal approximation
-            λ =
-                expected_ibd_blocks_power_density(
-                    r,
-                    D,
-                    beta,
-                    sigma,
+            # Compute expected IBD blocks
+            if ΔL < BIN_THRESHOLD
+                # Small interval: trapezoidal approximation
+                λ =
+                    expected_ibd_blocks_power_density(
+                        r,
+                        D,
+                        beta,
+                        sigma,
+                        L_left,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ) *
+                    ΔL *
+                    nr_pairs
+            else
+                # Larger interval: integrate over the interval
+                λ, _ = quadgk(
+                    x -> expected_ibd_blocks_power_density(
+                        r,
+                        D,
+                        beta,
+                        sigma,
+                        x,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ),
                     L_left,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ) *
-                ΔL *
-                nr_pairs
-        else
-            # Larger interval: integrate over the interval
-            λ, _ = quadgk(
-                x -> expected_ibd_blocks_power_density(
-                    r,
-                    D,
-                    beta,
-                    sigma,
-                    x,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ),
-                L_left,
-                L_right,
-            )
-            λ *= nr_pairs
-        end
+                    L_right,
+                )
+                λ *= nr_pairs
+            end
 
-        # Check for invalid λ
-        if λ < 0 || isnan(λ)
-            return -Inf
+            # Check for invalid λ
+            if λ < 0 || isnan(λ)
+                return -Inf
+            end
+            log_likelihood += logpdf(Poisson(λ), count)
         end
-
-        log_likelihood += logpdf(Poisson(λ), count)
+        return log_likelihood
+    catch e
+        if verbose
+            @warn("(De=$(D), β=$(beta), σ=$(sigma)) failed with error: $(e)")
+        end
+        return -Inf
     end
-
-    return log_likelihood
 end
 
 """
@@ -577,6 +585,7 @@ Computes the composite log-likelihood of the observed IBD blocks under a model w
 Optionally:
 - `chromosomal_edges`: Whether to account for chromosomal edge effects.
 - `diploid`: Whether to account for diploidy.
+- `verbose`: Whether to print warnings when the computation fails.
 
 """
 function composite_loglikelihood_custom(
@@ -587,68 +596,76 @@ function composite_loglikelihood_custom(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
+    verbose::Bool = true,
 )
     # Input validation
     if sigma ≤ 0 || isempty(contig_lengths)
         return -Inf
     end
 
-    log_likelihood = 0.0
+    try
+        log_likelihood = 0.0
 
-    for row in eachrow(df)
-        r = row.DISTANCE
-        L_left = row.IBD_LEFT
-        L_right = row.IBD_RIGHT
-        nr_pairs = row.NR_PAIRS
-        count = row.COUNT
-        ΔL = L_right - L_left
+        for row in eachrow(df)
+            r = row.DISTANCE
+            L_left = row.IBD_LEFT
+            L_right = row.IBD_RIGHT
+            nr_pairs = row.NR_PAIRS
+            count = row.COUNT
+            ΔL = L_right - L_left
 
-        # Compute expected IBD blocks
-        if ΔL < BIN_THRESHOLD
-            # Small interval: trapezoidal approximation
-            λ =
-                expected_ibd_blocks_custom(
+            # Compute expected IBD blocks
+            if ΔL < BIN_THRESHOLD
+                # Small interval: trapezoidal approximation
+                λ =
+                    expected_ibd_blocks_custom(
+                        r,
+                        De,
+                        parameters,
+                        sigma,
+                        L_left,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ) *
+                    ΔL *
+                    nr_pairs
+            else
+                # Larger interval: Double integration with an improper integral
+                # First, we define the "base" integrand function
+                integrand(L, t) = age_density_ibd_blocks_custom(
+                    t,
                     r,
                     De,
                     parameters,
                     sigma,
-                    L_left,
+                    L,
                     contig_lengths,
                     chromosomal_edges,
                     diploid,
-                ) *
-                ΔL *
-                nr_pairs
-        else
-            # Larger interval: Double integration with an improper integral
-            # First, we define the "base" integrand function
-            integrand(L, t) = age_density_ibd_blocks_custom(
-                t,
-                r,
-                De,
-                parameters,
-                sigma,
-                L,
-                contig_lengths,
-                chromosomal_edges,
-                diploid,
-            )
-            # Now, we define a integrand with a change of variables to properly
-            # handle the improper integral (0, Inf) -> [0, 1]
-            integrand2(x) = integrand(x[1], x[2] / (1 - x[2])) / (1 - x[2])^2
-            λ, _ = hcubature(integrand2, (L_left, 0), (L_right, 1))
-            λ *= nr_pairs
-        end
+                )
+                # Now, we define a integrand with a change of variables to properly
+                # handle the improper integral (0, Inf) -> [0, 1]
+                integrand2(x) = integrand(x[1], x[2] / (1 - x[2])) / (1 - x[2])^2
+                λ, _ = hcubature(integrand2, (L_left, 0), (L_right, 1))
+                λ *= nr_pairs
+            end
 
-        # Check for invalid λ
-        if λ < 0 || isnan(λ)
-            return -Inf
-        end
+            # Check for invalid λ
+            if λ < 0 || isnan(λ)
+                return -Inf
+            end
 
-        log_likelihood += logpdf(Poisson(λ), count)
+            log_likelihood += logpdf(Poisson(λ), count)
+        end
+        return log_likelihood
+
+    catch e
+        if verbose
+            @warn("(parameters=$(parameters), σ=$(sigma)) failed with error: $(e)")
+        end
+        return -Inf
     end
-
-    return log_likelihood
 end
 
 # For posterior predictive simulations
@@ -658,12 +675,6 @@ end
 Computes the expected density of identity-by-descent (IBD) blocks of length `L` and age `t` for a model where the effective population density is given by a custom function `De(t, parameters)`.
 This function returns the expected number of IBD blocks of age `t` per pair of individuals and per unit of block length.
 
-```math
-\\mathbb{E}[N_L^t] =  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t)
-```
-
-
-where:
 - `t` is the age of the IBD block,
 - `r` is the geographic distance between samples,
 - `De` is a user-defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
@@ -672,7 +683,15 @@ where:
 - `L` is the length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
 
-If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome.
+
+We calculate it as
+
+```math
+\\mathbb{E}[N_L^t] =  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t)
+```
+
+where ``\\phi(t)`` is the probability that two homologous loci coalesce ``t`` generations ago.
 
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.

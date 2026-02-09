@@ -60,6 +60,10 @@ We provide a set of simulations of population genetics in a continuous space tha
 
 Simulation-based calibration (using power-composite likelihoods) is an unexplored and interesting approach. Feel free to contact us if you are interested.
 
+## Community Guidelines
+
+`IdentityByDescentDispersal.jl` is an open-source project and contributions are welcome. Users are encouraged to report bugs, request features, or ask questions by opening  a GitHub issue.
+
 ## References
 
 Baumdicker, F., Bisschop, G., Goldstein, D., Gower, G., Ragsdale, A. P., Tsambos, G., Zhu, S., Eldon, B., Ellerman, E. C., Galloway, J. G., Gladstein, A. L., Gorjanc, G., Guo, B., Jeffery, B., Kretzschumar, W. W., Lohse, K., Matschiner, M., Nelson, D., Pope, N. S., … Kelleher, J. (2022). Efficient ancestry and mutation simulation with msprime 1.0. Genetics, 220(3), iyab229. https://doi.org/10.1093/genetics/iyab229

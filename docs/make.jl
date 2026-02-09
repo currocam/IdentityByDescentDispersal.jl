@@ -1,5 +1,6 @@
 using IdentityByDescentDispersal
 using Documenter
+using DocumenterCitations
 using Literate
 
 # Set up Documenter doctest environment
@@ -26,8 +27,11 @@ const page_rename = Dict("developer.md" => "Developer docs")
 # Collect all markdown files except index.md and tutorial.md
 const numbered_pages = sort([
     file for file in readdir("docs/src") if endswith(file, ".md") &&
-    file ∉ ("index.md", "tutorial.md", "overview.md", "inference.md")
+    file ∉ ("index.md", "tutorial.md", "overview.md", "inference.md", "references.md")
 ])
+
+# Set up bibliography
+bib = CitationBibliography(joinpath(@__DIR__, "src", "refs.bib"))
 
 makedocs(;
     modules = [IdentityByDescentDispersal],
@@ -37,12 +41,14 @@ makedocs(;
     format = Documenter.HTML(;
         canonical = "https://currocam.github.io/IdentityByDescentDispersal.jl",
     ),
+    plugins = [bib],
     pages = [
         "Home" => "index.md",
         "Theory overview" => "overview.md",
         "Basic usage" => "tutorial.md",
         "Inference and model evaluation" => "inference.md",
         "Developer docs" => numbered_pages,
+        "References" => "references.md",
     ],
 )
 

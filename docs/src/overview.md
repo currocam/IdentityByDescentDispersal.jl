@@ -4,7 +4,7 @@ EditURL = "overview.jl"
 
 # Theory overview
 This package provides an efficient implementation of the inference scheme
-proposed by Ringbauer et al. ( 2017) to estimate the mean dispersal rate and
+proposed by [ringbauer_inferring_2017](@cite) to estimate the mean dispersal rate and
 the effective population density of a population.  Here, we present an
 overview of the theory behind the method, but we refer to the original
 publication for details.
@@ -132,25 +132,25 @@ about the recent past than polymorphism data.
 
 We say that a segment of DNA is a shared identity-by-descent block if it has
 been inherited from a common ancestor without being broken up by
-recombination. A shared identity-by-descent block of length $l$ that finds its
-common ancestor at time $t$ has experienced $2t$ meiosis. Therefore, we expect
-$l$ to decay with $t$.
+recombination. A shared identity-by-descent block of length $L$ that finds its
+common ancestor at time $t$ has "survived" exactly $2t$ meiosis events. Therefore, we expect
+larger blocks to be more recent, as $L$ decays with $t$.
 
 If we model recombination as a Poisson process and measure genetic distance in
 Morgans (as is typically done), then the probability that a region of length
 $L$ does not recombine can be obtained from the exponential distribution with
 rate $\exp(-2Lt)$
 
-Ringbauer et al. (2017) derived that the expected density of
-identity-by-descent blocks of length $l$ per pair of haploid individuals and
+[ringbauer_inferring_2017](@cite) derived that the expected density of
+identity-by-descent blocks of length $L$ per pair of haploid individuals and
 per unit of block length given that the time to the most recent common
 ancestor is $t$ is given by
 
-$$E[K_l | t] \approx G 4 t^2 \exp(-2lt)$$
+$$E[K_L | t] \approx G 4 t^2 \exp(-2Lt)$$
 
 where $G$ is the length of the genome in Morgans. This equation is obtained by
-accounting for the probability that there is a region of length $l$ that has
-not recombined (the $\exp(-2lt)$ term) which is delimited by two recombination
+accounting for the probability that there is a region of length $L$ that has
+not recombined (the $\exp(-2Lt)$ term) which is delimited by two recombination
 events (the $4 t^2$ term) and summing across all possible start sites (the $G$
 factor). A slightly more complex expression that accounts for the effect of
 chromosomal edges and diploidy is provided in the article and the software
@@ -167,12 +167,12 @@ $$\mathbb{E}[L] = \int_0^\infty \mathbb{E}[L | t] \phi(t) dt$$
 
 where $\phi(t)$ is the probability density function of the time to the most
 recent common ancestor. This expression is hard to track down analytically.
-Ringbauer et al. (2017) derived an analytical solution for a family of
+[ringbauer_inferring_2017](@cite) derived an analytical solution for a family of
 demographic models. Alternatively, this software implementation provides a
 numerical approximation of the integral using Gaussian-quadrature rules. We
 refer to the other sections of the documentation for more details.
 
-Ringbauer et al. (2017) proposed an inference scheme where they assumed the
+[ringbauer_inferring_2017](@cite) proposed an inference scheme where they assumed the
 number of observed shared identity-by-descent blocks whose length fall in a
 small bin follows a Poisson distribution. The rate of the distribution can be
 calculated from the expected density of identity-by-descent blocks under the
