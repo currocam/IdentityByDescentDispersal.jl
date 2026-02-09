@@ -69,25 +69,22 @@ end
 Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model with constant population density.
 This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 
+- `r` is the geographic distance between samples,
+- `D` is the effective population density (diploid individuals per unit area),
+- `sigma` is the root mean square dispersal distance per generation,
+- `L` is the length of the IBD block (in Morgans),
+- `G` is the total map length of the genome (in Morgans)
+
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
+
+We calculate it as
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt =
 \\frac{G}{8\\pi D \\sigma^2}
 \\left(\\frac{r}{\\sqrt{L} \\sigma}\\right)^2
 K_2\\left(\\frac{\\sqrt{2L} \\, r}{\\sigma}\\right)
 ```
-
-where:
-- `r` is the geographic distance between samples,
-- `D` is the effective population density (diploid individuals per unit area),
-- `sigma` is the root mean square dispersal distance per generation,
-- `L` is the length of the IBD block (in Morgans),
-- `G` is the total map length of the genome (in Morgans),
-- `K₂` is the modified Bessel function of the second kind of order 2.
-
-If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
-
-There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
-
+where `K₂` is the modified Bessel function of the second kind of order 2.
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 """
@@ -143,6 +140,17 @@ end
 
 Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model with a power population density in the form of ``D(t) = D_0t^{-\beta}``
 This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
+
+- `r` is the geographic distance between samples,
+- `D` is the effective population density (diploid individuals per unit area),
+- `beta` is the power of the density function,
+- `sigma` is the root mean square dispersal distance per generation,
+- `L` is the length of the IBD block (in Morgans),
+- `G` is the total map length of the genome (in Morgans),
+
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
+
+We calculate it as
 ```math
 \\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt =
 2^{\\frac{-3\\beta}{2}-3}
@@ -150,18 +158,7 @@ This function returns the expected number of IBD blocks per pair of individuals 
 \\left(\\frac{r}{\\sqrt{L} \\sigma}\\right)^{(2+\\beta)}
 K_{2+\\beta}\\left(\\frac{\\sqrt{2L} \\, r}{\\sigma}\\right)
 ```
-
-where:
-- `r` is the geographic distance between samples,
-- `D` is the effective population density (diploid individuals per unit area),
-- `beta` is the power of the density function,
-- `sigma` is the root mean square dispersal distance per generation,
-- `L` is the length of the IBD block (in Morgans),
-- `G` is the total map length of the genome (in Morgans),
-- `K₂` is the modified Bessel function of the second kind of order 2.
-
-If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
-
+where `K₂` is the modified Bessel function of the second kind of order 2.
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
 """
@@ -220,22 +217,21 @@ end
 Computes the expected density of identity-by-descent (IBD) blocks of length `L` for a model where the effective population density is given by a custom function `De(t, parameters)`.
 This function returns the expected number of IBD blocks per pair of individuals and per unit of block length.
 
-```math
-\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
-```
-
-The integral is computed numerically using Gaussian-Legendre quadrature rules with the `QuadGK` package.
-
-where:
 - `r` is the geographic distance between samples,
 - `De` is  a user-defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
 - `parameters` is a user-defined array of parameters that the function `De` depends on.
 - `sigma` is the root mean square dispersal distance per generation,
 - `L` is the length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
-- `K₂` is the modified Bessel function of the second kind of order 2.
 
-If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. There is a function overload that accepts a vector of `G` values and returns the aggregated expected number of IBD blocks.
+
+We calculate it as
+```math
+\\mathbb{E}[N_L] = \\int_0^\\infty \\mathbb{E}[N_L^t] \\,dt = \\int_0^\\infty G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t) \\,dt
+```
+
+where the integral is computed numerically using Gaussian-Legendre quadrature rules with the `QuadGK` package.
 
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
@@ -310,7 +306,7 @@ function default_ibd_bins()
 end
 
 """
-    preprocess_dataset(ibd_blocks::DataFrame, dist_matrix::AbstractMatrix, bins::AbstractVector, min_length::Real)
+    preprocess_dataset(ibd_blocks::DataFrame, individual_distances::DataFrame, bins::AbstractVector, min_length::Real)
 
 Preprocesses the input data for identity-by-descent (IBD) block analysis.
 
@@ -679,12 +675,6 @@ end
 Computes the expected density of identity-by-descent (IBD) blocks of length `L` and age `t` for a model where the effective population density is given by a custom function `De(t, parameters)`.
 This function returns the expected number of IBD blocks of age `t` per pair of individuals and per unit of block length.
 
-```math
-\\mathbb{E}[N_L^t] =  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t)
-```
-
-
-where:
 - `t` is the age of the IBD block,
 - `r` is the geographic distance between samples,
 - `De` is a user-defined function that takes time `t` and a `parameters` and returns the effective population density at time `t`.
@@ -693,7 +683,15 @@ where:
 - `L` is the length of the IBD block (in Morgans),
 - `G` is the total map length of the genome (in Morgans),
 
-If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome. For more details, see Appendix B.
+If `chromosomal_edges` is `true` (the default), we account for chromosomal edge effects. If `diploid` is `true`, we multiply by a factor of 4 to account for the fact that each individual has two copies of each chromosome.
+
+We calculate it as
+
+```math
+\\mathbb{E}[N_L^t] =  G  4t^2 \\exp(-2Lt) \\cdot \\Phi(t)
+```
+
+where ``\\phi(t)`` is the probability that two homologous loci coalesce ``t`` generations ago.
 
 Reference:
 Ringbauer, H., Coop, G., & Barton, N. H. (2017). Genetics, 205(3), 1335–1351.
