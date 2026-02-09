@@ -412,6 +412,7 @@ Computes the composite log-likelihood of the observed IBD blocks under a model w
 Optionally:
 - `chromosomal_edges`: Whether to account for chromosomal edge effects.
 - `diploid`: Whether to account for diploidy.
+- `verbose`: Whether to print warnings when the computation fails.
 
 """
 function composite_loglikelihood_constant_density(
@@ -421,62 +422,68 @@ function composite_loglikelihood_constant_density(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
+    verbose::Bool = true
 )
     # Input validation
     if D ≤ 0 || sigma ≤ 0 || isempty(contig_lengths)
         return -Inf
     end
+    try
+        log_likelihood = 0.0
+        for row in eachrow(df)
+            r = row.DISTANCE
+            L_left = row.IBD_LEFT
+            L_right = row.IBD_RIGHT
+            nr_pairs = row.NR_PAIRS
+            count = row.COUNT
+            ΔL = L_right - L_left
 
-    log_likelihood = 0.0
-
-    for row in eachrow(df)
-        r = row.DISTANCE
-        L_left = row.IBD_LEFT
-        L_right = row.IBD_RIGHT
-        nr_pairs = row.NR_PAIRS
-        count = row.COUNT
-        ΔL = L_right - L_left
-
-        # Compute expected IBD blocks
-        if ΔL < BIN_THRESHOLD
-            λ =
-                expected_ibd_blocks_constant_density(
-                    r,
-                    D,
-                    sigma,
+            # Compute expected IBD blocks
+            if ΔL < BIN_THRESHOLD
+                λ =
+                    expected_ibd_blocks_constant_density(
+                        r,
+                        D,
+                        sigma,
+                        L_left,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ) *
+                    ΔL *
+                    nr_pairs
+            else
+                λ, _ = quadgk(
+                    x -> expected_ibd_blocks_constant_density(
+                        r,
+                        D,
+                        sigma,
+                        x,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ),
                     L_left,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ) *
-                ΔL *
-                nr_pairs
-        else
-            λ, _ = quadgk(
-                x -> expected_ibd_blocks_constant_density(
-                    r,
-                    D,
-                    sigma,
-                    x,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ),
-                L_left,
-                L_right,
-            )
-            λ *= nr_pairs
-        end
+                    L_right,
+                )
+                λ *= nr_pairs
+            end
 
-        # Check for invalid λ
-        if λ < 0 || isnan(λ)
-            return -Inf
-        end
+            # Check for invalid λ
+            if λ < 0 || isnan(λ)
+                return -Inf
+            end
 
-        log_likelihood += logpdf(Poisson(λ), count)
+            log_likelihood += logpdf(Poisson(λ), count)
+        end
+        return log_likelihood
+    catch e
+        if verbose
+            @warn("(De=$(D), σ=$(sigma)) failed with error: $(e)")
+        end
+        return -Inf
     end
 
-    return log_likelihood
 end
 
 """
@@ -492,6 +499,7 @@ Computes the composite log-likelihood of the observed IBD blocks under a model w
 Optionally:
 - `chromosomal_edges`: Whether to account for chromosomal edge effects.
 - `diploid`: Whether to account for diploidy.
+- `verbose`: Whether to print warnings when the computation fails.
 
 """
 function composite_loglikelihood_power_density(
@@ -502,66 +510,72 @@ function composite_loglikelihood_power_density(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
+    verbose::Bool = true
 )
     # Input validation
     if D ≤ 0 || sigma ≤ 0 || isempty(contig_lengths)
         return -Inf
     end
 
-    log_likelihood = 0.0
+    try
+        log_likelihood = 0.0
 
-    for row in eachrow(df)
-        r = row.DISTANCE
-        L_left = row.IBD_LEFT
-        L_right = row.IBD_RIGHT
-        nr_pairs = row.NR_PAIRS
-        count = row.COUNT
-        ΔL = L_right - L_left
+        for row in eachrow(df)
+            r = row.DISTANCE
+            L_left = row.IBD_LEFT
+            L_right = row.IBD_RIGHT
+            nr_pairs = row.NR_PAIRS
+            count = row.COUNT
+            ΔL = L_right - L_left
 
-        # Compute expected IBD blocks
-        if ΔL < BIN_THRESHOLD
-            # Small interval: trapezoidal approximation
-            λ =
-                expected_ibd_blocks_power_density(
-                    r,
-                    D,
-                    beta,
-                    sigma,
+            # Compute expected IBD blocks
+            if ΔL < BIN_THRESHOLD
+                # Small interval: trapezoidal approximation
+                λ =
+                    expected_ibd_blocks_power_density(
+                        r,
+                        D,
+                        beta,
+                        sigma,
+                        L_left,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ) *
+                    ΔL *
+                    nr_pairs
+            else
+                # Larger interval: integrate over the interval
+                λ, _ = quadgk(
+                    x -> expected_ibd_blocks_power_density(
+                        r,
+                        D,
+                        beta,
+                        sigma,
+                        x,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ),
                     L_left,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ) *
-                ΔL *
-                nr_pairs
-        else
-            # Larger interval: integrate over the interval
-            λ, _ = quadgk(
-                x -> expected_ibd_blocks_power_density(
-                    r,
-                    D,
-                    beta,
-                    sigma,
-                    x,
-                    contig_lengths,
-                    chromosomal_edges,
-                    diploid,
-                ),
-                L_left,
-                L_right,
-            )
-            λ *= nr_pairs
-        end
+                    L_right,
+                )
+                λ *= nr_pairs
+            end
 
-        # Check for invalid λ
-        if λ < 0 || isnan(λ)
-            return -Inf
+            # Check for invalid λ
+            if λ < 0 || isnan(λ)
+                return -Inf
+            end
+            log_likelihood += logpdf(Poisson(λ), count)
         end
-
-        log_likelihood += logpdf(Poisson(λ), count)
+        return log_likelihood
+    catch e
+        if verbose
+            @warn("(De=$(D), β=$(beta), σ=$(sigma)) failed with error: $(e)")
+        end
+        return -Inf
     end
-
-    return log_likelihood
 end
 
 """
@@ -577,6 +591,7 @@ Computes the composite log-likelihood of the observed IBD blocks under a model w
 Optionally:
 - `chromosomal_edges`: Whether to account for chromosomal edge effects.
 - `diploid`: Whether to account for diploidy.
+- `verbose`: Whether to print warnings when the computation fails.
 
 """
 function composite_loglikelihood_custom(
@@ -587,68 +602,76 @@ function composite_loglikelihood_custom(
     contig_lengths::AbstractArray{<:Real};
     chromosomal_edges::Bool = true,
     diploid::Bool = true,
+    verbose::Bool = true
 )
     # Input validation
     if sigma ≤ 0 || isempty(contig_lengths)
         return -Inf
     end
 
-    log_likelihood = 0.0
+    try
+        log_likelihood = 0.0
 
-    for row in eachrow(df)
-        r = row.DISTANCE
-        L_left = row.IBD_LEFT
-        L_right = row.IBD_RIGHT
-        nr_pairs = row.NR_PAIRS
-        count = row.COUNT
-        ΔL = L_right - L_left
+        for row in eachrow(df)
+            r = row.DISTANCE
+            L_left = row.IBD_LEFT
+            L_right = row.IBD_RIGHT
+            nr_pairs = row.NR_PAIRS
+            count = row.COUNT
+            ΔL = L_right - L_left
 
-        # Compute expected IBD blocks
-        if ΔL < BIN_THRESHOLD
-            # Small interval: trapezoidal approximation
-            λ =
-                expected_ibd_blocks_custom(
+            # Compute expected IBD blocks
+            if ΔL < BIN_THRESHOLD
+                # Small interval: trapezoidal approximation
+                λ =
+                    expected_ibd_blocks_custom(
+                        r,
+                        De,
+                        parameters,
+                        sigma,
+                        L_left,
+                        contig_lengths,
+                        chromosomal_edges,
+                        diploid,
+                    ) *
+                    ΔL *
+                    nr_pairs
+            else
+                # Larger interval: Double integration with an improper integral
+                # First, we define the "base" integrand function
+                integrand(L, t) = age_density_ibd_blocks_custom(
+                    t,
                     r,
                     De,
                     parameters,
                     sigma,
-                    L_left,
+                    L,
                     contig_lengths,
                     chromosomal_edges,
                     diploid,
-                ) *
-                ΔL *
-                nr_pairs
-        else
-            # Larger interval: Double integration with an improper integral
-            # First, we define the "base" integrand function
-            integrand(L, t) = age_density_ibd_blocks_custom(
-                t,
-                r,
-                De,
-                parameters,
-                sigma,
-                L,
-                contig_lengths,
-                chromosomal_edges,
-                diploid,
-            )
-            # Now, we define a integrand with a change of variables to properly
-            # handle the improper integral (0, Inf) -> [0, 1]
-            integrand2(x) = integrand(x[1], x[2] / (1 - x[2])) / (1 - x[2])^2
-            λ, _ = hcubature(integrand2, (L_left, 0), (L_right, 1))
-            λ *= nr_pairs
-        end
+                )
+                # Now, we define a integrand with a change of variables to properly
+                # handle the improper integral (0, Inf) -> [0, 1]
+                integrand2(x) = integrand(x[1], x[2] / (1 - x[2])) / (1 - x[2])^2
+                λ, _ = hcubature(integrand2, (L_left, 0), (L_right, 1))
+                λ *= nr_pairs
+            end
 
-        # Check for invalid λ
-        if λ < 0 || isnan(λ)
-            return -Inf
-        end
+            # Check for invalid λ
+            if λ < 0 || isnan(λ)
+                return -Inf
+            end
 
-        log_likelihood += logpdf(Poisson(λ), count)
+            log_likelihood += logpdf(Poisson(λ), count)
+        end
+        return log_likelihood
+
+    catch e
+        if verbose
+            @warn("(parameters=$(parameters), σ=$(sigma)) failed with error: $(e)")
+        end
+        return -Inf
     end
-
-    return log_likelihood
 end
 
 # For posterior predictive simulations
