@@ -48,6 +48,8 @@ The method of @ringbauer_inferring_2017 was limited to a family of functions for
 
 Lastly, our package comes with a template to simulate synthetic datasets and a pipeline for end-to-end analysis from VCF files to final estimates. We believe it will encourage a broader audience to adopt the inference scheme proposed by @ringbauer_inferring_2017, motivate further developments and expand its applications.
 
+Other related software includes `spacetrees` [@osmond] which estimates dispersal rates from inferred genome-wide genealogies and `disperseNN2` [@smith_dispersenn2_2023], a machine learning framework for predicting the displacement distance from genetic variation data. `IdentityByDescentDispersal.jl` differs in the nature of the data it uses for inference, but also in that it allows for flexible model-based inference of the effective density. Moreover, we expect `IdentityByDescentDispersal.jl` to be several orders of magnitude faster than `disperseNN2` for large datasets. For example, finding the MLE of the example dataset (n=100 diploids) takes less than a minute in a single CPU with `IdentityByDescentDispersal.jl`, whereas @smith_dispersenn2_2023 reported an approximate runtime of a week with a GPU training the disperseNN2 model for n=100 diploids.
+
 # Overview
 
 `IdentityByDescentDispersal.jl` contains two main sets of functions. The first set has the prefix `expected_ibd_blocks` and allows users to calculate the expected density of IBD blocks per pair of individuals and per unit of block length for various demographic models by solving \autoref{eq:1}.
