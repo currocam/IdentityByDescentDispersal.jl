@@ -10,7 +10,7 @@
 
 This package provides an efficient implementation of the inference scheme proposed by [H. Ringbauer, G. Coop and N. H. Barton (2017)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5340342/) to estimate the mean dispersal rate and the effective population density of a population.
 
-It is designed to be used with the [Julia programming language](https://julialang.org/) and integrates seamlessly with other statistical libraries such as [Turing.jl](https://turinglang.org). However, we also provide an automated [Snakemake pipeline](https://snakemake.github.io) to perform a complete analysis: from detecting and post-processing IBD blocks to finding a preliminary maximum likelihood estimate.
+The package is implemented in the [Julia programming language](https://julialang.org/) and designed to be used from within a julia session. It integrates seamlessly with other statistical libraries in the julia ecosystem such as [Turing.jl](https://turinglang.org). However, we also provide an automated [Snakemake pipeline](https://snakemake.github.io) to perform a complete analysis: from detecting and post-processing IBD blocks to finding a preliminary maximum likelihood estimate.
 
 You can install this package by running:
 ```julia
