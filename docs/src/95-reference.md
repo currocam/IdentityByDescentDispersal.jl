@@ -1,4 +1,4 @@
-# [Reference](@id reference)
+# API reference
 
 ## Contents
 
