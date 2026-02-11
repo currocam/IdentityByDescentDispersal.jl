@@ -1,3 +1,5 @@
+# # Basic usage
+#
 # This section demonstrates the basic usage of the package. We refer to the [Inference and model evaluation](@ref) section
 # of the documentation for an explanation of how to use this package to estimate parameters of demographic models from observed data.
 
@@ -162,14 +164,14 @@ using DataFrames
 ibd_blocks = DataFrame(
     ID1 = ["A", "B", "A", "C", "B"],
     ID2 = ["B", "A", "C", "A", "C"],
-    span = [0.005, 0.012, 0.21, 0.10, 0.08], # Morgans
+    span = [0.1, 0.06, 0.09, 0.11, 0.08], # Morgans
 )
 individual_distances = DataFrame(
     ID1 = ["A", "A", "B"],
     ID2 = ["B", "C", "C"],
-    distance = [10.0, 20.0, 10.0], # (e.g., in kilometers)
+    distance = [1, 1.5, 2], # (e.g., in kilometers)
 )
-contig_lengths = [1.0, 1.5]; # Contig lengths (in Morgans)
+contig_lengths = [0.2, 0.1]; # Contig lengths (in Morgans)
 
 # Preprocessing the data requires combining the different sources of information and binning the identity-by-descent blocks.
 # For this purpose, we provide a helper function `preprocess_dataset` that returns a `DataFrame` in a "long" format.
@@ -204,7 +206,7 @@ end
 # Generate a MLE estimate.
 mle_estimate = maximum_likelihood(constant_density(df, contig_lengths))
 coefs = DataFrame(coeftable(mle_estimate)); # computed from the Fisher information matrix
-
+coefs[!, ["Name", "Coef.", "Std. Error", "Lower 95%", "Upper 95%"]]
 # ### Bayesian inference
 #
 # Alternatively, we can do a standard Bayesian inference with any of the available inference algorithms such as NUTS. Here, we fit a power-density model using NUTS:
@@ -241,6 +243,4 @@ end
         contig_lengths,
     )
 end
-m = exponential_density(df, contig_lengths)
-chain = sample(m, NUTS(), 1000; progress = false)
-DataFrame(summarize(chain))
+m = exponential_density(df, contig_lengths);
