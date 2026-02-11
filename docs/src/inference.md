@@ -25,16 +25,17 @@ software across different phased VCF files, post-processing them, and aggregatin
 procedure is error-prone and time-consuming.
 
 To facilitate the analysis, we provide a [Snakemake pipeline](https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/Snakefile) that can be used to perform a complete analysis,
-from detecting IBD blocks using HapIBD, post-processing them with Refined IBD, producing a CSV directly compatible
+from detecting IBD blocks using [HapIBD](https://github.com/browning-lab/hap-ibd), post-processing them with [Refined IBD](https://faculty.washington.edu/browning/refined-ibd.html), producing a CSV directly compatible
 with this package, and, optionally, finding a preliminary maximum likelihood estimate of the effective density and effective dispersal rate.
 [Snakemake](https://snakemake.readthedocs.io/) is a popular tool in bioinformatics
 and it allows easy parallelization across multiple cores or jobs when submitting to a cluster via SLURM, as well as
 automatically managing dependencies via Conda or Apptainer containers. Most of the time, running such a pipeline
 would require a single-command such as:
 ``` bash
-snakemake --configfile config.yaml --cores 8 --sdm conda
+snakemake -s Snakefile --configfile config.yaml --cores 8 --sdm conda
 ```
-The pipeline is configured via a configuration YAML file. An example of such a configuration file can be found [here](https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/.test-workflow/config.yaml).
+The pipeline is configured via a configuration YAML file. An example of such a configuration file can be found [here](https://github.com/currocam/IdentityByDescentDispersal.jl/blob/main/.test-workflow/config.yaml). You can also find
+a toy compatible dataset at the [.test-workflow subdirectory](https://github.com/currocam/IdentityByDescentDispersal.jl/tree/main/.test-workflow)
 We refer to the [extensive documentation of Snakemake](https://snakemake.readthedocs.io/) for more information.
 
 ## Model inference

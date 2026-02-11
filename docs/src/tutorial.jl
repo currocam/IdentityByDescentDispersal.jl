@@ -1,3 +1,5 @@
+# # Basic usage
+#
 # This section demonstrates the basic usage of the package. We refer to the [Inference and model evaluation](@ref) section
 # of the documentation for an explanation of how to use this package to estimate parameters of demographic models from observed data.
 
@@ -241,6 +243,4 @@ end
         contig_lengths,
     )
 end
-m = exponential_density(df, contig_lengths)
-chain = sample(m, NUTS(), 1000; progress = false)
-DataFrame(summarize(chain))
+m = exponential_density(df, contig_lengths);
