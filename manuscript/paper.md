@@ -124,6 +124,6 @@ which estimates $D_{\text{MLE}}\approx 199$ diploids/km² (95% CI: 171–226) an
 
 # Acknowledgements
 
-We acknowledge financial support from the Research Foundation - Flanders (FWO). This work was supported by FWO-G0A9B24N (F.C.J, H.S), FWO-1272625N (A.Z., H.S) and FWO-12A8423N (E.L.R.D.K., H.S).
+We acknowledge financial support from the Research Foundation - Flanders (FWO). This work was supported by FWO-11A2P26N (F.C.J, H.S), FWO-G0A9B24N (F.C.J, H.S), FWO-1272625N (A.Z., H.S) and FWO-12A8423N (E.L.R.D.K., H.S).
 
 # References
