@@ -1,5 +1,8 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+title: IdentityByDescentDispersal.jl v1.0.0
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
 type: software
 authors:
   - given-names: Francisco
@@ -21,7 +24,9 @@ authors:
       University of Antwerp, Belgium and Naturalis
       Biodiversity Center, Leiden, Netherlands
     orcid: 'https://orcid.org/0000-0001-7866-7313'
-title:currocam/IdentityByDescentDispersal.jl: v1.0.0
+repository-code: 'https://github.com/currocam/IdentityByDescentDispersal.jl'
+url: >-
+  https://currocam.github.io/IdentityByDescentDispersal.jl/dev/
+license: MIT
 version: v1.0.0
-date-released: 2026-02-13
-                                
+date-released: '2026-02-13'
