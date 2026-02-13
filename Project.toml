@@ -1,6 +1,6 @@
 name = "IdentityByDescentDispersal"
 uuid = "270ed24e-ac4d-5dce-b70a-bd124b3b694a"
-version = "0.1.5"
+version = "1.0.0"
 authors = ["Curro Campuzano Jiménez <campuzanocurro@gmail.com>"]
 
 [deps]

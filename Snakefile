@@ -130,7 +130,7 @@ rule postprocess:
         Pkg.activate(; temp = true)
         Pkg.add(Pkg.PackageSpec(name="CSV", version="0.10.15"))
         Pkg.add(Pkg.PackageSpec(name="DataFrames", version="1.7.0"))
-        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.4"))
+        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="1.0.0"))
         println("Packages installed")
         using CSV, DataFrames, IdentityByDescentDispersal
         colnames = ["ID1", "HAP1", "ID2", "HAP2", "CHR", "START", "END", "SCORE", "LENGTH"]
@@ -177,7 +177,7 @@ rule mle_constant_density:
         Pkg.add(Pkg.PackageSpec(name="DataFrames", version="1.7.0"))
         Pkg.add(Pkg.PackageSpec(name="Turing", version="0.39.1"))
         Pkg.add(Pkg.PackageSpec(name="StatsBase", version="0.34.5"))
-        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="0.1.4"))
+        Pkg.add(Pkg.PackageSpec(name="IdentityByDescentDispersal", version="1.0.0"))
         # Find MLE
         using CSV, DataFrames, IdentityByDescentDispersal, Turing, StatsBase
         using Random; Random.seed!({params.random_seed})
