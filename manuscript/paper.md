@@ -81,7 +81,7 @@ Both the SLiM simulation template and the Snakemake pipeline can be found in the
 
 # Example
 
-In this section, we demonstrate how `IdentityByDescentDispersal.jl` can be used together with the popular `Turing.jl` framework [@ge_turing_2018] using a dataset we simulate in the documentation. We analyze error-free IBD blocks shared by 100 diploid individuals from a constant-density population with parameters $D_{\text{true}}\approx 200$ diploids/km² and $\sigma_{\text{true}}\approx 0.100$ km/generation.
+In this section, we demonstrate how `IdentityByDescentDispersal.jl` can be used together with the popular `Turing.jl` framework [@turing] using a dataset we simulate in the documentation. We analyze error-free IBD blocks shared by 100 diploid individuals from a constant-density population with parameters $D_{\text{true}}\approx 200$ diploids/km² and $\sigma_{\text{true}}\approx 0.100$ km/generation.
 
 `IdentityByDescentDispersal.jl` has extensive documentation that covers the underlying theory behind the method, how to effectively simulate synthetic datasets, various demographic models, and inference algorithms. We refer the reader to the documentation for more details, which can be found at [https://currocam.github.io/IdentityByDescentDispersal.jl/](https://currocam.github.io/IdentityByDescentDispersal.jl/dev/).
 
