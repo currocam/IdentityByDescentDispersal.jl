@@ -8,7 +8,7 @@ tags:
   - spatial-genetics
   - coalescent-theory
 authors:
-  - name: Francisco Campuzano Jiménez
+  - name: Francisco Campuzano-Jiménez
     orcid: 0000-0001-8285-9318
     affiliation: 1
     corresponding: true
