@@ -53,7 +53,7 @@ Other related software includes spacetrees [@osmond], which estimates dispersal 
 
 # Overview
 
-IdentityByDescentDispersal.jl contains two main sets of functions. The first set has the prefix expected_ibd_blocks and allows users to calculate the expected density of IBD blocks per pair of individuals and per unit of block length for various demographic models by solving \autoref{eq:1}.
+IdentityByDescentDispersal.jl contains two main sets of functions. The first set has the prefix `expected_ibd_blocks` and allows users to calculate the expected density of IBD blocks per pair of individuals and per unit of block length for various demographic models by solving \autoref{eq:1}.
 
 \begin{align}\label{eq:1}
 \mathbb{E}[N_L | r, \theta] = \int_0^\infty G4t^2 \exp(-2Lt) \cdot \Phi(t | r, \theta) \,dt
@@ -61,7 +61,7 @@ IdentityByDescentDispersal.jl contains two main sets of functions. The first set
 
 where $G$ is the length of the genome (in Morgan), $t$ is time (generations in the past), $L$ is the length of the block (Morgan) and $r$ is the geographical distance in the present (at time $t=0$) between the two individuals. $\Phi(t| r, \theta)$ is the instantaneous coalescence rate at time $t$ of two homologous loci that are initially $r$ units apart under the demographic model with parameters $\theta$. A slightly more complicated expression that accounts for chromosomal edges and diploidy is the default in IdentityByDescentDispersal.jl.
 
-The second set of functions has the prefix composite_loglikelihood and allows users to directly compute the composite likelihood of the data by assuming the observed number of IBD blocks whose lengths fall in a small bin $[L, L+\Delta L]$ and are shared by a pair of individuals $r$ units apart follows a Poisson distribution with mean $\lambda = \mathbb{E}[N_L | r, \theta] \Delta L$.
+The second set of functions has the prefix `composite_loglikelihood` and allows users to directly compute the composite likelihood of the data by assuming the observed number of IBD blocks whose lengths fall in a small bin $[L, L+\Delta L]$ and are shared by a pair of individuals $r$ units apart follows a Poisson distribution with mean $\lambda = \mathbb{E}[N_L | r, \theta] \Delta L$.
 
 IdentityByDescentDispersal.jl allows for three different parameterizations of the effective population density function: a constant density, a power density, and a user-defined density (see \autoref{tab:tab1}).
 
