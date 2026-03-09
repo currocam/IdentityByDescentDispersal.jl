@@ -68,18 +68,18 @@
 	pages = {552--566},
 }
 
-@misc{geoga_fitting_2022,
-	title = {Fitting {Matérn} {Smoothness} {Parameters} {Using} {Automatic} {Differentiation}},
-	copyright = {Creative Commons Attribution 4.0 International},
-	url = {https://arxiv.org/abs/2201.00090},
-	doi = {10.48550/ARXIV.2201.00090},
-	abstract = {The Matérn covariance function is ubiquitous in the application of Gaussian processes to spatial statistics and beyond. Perhaps the most important reason for this is that the smoothness parameter \$ν\$ gives complete control over the mean-square differentiability of the process, which has significant implications for the behavior of estimated quantities such as interpolants and forecasts. Unfortunately, derivatives of the Matérn covariance function with respect to \$ν\$ require derivatives of the modified second-kind Bessel function \${\textbackslash}mathcal\{K\}\_ν\$ with respect to \$ν\$. While closed form expressions of these derivatives do exist, they are prohibitively difficult and expensive to compute. For this reason, many software packages require fixing \$ν\$ as opposed to estimating it, and all existing software packages that attempt to offer the functionality of estimating \$ν\$ use finite difference estimates for \${\textbackslash}partial\_ν{\textbackslash}mathcal\{K\}\_ν\$. In this work, we introduce a new implementation of \${\textbackslash}mathcal\{K\}\_ν\$ that has been designed to provide derivatives via automatic differentiation (AD), and whose resulting derivatives are significantly faster and more accurate than those computed using finite differences. We provide comprehensive testing for both speed and accuracy and show that our AD solution can be used to build accurate Hessian matrices for second-order maximum likelihood estimation in settings where Hessians built with finite difference approximations completely fail.},
-	urldate = {2025-06-24},
-	publisher = {arXiv},
-	author = {Geoga, Christopher J. and Marin, Oana and Schanen, Michel and Stein, Michael L.},
-	year = {2022},
-	note = {Version Number: 3},
-	keywords = {Computation (stat.CO), FOS: Computer and information sciences, Methodology (stat.ME)},
+@article{Geoga_2023,
+   title = {Fitting Matérn smoothness parameters using automatic differentiation},
+   volume = {33},
+   ISSN = {1573-1375},
+   url = {http://dx.doi.org/10.1007/s11222-022-10127-w},
+   DOI = {10.1007/s11222-022-10127-w},
+   number = {2},
+   journal = {Statistics and computing},
+   publisher = {Springer Science and Business Media LLC},
+   author = {Geoga, Christopher J. and Marin, Oana and Schanen, Michel and Stein, Michael L.},
+   year = {2023},
+   month = feb
 }
 
 @article{smith_dispersenn2_2023,
